@@ -1,10 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import {
-    Client as BaseClient,
-    Collection,
-    TextChannel,
-    Guild
-} from 'discord.js'
+import { Client as BaseClient, Collection, Guild } from 'discord.js'
 import { getFirestore, Firestore } from 'firebase-admin/firestore'
 // import InvitesTracker from '@androz2091/discord-invites-tracker'
 import { initializeApp, cert } from 'firebase-admin/app'
@@ -18,7 +13,6 @@ import { WebSocket } from 'ws'
 import {
     CommandManager,
     ClientOptions,
-    ServerManager,
     ClientConstants,
     ComponentManager,
     OldCommandManager,
@@ -36,7 +30,6 @@ export class Client extends BaseClient<true> {
     commands: CommandManager
     oldCommands: OldCommandManager
     components: ComponentManager
-    servers: ServerManager = new ServerManager(this)
     websocket?: WebSocket
     constants: ClientConstants
     private _wsInterval!: ReturnType<typeof setInterval>
@@ -142,9 +135,6 @@ export class Client extends BaseClient<true> {
     }
 
     private async _onReady(options: { eventsPath: string }) {
-        await this.servers.initialize()
-        console.log('\x1b[34m%s\x1b[0m', 'Servidores Desplegados!!')
-
         await this.commands.deploy()
         console.log('\x1b[32m%s\x1b[0m', 'Comandos Desplegados!!')
 
@@ -203,26 +193,25 @@ export class Client extends BaseClient<true> {
     }
 
     private async checkBans() {
-        console.log('\x1b[32m%s\x1b[0m', 'Revisando bans...')
-        this.servers.map(async server => {
-            const bansSnap = await server.db.collection('bans').get()
-            bansSnap.forEach(async bannedUser => {
-                const bannedDate = bannedUser.data()['date']
-                const timeSinceBanned = new Date().getTime() - bannedDate
-                const banDuration = bannedUser.data()['duration']
-                if (timeSinceBanned > banDuration) {
-                    server.guild.members.unban(bannedUser.id)
-                    server.db.collection('bans').doc(bannedUser.id).delete()
-                }
-                console.log(
-                    `El usuario ${bannedUser.id} ha sido desbaneado de ${server.guild.id}`
-                )
-            })
-        })
-
-        setTimeout(() => {
-            this.checkBans()
-        }, 900000)
+        // console.log('\x1b[32m%s\x1b[0m', 'Revisando bans...')
+        // this.servers.map(async server => {
+        //     const bansSnap = await server.db.collection('bans').get()
+        //     bansSnap.forEach(async bannedUser => {
+        //         const bannedDate = bannedUser.data()['date']
+        //         const timeSinceBanned = new Date().getTime() - bannedDate
+        //         const banDuration = bannedUser.data()['duration']
+        //         if (timeSinceBanned > banDuration) {
+        //             server.guild.members.unban(bannedUser.id)
+        //             server.db.collection('bans').doc(bannedUser.id).delete()
+        //         }
+        //         console.log(
+        //             `El usuario ${bannedUser.id} ha sido desbaneado de ${server.guild.id}`
+        //         )
+        //     })
+        // })
+        // setTimeout(() => {
+        //     this.checkBans()
+        // }, 900000)
     }
 
     private async _checkBirthdays() {
@@ -238,35 +227,35 @@ export class Client extends BaseClient<true> {
             if (month > new Date().getMonth() + 1 || day > new Date().getDate())
                 return
             //Celebrate user's birthday
-            this.servers.map(async server => {
-                const birthdayChannel = server.birthday.channel
-                if (!birthdayChannel) return
+            // this.servers.map(async server => {
+            //     const birthdayChannel = server.birthday.channel
+            //     if (!birthdayChannel) return
 
-                /* Revisar si el usuario está en el servidor */
-                let member = server.guild.members.cache.get(user.id)
-                if (!member) member = await server.guild.members.fetch(user.id)
-                if (!member) return //Si no está tampoco en la API retornamos
+            //     /* Revisar si el usuario está en el servidor */
+            //     let member = server.guild.members.cache.get(user.id)
+            //     if (!member) member = await server.guild.members.fetch(user.id)
+            //     if (!member) return //Si no está tampoco en la API retornamos
 
-                /* Revisar si el canal sigue existiendo y obtenerlo */
-                let channel = server.guild.channels.cache.get(
-                    birthdayChannel
-                ) as TextChannel
-                if (!channel)
-                    channel = (await server.guild.channels.fetch(
-                        birthdayChannel
-                    )) as TextChannel
-                if (!channel) return server.removeBirthdayChannel() //Si no está tampoco en la API lo borramos de la base de datos
+            //     /* Revisar si el canal sigue existiendo y obtenerlo */
+            //     let channel = server.guild.channels.cache.get(
+            //         birthdayChannel
+            //     ) as TextChannel
+            //     if (!channel)
+            //         channel = (await server.guild.channels.fetch(
+            //             birthdayChannel
+            //         )) as TextChannel
+            //     if (!channel) return server.removeBirthdayChannel() //Si no está tampoco en la API lo borramos de la base de datos
 
-                channel.send(
-                    server.birthday.message?.replaceAll(
-                        '{username}',
-                        `<@${user.id}>`
-                    ) ??
-                        server.translate('birthday_cmd.default_message', {
-                            username: `<@${user.id}>`
-                        })
-                )
-            })
+            //     channel.send(
+            //         server.birthday.message?.replaceAll(
+            //             '{username}',
+            //             `<@${user.id}>`
+            //         ) ??
+            //             server.translate('birthday_cmd.default_message', {
+            //                 username: `<@${user.id}>`
+            //             })
+            //     )
+            // })
 
             //Update user's birthday
             const newBirthday = `${month}/${day}/${parseInt(year) + 1}`
@@ -289,7 +278,7 @@ export class Client extends BaseClient<true> {
      */
     newServer(guild: Guild): Server {
         const server = new Server(guild)
-        this.servers.set(guild.id, server)
+        // this.servers.set(guild.id, server)
         return server
     }
 
@@ -298,7 +287,7 @@ export class Client extends BaseClient<true> {
      * @param {Guild} guild - guild to refer. it is necessary to create the class in case the server doesn't exist, if you don't have the Guild, try client.servers.ger(guild_id)
      * @returns a Server Class
      */
-    getServer(guild: Guild): Server {
-        return this.servers.get(guild.id) ?? this.newServer(guild)
-    }
+    // getServer(guild: Guild): Server {
+    // return this.servers.get(guild.id) ?? this.newServer(guild)
+    // }
 }

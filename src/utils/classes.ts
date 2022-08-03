@@ -44,7 +44,6 @@ export * from '../classes/OldCommand.js'
 export * from '../handlers/CommandManager.js'
 export * from '../handlers/OldCommandManager.js'
 export * from '../handlers/ComponentManager.js'
-export * from '../handlers/ServerManager.js'
 
 export interface oldCommandData {
     name: string

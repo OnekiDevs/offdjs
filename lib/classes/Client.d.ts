@@ -2,7 +2,7 @@ import { Client as BaseClient, Collection, Guild } from 'discord.js';
 import { Firestore } from 'firebase-admin/firestore';
 import { EmbedBuilder } from '@discordjs/builders';
 import { WebSocket } from 'ws';
-import { CommandManager, ClientOptions, ServerManager, ClientConstants, ComponentManager, OldCommandManager, Server } from '../utils/classes.js';
+import { CommandManager, ClientOptions, ClientConstants, ComponentManager, OldCommandManager, Server } from '../utils/classes.js';
 import i18n from 'i18n';
 export declare class Client extends BaseClient<true> {
     db: Firestore;
@@ -11,7 +11,6 @@ export declare class Client extends BaseClient<true> {
     commands: CommandManager;
     oldCommands: OldCommandManager;
     components: ComponentManager;
-    servers: ServerManager;
     websocket?: WebSocket;
     constants: ClientConstants;
     private _wsInterval;
@@ -34,5 +33,4 @@ export declare class Client extends BaseClient<true> {
     private checkBans;
     private _checkBirthdays;
     newServer(guild: Guild): Server;
-    getServer(guild: Guild): Server;
 }

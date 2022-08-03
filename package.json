@@ -1,6 +1,6 @@
 {
-    "name": "oneki-framework",
-    "version": "0.0.1",
+    "name": "oneki-dfjs",
+    "version": "0.0.2",
     "type": "module",
     "description": "",
     "main": "lib/index.js",
