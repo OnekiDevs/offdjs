@@ -2,7 +2,7 @@
 
 import { IntentsBitField } from 'discord.js'
 import { join } from 'node:path'
-import Client from './utils/classes'
+import Client from './utils/classes.js'
 
 console.log(process.cwd())
 
