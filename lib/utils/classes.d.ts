@@ -1,6 +1,5 @@
 import { ClientOptions as BaseClientOptions, GuildMember, PermissionResolvable, GatewayIntentBits, Guild, Message, EmbedBuilder, ButtonBuilder, ActionRowBuilder, ButtonStyle, PermissionsBitField, Colors, LocaleString } from 'discord.js';
 import { Client } from '../classes/Client.js';
-import { Server } from '../classes/Server.js';
 export default Client;
 export { PermissionsBitField, Client, GatewayIntentBits, Guild, GuildMember, Message, EmbedBuilder, ButtonBuilder, ActionRowBuilder, ButtonStyle, Colors };
 export interface Local extends Partial<Record<LocaleString, string>> {
@@ -10,7 +9,6 @@ export interface Local extends Partial<Record<LocaleString, string>> {
 export * from '../classes/Client.js';
 export * from '../classes/Command.js';
 export * from '../classes/Component.js';
-export * from '../classes/Server.js';
 export * from '../classes/OldCommand.js';
 export * from '../handlers/CommandManager.js';
 export * from '../handlers/OldCommandManager.js';
@@ -106,10 +104,5 @@ export interface ClientOptions extends BaseClientOptions {
             disable: boolean;
         };
     };
-}
-export interface GuildMemberOptions {
-    server: Server;
-    oldMember: GuildMember;
-    newMember: GuildMember;
 }
 export declare type anyFunction = (msg: string, k?: any) => any;

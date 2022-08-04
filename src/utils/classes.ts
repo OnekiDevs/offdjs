@@ -15,7 +15,6 @@ import {
 } from 'discord.js'
 
 import { Client } from '../classes/Client.js'
-import { Server } from '../classes/Server.js'
 export default Client
 export {
     PermissionsBitField,
@@ -39,7 +38,6 @@ export interface Local extends Partial<Record<LocaleString, string>> {
 export * from '../classes/Client.js'
 export * from '../classes/Command.js'
 export * from '../classes/Component.js'
-export * from '../classes/Server.js'
 export * from '../classes/OldCommand.js'
 export * from '../handlers/CommandManager.js'
 export * from '../handlers/OldCommandManager.js'
@@ -141,12 +139,6 @@ export interface ClientOptions extends BaseClientOptions {
             disable: boolean
         }
     }
-}
-
-export interface GuildMemberOptions {
-    server: Server
-    oldMember: GuildMember
-    newMember: GuildMember
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
