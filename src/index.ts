@@ -3,6 +3,11 @@
 import { IntentsBitField } from 'discord.js'
 import { join } from 'node:path'
 import Client from './utils/classes.js'
+import { config as envLoad } from 'dotenv'
+
+envLoad({
+    path: process.cwd()
+})
 
 console.log(process.cwd())
 
