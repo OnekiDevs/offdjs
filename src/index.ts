@@ -8,7 +8,8 @@ console.log(process.cwd())
 
 const cwd = process.cwd()
 let config = {
-    intents: [IntentsBitField.Flags.Guilds]
+    intents: [IntentsBitField.Flags.Guilds],
+    root: './'
 }
 
 try {
@@ -18,7 +19,6 @@ try {
         ...iconfig.default
     }
 } catch {}
-console.log(join(cwd, 'locales'))
 
 export default new Client({
     intents: config.intents,
@@ -32,8 +32,8 @@ export default new Client({
             'en-*': 'en',
             'es-*': 'es'
         },
-        logWarnFn: msg => console.warn('WARN _l', msg),
-        logErrorFn: msg => console.error('ERROR _l', msg),
+        logWarnFn: (msg) => console.warn('WARN _l', msg),
+        logErrorFn: (msg) => console.error('ERROR _l', msg),
         missingKeyFn: (locale: string, value: string) => {
             // sendError(
             //     new Error(`Missing translation for "${value}" in "${locale}"`),
@@ -51,9 +51,9 @@ export default new Client({
         // }
     },
     routes: {
-        commands: join(cwd, 'commands'),
-        oldCommands: join(cwd, 'oldCommands'),
-        events: join(cwd, 'events'),
-        components: join(cwd, 'components')
+        commands: join(cwd, config.root, 'commands'),
+        oldCommands: join(cwd, config.root, 'oldCommands'),
+        events: join(cwd, config.root, 'events'),
+        components: join(cwd, config.root, 'components')
     }
 })
