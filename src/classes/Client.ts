@@ -38,7 +38,11 @@ export class Client extends BaseClient<true> {
             newServerLogChannel: ''
         }
 
-        this.once('ready', () => this._onReady(options.routes.events))
+        this.initializeEventListener(options.routes.events).then(() => {
+            console.log('\x1b[35m%s\x1b[0m', 'Eventos Cargados!!')
+        })
+
+        this.once('ready', () => this._onReady())
     }
 
     get embedFooter() {
@@ -48,26 +52,9 @@ export class Client extends BaseClient<true> {
         }
     }
 
-    private async _onReady(eventsPath: string) {
+    private async _onReady() {
         await this.commands.deploy()
         console.log('\x1b[32m%s\x1b[0m', 'Comandos Desplegados!!')
-
-        await this.initializeEventListener(eventsPath)
-        console.log('\x1b[35m%s\x1b[0m', 'Eventos Cargados!!')
-
-        // InvitesTracker.init(this, {
-        //     fetchGuilds: true,
-        //     fetchVanity: true,
-        //     fetchAuditLogs: true,
-        //     exemptGuild: guild => {
-        //         const server = this.getServer(guild)
-        //         return !(server.logsChannels.invite && server.premium)
-        //     }
-        // }).on('guildMemberAdd', (...args) => this.emit('customGuildMemberAdd', ...args))
-
-        // for (const command of this.application?.commands.cache.values()??[]) {
-        //     await command.delete()
-        // }
 
         console.log('\x1b[31m%s\x1b[0m', `${this.user?.username} ${this.version} Lista y Atenta!!!`)
     }
@@ -77,7 +64,7 @@ export class Client extends BaseClient<true> {
             readdirSync(path)
                 .filter((f) => f.includes('.event.'))
                 .map(async (file) => {
-                    const event = await import(join(process.cwd(), path, file))
+                    const event = await import('file://' + join(path, file))
                     const [eventName] = file.split('.')
                     this.on(eventName as string, (...args) => event.default(...args))
                 })

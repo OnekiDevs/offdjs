@@ -9,8 +9,6 @@ envLoad({
     path: process.cwd()
 })
 
-console.log(process.cwd())
-
 const cwd = process.cwd()
 let config = {
     intents: [IntentsBitField.Flags.Guilds],
@@ -18,7 +16,7 @@ let config = {
 }
 
 try {
-    const iconfig = await import(`${cwd}/oneki.js`)
+    const iconfig = await import('file://' + join(cwd, 'oneki.js'))
     config = {
         ...config,
         ...iconfig.default
@@ -40,20 +38,12 @@ export default new Client({
         logWarnFn: (msg) => console.warn('WARN _l', msg),
         logErrorFn: (msg) => console.error('ERROR _l', msg),
         missingKeyFn: (locale: string, value: string) => {
-            // sendError(
-            //     new Error(`Missing translation for "${value}" in "${locale}"`),
-            //     join(import.meta.url, '..', '..', 'lang', locale + '.json')
-            // )
             return value ?? '_'
         },
         mustacheConfig: {
             tags: ['{{', '}}'],
             disable: false
         }
-        // mustacheConfig: {
-        //     tags: ['{{', '}}'],
-        //     disable: false
-        // }
     },
     routes: {
         commands: join(cwd, config.root, 'commands'),
