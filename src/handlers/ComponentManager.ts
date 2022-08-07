@@ -1,18 +1,16 @@
-import { Component, Client } from '../utils/classes.js'
-import { randomId } from '../utils/utils.js'
+import Component from '../classes/Component.js'
+import { randomId } from '../utils.js'
 import { Collection } from 'discord.js'
 import { join } from 'path'
-import fs from 'fs'
+import { readdirSync } from 'fs'
 
-export class ComponentManager extends Collection<string, Component> {
-    client: Client
-    constructor(client: Client, path: string) {
+export default class ComponentManager extends Collection<string, Component> {
+    constructor(path: string) {
         super()
-        this.client = client
         try {
-            for (const file of fs.readdirSync(path).filter((f) => f.includes('.component.'))) {
+            for (const file of readdirSync(path).filter((f) => f.includes('.component.'))) {
                 import('file:///' + join(path, file)).then((componentClass) => {
-                    const component: Component = new componentClass.default(client)
+                    const component: Component = new componentClass.default()
                     this.set(randomId(), component)
                 })
             }

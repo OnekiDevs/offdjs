@@ -1,5 +1,5 @@
 import { AutocompleteInteraction, ButtonInteraction, ChatInputCommandInteraction, Message, ModalSubmitInteraction, SelectMenuInteraction } from 'discord.js';
-import { Command } from '../utils/classes.js';
+import Command from '../classes/Command.js';
 export default class Test extends Command {
     constructor();
     interaction(interaction: ChatInputCommandInteraction<'cached'>): Promise<void>;

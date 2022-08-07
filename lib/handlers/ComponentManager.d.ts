@@ -1,6 +1,5 @@
-import { Component, Client } from '../utils/classes.js';
+import Component from '../classes/Component.js';
 import { Collection } from 'discord.js';
-export declare class ComponentManager extends Collection<string, Component> {
-    client: Client;
-    constructor(client: Client, path: string);
+export default class ComponentManager extends Collection<string, Component> {
+    constructor(path: string);
 }

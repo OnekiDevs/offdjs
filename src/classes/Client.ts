@@ -1,42 +1,47 @@
-import { Client as BaseClient } from 'discord.js'
-import { createRequire } from 'module'
 import {
-    CommandManager,
-    ClientOptions,
-    ClientConstants,
-    ComponentManager,
-    OldCommandManager
-} from '../utils/classes.js'
-import i18n from 'i18n'
+    AutocompleteInteraction,
+    ButtonInteraction,
+    ChatInputCommandInteraction,
+    Client as BaseClient,
+    ClientOptions as BaseClientOptions,
+    Interaction,
+    InteractionType,
+    ModalSubmitInteraction,
+    SelectMenuInteraction
+} from 'discord.js'
+import { createRequire } from 'module'
+import CommandManager from '../handlers/CommandManager.js'
+import ComponentManager from '../handlers/ComponentManager.js'
+import i18n, { ConfigurationOptions } from 'i18n'
 import { join } from 'path'
 import { readdirSync } from 'fs'
 
 const version = createRequire(import.meta.url)('../../package.json').version
 
-export class Client extends BaseClient<true> {
+export interface ClientOptions extends BaseClientOptions {
+    // constants: ClientConstants
+    routes: {
+        commands: string
+        events: string
+        components: string
+    }
+    i18n: ConfigurationOptions
+}
+
+export default class Client extends BaseClient<true> {
     version: string
     i18n = i18n
     commands: CommandManager
-    oldCommands: OldCommandManager
     components: ComponentManager
-    constants: ClientConstants
 
     constructor(options: ClientOptions) {
         super(options)
 
-        this.oldCommands = new OldCommandManager(this, options.routes.oldCommands)
-        this.commands = new CommandManager(this, options.routes.commands)
-        this.components = new ComponentManager(this, options.routes.components)
+        this.commands = new CommandManager(options.routes.commands)
+        this.components = new ComponentManager(options.routes.components)
 
         this.i18n.configure(options.i18n)
         this.version = version ?? '1.0.0'
-
-        this.constants = /* options.constants ?? */ {
-            errorChannel: '',
-            imgChannel: '',
-            jsDiscordRoll: '',
-            newServerLogChannel: ''
-        }
 
         this.initializeEventListener(options.routes.events).then((c) => {
             if (c) console.log('\x1b[35m%s\x1b[0m', 'Eventos Cargados!!')
@@ -55,6 +60,44 @@ export class Client extends BaseClient<true> {
     private async _onReady() {
         await this.commands.deploy()
         if (this.commands.size) console.log('\x1b[32m%s\x1b[0m', 'Comandos Desplegados!!')
+        this.on('interactionCreate', (interaction: Interaction) => {
+            if (interaction.isChatInputCommand())
+                this.commands
+                    .get(interaction.commandName)
+                    ?.interaction(interaction as ChatInputCommandInteraction<'cached'>)
+
+            if (interaction.isButton()) {
+                this.commands
+                    .find((cmd) => interaction.customId.startsWith(cmd.name))
+                    ?.button(interaction as ButtonInteraction<'cached'>)
+                this.components
+                    .find((btn) => btn.regexp.test(interaction.customId))
+                    ?.button(interaction as ButtonInteraction<'cached'>)
+            }
+
+            if (interaction.type === InteractionType.ModalSubmit) {
+                this.commands
+                    .find((cmd) => interaction.customId.startsWith(cmd.name))
+                    ?.modal(interaction as ModalSubmitInteraction<'cached'>)
+                this.components
+                    .find((btn) => btn.regexp.test(interaction.customId))
+                    ?.modal(interaction as ModalSubmitInteraction<'cached'>)
+            }
+
+            if (interaction.type === InteractionType.ApplicationCommandAutocomplete)
+                this.commands
+                    .get(interaction.commandName)
+                    ?.autocomplete(interaction as AutocompleteInteraction<'cached'>)
+
+            if (interaction.isSelectMenu()) {
+                this.commands
+                    .find((cmd) => interaction.customId.startsWith(cmd.name))
+                    ?.select(interaction as SelectMenuInteraction<'cached'>)
+                this.components
+                    .find((btn) => btn.regexp.test(interaction.customId))
+                    ?.select(interaction as SelectMenuInteraction<'cached'>)
+            }
+        })
 
         console.log('\x1b[31m%s\x1b[0m', `${this.user?.username} ${this.version} ready!!!`)
     }

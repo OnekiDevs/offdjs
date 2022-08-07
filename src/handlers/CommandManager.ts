@@ -1,19 +1,16 @@
 import { readdirSync } from 'fs'
 import { Collection, Guild } from 'discord.js'
-import { Command, Client } from '../utils/classes.js'
 import { join } from 'path'
+import Command from '../classes/Command.js'
 
-export class CommandManager extends Collection<string, Command> {
-    client: Client
-
-    constructor(client: Client, path: string) {
+export default class CommandManager extends Collection<string, Command> {
+    constructor(path: string) {
         super()
-        this.client = client
 
         try {
             for (const file of readdirSync(path).filter((f) => f.endsWith('.command.js'))) {
                 import('file:///' + join(path, file)).then((command) => {
-                    const cmd: Command = new command.default(client)
+                    const cmd: Command = new command.default()
                     this.set(cmd.name, cmd)
                 })
             }

@@ -1,6 +1,6 @@
 import { Collection } from 'discord.js';
-import { OldCommand, Client } from '../utils/classes.js';
-export declare class OldCommandManager extends Collection<string, OldCommand> {
-    constructor(client: Client, path: string);
+import OldCommand from '../classes/OldCommand.js';
+export default class OldCommandManager extends Collection<string, OldCommand> {
+    constructor(path: string);
     getCommand(name: string): OldCommand | undefined;
 }

@@ -1,16 +1,21 @@
-import { ButtonInteraction } from 'discord.js'
-import { Client } from '../utils/classes.js'
+import { ButtonInteraction, ModalSubmitInteraction, SelectMenuInteraction } from 'discord.js'
 
-export class Component {
-    regex: RegExp
-    client: Client
+export default class Component {
+    regexp: RegExp
 
-    constructor(client: Client, regex: RegExp) {
-        this.regex = regex
-        this.client = client
+    constructor(regexp: RegExp) {
+        this.regexp = regexp
     }
 
-    button(interaction: ButtonInteraction) {
+    async button(interaction: ButtonInteraction) {
         interaction.customId
+    }
+
+    async select(interaction: SelectMenuInteraction) {
+        interaction.customId
+    }
+
+    async modal(interaction: ModalSubmitInteraction) {
+        interaction.deferReply()
     }
 }

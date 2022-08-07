@@ -1,12 +1,10 @@
-import { Local } from '../utils/classes.js';
-import { ChatInputCommandInteraction, AutocompleteInteraction, ModalSubmitInteraction, SelectMenuInteraction, PermissionsBitField, ButtonInteraction, Message, Guild, ApplicationCommandOptionType, ChannelType, ApplicationCommandType } from 'discord.js';
-export declare class Command {
+import { ChatInputCommandInteraction, AutocompleteInteraction, ModalSubmitInteraction, SelectMenuInteraction, PermissionsBitField, ButtonInteraction, Message, Guild, ApplicationCommandOptionType, ChannelType, ApplicationCommandType, LocaleString } from 'discord.js';
+export default class Command {
     hibrid: boolean;
     name: string;
     description: string;
     local_names: Local;
     local_descriptions: Local;
-    translator: (interaction: import("discord.js").BaseInteraction<import("discord.js").CacheType> | Message<true>) => (phrase: string, params?: object | undefined) => string;
     global: boolean;
     options: CommandOptions[];
     dm: boolean;
@@ -112,4 +110,7 @@ export declare type ApiCommand = {
     dm_permission?: boolean;
     default_permission?: boolean;
 };
+export interface Local extends Partial<Record<LocaleString, string>> {
+    'en-US': string;
+}
 export {};

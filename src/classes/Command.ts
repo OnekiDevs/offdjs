@@ -1,6 +1,4 @@
-import { Local } from '../utils/classes.js'
 import client from '../index.js'
-import { Translator } from '../utils/utils.js'
 import {
     ChatInputCommandInteraction,
     AutocompleteInteraction,
@@ -13,16 +11,16 @@ import {
     Guild,
     ApplicationCommandOptionType,
     ChannelType,
-    ApplicationCommandType
+    ApplicationCommandType,
+    LocaleString
 } from 'discord.js'
 
-export class Command {
+export default class Command {
     hibrid = false
     name: string
     description: string
     local_names: Local
     local_descriptions: Local
-    translator = Translator
     global = true
     options: CommandOptions[] = []
     dm = true
@@ -54,25 +52,18 @@ export class Command {
      * @returns A promise that resolves to an array of commands.
      */
     async deploy(guild?: Guild) {
-        if (this.global)
-            return client.application.commands
-                .create(await this.createData())
-                .catch(console.error)
+        if (this.global) return client.application.commands.create(await this.createData()).catch(console.error)
 
         if (guild)
-            return guild.commands
-                .create(await this.createData(guild))
-                .catch((e: Error) => {
-                    if (e.message.includes('Missing Access'))
-                        console.log('Missing Access on', guild.name, guild.id)
-                    else console.error(e)
-                })
+            return guild.commands.create(await this.createData(guild)).catch((e: Error) => {
+                if (e.message.includes('Missing Access')) console.log('Missing Access on', guild.name, guild.id)
+                else console.error(e)
+            })
 
         return Promise.all(
-            client.guilds.cache.map(async guild =>
-                guild.commands.create(await this.createData(guild)).catch(e => {
-                    if (e.message.includes('Missing Access'))
-                        console.log('Missing Access on', guild.name, guild.id)
+            client.guilds.cache.map(async (guild) =>
+                guild.commands.create(await this.createData(guild)).catch((e) => {
+                    if (e.message.includes('Missing Access')) console.log('Missing Access on', guild.name, guild.id)
                     else console.error(e)
                 })
             )
@@ -114,7 +105,7 @@ export class Command {
     }
 
     parseOptions(option: CommandOptions[] = []): any {
-        return option.map(o => ({
+        return option.map((o) => ({
             ...o,
             name_localizations: o.name,
             name: o.name['en-US'],
@@ -122,14 +113,10 @@ export class Command {
             description: o.description['en-US'],
             choices:
                 o.type === 3 || o.type === 4 || o.type === 10
-                    ? o.choices?.map(c => ({
+                    ? o.choices?.map((c) => ({
                           ...c,
-                          name_localizations:
-                              typeof c.name === 'string' ? null : c.name,
-                          name:
-                              typeof c.name === 'string'
-                                  ? c.name
-                                  : c.name['en-US'],
+                          name_localizations: typeof c.name === 'string' ? null : c.name,
+                          name: typeof c.name === 'string' ? c.name : c.name['en-US'],
                           value: c.value
                       }))
                     : null,
@@ -145,9 +132,7 @@ export class Command {
         return this.baseCommand
     }
 
-    async interaction(
-        interaction: ChatInputCommandInteraction<'cached'>
-    ): Promise<any> {
+    async interaction(interaction: ChatInputCommandInteraction<'cached'>): Promise<any> {
         return interaction.deferReply()
     }
 
@@ -163,9 +148,7 @@ export class Command {
         return interaction.deferUpdate()
     }
 
-    async autocomplete(
-        interaction: AutocompleteInteraction<'cached'>
-    ): Promise<any> {
+    async autocomplete(interaction: AutocompleteInteraction<'cached'>): Promise<any> {
         return interaction.respond([])
     }
 
@@ -180,15 +163,10 @@ export class Command {
      */
     //addOption(option: ApplicationCommandOption)
     addOption(command: ApiCommand, option: CommandOptions) {
-        if (
-            command.options?.find(o => o.name['en-US'] === option.name['en-US'])
-        ) {
-            const i = this.options.findIndex(
-                o => o.name['en-US'] === option.name['en-US']
-            )
+        if (command.options?.find((o) => o.name['en-US'] === option.name['en-US'])) {
+            const i = this.options.findIndex((o) => o.name['en-US'] === option.name['en-US'])
             command.options.splice(i, 1, this.parseOptions([option]))
-        } else if (!command.options?.length)
-            command.options = [this.parseOptions([option])]
+        } else if (!command.options?.length) command.options = [this.parseOptions([option])]
         return command
     }
 
@@ -317,4 +295,8 @@ export type ApiCommand = {
     default_member_permissions?: string
     dm_permission?: boolean
     default_permission?: boolean
+}
+
+export interface Local extends Partial<Record<LocaleString, string>> {
+    'en-US': string
 }

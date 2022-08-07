@@ -1,10 +1,11 @@
 import { IntentsBitField } from 'discord.js'
 import { join } from 'node:path'
-import Client from './utils/classes.js'
+import Client from './classes/Client.js'
 import { config as envLoad } from 'dotenv'
 import { ConfigurationOptions } from 'i18n'
 import path from 'path'
 import { fileURLToPath } from 'url'
+export * from './utils.js'
 
 // load environment variables
 envLoad()
@@ -34,7 +35,6 @@ export default new Client({
     i18n: config.i18n,
     routes: {
         commands: join(cwd, config.root, 'commands'),
-        oldCommands: join(cwd, config.root, 'oldCommands'),
         events: join(cwd, config.root, 'events'),
         components: join(cwd, config.root, 'components')
     }
