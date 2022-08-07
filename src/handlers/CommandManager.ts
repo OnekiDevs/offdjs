@@ -11,22 +11,19 @@ export class CommandManager extends Collection<string, Command> {
         this.client = client
 
         try {
-            for (const file of readdirSync(path).filter(f =>
-                f.endsWith('.command.js')
-            )) {
-                import('file:///' + join(path, file)).then(command => {
+            for (const file of readdirSync(path).filter((f) => f.endsWith('.command.js'))) {
+                import('file:///' + join(path, file)).then((command) => {
                     const cmd: Command = new command.default(client)
                     this.set(cmd.name, cmd)
                 })
             }
         } catch (error) {
-            console.log('WARNING:', `${error}`)
+            // console.log('WARNING:', `${error}`)
         }
     }
 
     deploy(guild?: Guild) {
-        if (process.env.DEPLOY_COMMANDS == 'true')
-            return Promise.all(this.map(command => command.deploy(guild)))
+        if (process.env.DEPLOY_COMMANDS == 'true') return Promise.all(this.map((command) => command.deploy(guild)))
         else return Promise.resolve()
     }
 }

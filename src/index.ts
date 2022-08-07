@@ -1,50 +1,33 @@
-'use strict'
-
 import { IntentsBitField } from 'discord.js'
 import { join } from 'node:path'
 import Client from './utils/classes.js'
 import { config as envLoad } from 'dotenv'
+import { ConfigurationOptions } from 'i18n'
 
-envLoad({
-    path: process.cwd()
-})
-
+// load environment variables
+envLoad()
+// current work directory
 const cwd = process.cwd()
+
+// create config object
 let config = {
     intents: [IntentsBitField.Flags.Guilds],
-    root: './'
+    root: './',
+    i18n: {} as ConfigurationOptions
 }
-
 try {
-    const iconfig = await import('file://' + join(cwd, 'oneki.js'))
+    // import config from oneki.config.js
+    const iconfig = await import('file://' + join(cwd, 'oneki.config.js'))
     config = {
         ...config,
         ...iconfig.default
     }
 } catch {}
 
+// create client
 export default new Client({
     intents: config.intents,
-    i18n: {
-        locales: ['en', 'es'],
-        directory: join(cwd, 'locales'),
-        defaultLocale: 'en',
-        retryInDefaultLocale: true,
-        objectNotation: true,
-        fallbacks: {
-            'en-*': 'en',
-            'es-*': 'es'
-        },
-        logWarnFn: (msg) => console.warn('WARN _l', msg),
-        logErrorFn: (msg) => console.error('ERROR _l', msg),
-        missingKeyFn: (locale: string, value: string) => {
-            return value ?? '_'
-        },
-        mustacheConfig: {
-            tags: ['{{', '}}'],
-            disable: false
-        }
-    },
+    i18n: config.i18n,
     routes: {
         commands: join(cwd, config.root, 'commands'),
         oldCommands: join(cwd, config.root, 'oldCommands'),
@@ -52,3 +35,5 @@ export default new Client({
         components: join(cwd, config.root, 'components')
     }
 })
+
+export type Config = typeof config

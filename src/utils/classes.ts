@@ -13,6 +13,7 @@ import {
     Colors,
     LocaleString
 } from 'discord.js'
+import { ConfigurationOptions } from 'i18n'
 
 import { Client } from '../classes/Client.js'
 export default Client
@@ -124,21 +125,7 @@ export interface ClientOptions extends BaseClientOptions {
         events: string
         components: string
     }
-    i18n: {
-        fallbacks: { [locale: string]: string }
-        locales: string[]
-        directory: string
-        defaultLocale: string
-        retryInDefaultLocale: boolean
-        objectNotation: boolean
-        logWarnFn: (msg: string) => void
-        logErrorFn: (msg: string) => void
-        missingKeyFn?: (locale: string, value: string) => string
-        mustacheConfig: {
-            tags: [string, string]
-            disable: boolean
-        }
-    }
+    i18n: ConfigurationOptions
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
