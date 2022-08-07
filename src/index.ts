@@ -3,6 +3,8 @@ import { join } from 'node:path'
 import Client from './utils/classes.js'
 import { config as envLoad } from 'dotenv'
 import { ConfigurationOptions } from 'i18n'
+import path from 'path'
+import { fileURLToPath } from 'url'
 
 // load environment variables
 envLoad()
@@ -13,7 +15,9 @@ const cwd = process.cwd()
 let config = {
     intents: [IntentsBitField.Flags.Guilds],
     root: './',
-    i18n: {} as ConfigurationOptions
+    i18n: {
+        directory: join(path.dirname(fileURLToPath(import.meta.url)), '..', 'locales')
+    } as ConfigurationOptions
 }
 try {
     // import config from oneki.config.js

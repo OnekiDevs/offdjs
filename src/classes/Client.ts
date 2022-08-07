@@ -38,8 +38,8 @@ export class Client extends BaseClient<true> {
             newServerLogChannel: ''
         }
 
-        this.initializeEventListener(options.routes.events).then(() => {
-            console.log('\x1b[35m%s\x1b[0m', 'Eventos Cargados!!')
+        this.initializeEventListener(options.routes.events).then((c) => {
+            if (c) console.log('\x1b[35m%s\x1b[0m', 'Eventos Cargados!!')
         })
 
         this.once('ready', () => this._onReady())
@@ -54,20 +54,24 @@ export class Client extends BaseClient<true> {
 
     private async _onReady() {
         await this.commands.deploy()
-        console.log('\x1b[32m%s\x1b[0m', 'Comandos Desplegados!!')
+        if (this.commands.size) console.log('\x1b[32m%s\x1b[0m', 'Comandos Desplegados!!')
 
-        console.log('\x1b[31m%s\x1b[0m', `${this.user?.username} ${this.version} Lista y Atenta!!!`)
+        console.log('\x1b[31m%s\x1b[0m', `${this.user?.username} ${this.version} ready!!!`)
     }
 
     initializeEventListener(path: string) {
-        return Promise.all(
-            readdirSync(path)
-                .filter((f) => f.includes('.event.'))
-                .map(async (file) => {
-                    const event = await import('file://' + join(path, file))
-                    const [eventName] = file.split('.')
-                    this.on(eventName as string, (...args) => event.default(...args))
-                })
-        )
+        try {
+            return Promise.all(
+                readdirSync(path)
+                    .filter((f) => f.includes('.event.'))
+                    .map(async (file) => {
+                        const event = await import('file://' + join(path, file))
+                        const [eventName] = file.split('.')
+                        this.on(eventName as string, (...args) => event.default(...args))
+                    })
+            ).then((r) => r.length)
+        } catch (error) {
+            return Promise.resolve()
+        }
     }
 }

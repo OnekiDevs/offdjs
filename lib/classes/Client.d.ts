@@ -14,5 +14,5 @@ export declare class Client extends BaseClient<true> {
         iconURL: string;
     };
     private _onReady;
-    initializeEventListener(path: string): Promise<void[]>;
+    initializeEventListener(path: string): Promise<void> | Promise<number>;
 }

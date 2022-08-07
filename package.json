@@ -1,6 +1,6 @@
 {
     "name": "offdjs",
-    "version": "0.0.4",
+    "version": "0.0.5",
     "type": "module",
     "description": "oneki framework for discord.js",
     "main": "lib/index.js",
