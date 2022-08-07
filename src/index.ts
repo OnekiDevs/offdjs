@@ -5,7 +5,11 @@ import { config as envLoad } from 'dotenv'
 import { ConfigurationOptions } from 'i18n'
 import path from 'path'
 import { fileURLToPath } from 'url'
+
 export * from './utils.js'
+export * from './classes/Command.js'
+export * from './classes/Component.js'
+export { Client }
 
 // load environment variables
 envLoad()

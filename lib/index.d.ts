@@ -1,6 +1,9 @@
 import Client from './classes/Client.js';
 import { ConfigurationOptions } from 'i18n';
 export * from './utils.js';
+export * from './classes/Command.js';
+export * from './classes/Component.js';
+export { Client };
 declare let config: {
     intents: import("discord.js").GatewayIntentBits[];
     root: string;
