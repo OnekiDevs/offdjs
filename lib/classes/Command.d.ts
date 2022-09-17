@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, AutocompleteInteraction, ModalSubmitInteraction, SelectMenuInteraction, PermissionsBitField, ButtonInteraction, Message, Guild, ApplicationCommandOptionType, ChannelType, ApplicationCommandType, LocaleString } from 'discord.js';
+import { ChatInputCommandInteraction, AutocompleteInteraction, ModalSubmitInteraction, SelectMenuInteraction, PermissionsBitField, ButtonInteraction, Message, Guild, ApplicationCommandOptionType, ChannelType, ApplicationCommandType, LocaleString, Interaction } from 'discord.js';
 export default class Command {
     hibrid: boolean;
     name: string;
@@ -9,7 +9,7 @@ export default class Command {
     options: CommandOptions[];
     dm: boolean;
     permissions: PermissionsBitField | null;
-    constructor({ name, description, global, options, dm, permissions, hibrid }: cmdOptions);
+    constructor({ name, description, global, options, dm, permissions, hibrid, }: cmdOptions);
     deploy(guild?: Guild): Promise<void | import("discord.js").ApplicationCommand<{
         guild: import("discord.js").GuildResolvable;
     }> | (void | import("discord.js").ApplicationCommand<{}>)[]>;
@@ -17,7 +17,8 @@ export default class Command {
     get baseCommand(): ApiCommand;
     parseOptions(option?: CommandOptions[]): any;
     createData(guild?: Guild): Promise<ApiCommand>;
-    interaction(interaction: ChatInputCommandInteraction<'cached'>): Promise<any>;
+    interaction(interaction: Interaction): Promise<any>;
+    chatInputCommandInteraction(interaction: ChatInputCommandInteraction<'cached'>): Promise<any>;
     message(message: Message<true>, args: string[]): Promise<any>;
     button(interaction: ButtonInteraction<'cached'>): Promise<any>;
     select(interaction: SelectMenuInteraction<'cached'>): Promise<any>;

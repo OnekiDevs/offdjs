@@ -12,7 +12,8 @@ import {
     ApplicationCommandOptionType,
     ChannelType,
     ApplicationCommandType,
-    LocaleString
+    LocaleString,
+    Interaction,
 } from 'discord.js'
 
 export default class Command {
@@ -33,7 +34,7 @@ export default class Command {
         options = [],
         dm = true,
         permissions,
-        hibrid = false
+        hibrid = false,
     }: cmdOptions) {
         this.name = name['en-US']
         this.description = description['en-US']
@@ -52,18 +53,21 @@ export default class Command {
      * @returns A promise that resolves to an array of commands.
      */
     async deploy(guild?: Guild) {
-        if (this.global) return client.application.commands.create(await this.createData()).catch(console.error)
+        if (this.global)
+            return client.application.commands.create(await this.createData()).catch(console.error)
 
         if (guild)
             return guild.commands.create(await this.createData(guild)).catch((e: Error) => {
-                if (e.message.includes('Missing Access')) console.log('Missing Access on', guild.name, guild.id)
+                if (e.message.includes('Missing Access'))
+                    console.log('Missing Access on', guild.name, guild.id)
                 else console.error(e)
             })
 
         return Promise.all(
-            client.guilds.cache.map(async (guild) =>
-                guild.commands.create(await this.createData(guild)).catch((e) => {
-                    if (e.message.includes('Missing Access')) console.log('Missing Access on', guild.name, guild.id)
+            client.guilds.cache.map(async guild =>
+                guild.commands.create(await this.createData(guild)).catch(e => {
+                    if (e.message.includes('Missing Access'))
+                        console.log('Missing Access on', guild.name, guild.id)
                     else console.error(e)
                 })
             )
@@ -105,7 +109,7 @@ export default class Command {
     }
 
     parseOptions(option: CommandOptions[] = []): any {
-        return option.map((o) => ({
+        return option.map(o => ({
             ...o,
             name_localizations: o.name,
             name: o.name['en-US'],
@@ -113,14 +117,14 @@ export default class Command {
             description: o.description['en-US'],
             choices:
                 o.type === 3 || o.type === 4 || o.type === 10
-                    ? o.choices?.map((c) => ({
+                    ? o.choices?.map(c => ({
                           ...c,
                           name_localizations: typeof c.name === 'string' ? null : c.name,
                           name: typeof c.name === 'string' ? c.name : c.name['en-US'],
-                          value: c.value
+                          value: c.value,
                       }))
                     : null,
-            options: 'options' in o ? this.parseOptions(o.options) : undefined
+            options: 'options' in o ? this.parseOptions(o.options) : undefined,
         }))
     }
 
@@ -132,7 +136,13 @@ export default class Command {
         return this.baseCommand
     }
 
-    async interaction(interaction: ChatInputCommandInteraction<'cached'>): Promise<any> {
+    async interaction(interaction: Interaction): Promise<any> {
+        return null
+    }
+
+    async chatInputCommandInteraction(
+        interaction: ChatInputCommandInteraction<'cached'>
+    ): Promise<any> {
         return interaction.deferReply()
     }
 
@@ -163,8 +173,8 @@ export default class Command {
      */
     //addOption(option: ApplicationCommandOption)
     addOption(command: ApiCommand, option: CommandOptions) {
-        if (command.options?.find((o) => o.name['en-US'] === option.name['en-US'])) {
-            const i = this.options.findIndex((o) => o.name['en-US'] === option.name['en-US'])
+        if (command.options?.find(o => o.name['en-US'] === option.name['en-US'])) {
+            const i = this.options.findIndex(o => o.name['en-US'] === option.name['en-US'])
             command.options.splice(i, 1, this.parseOptions([option]))
         } else if (!command.options?.length) command.options = [this.parseOptions([option])]
         return command

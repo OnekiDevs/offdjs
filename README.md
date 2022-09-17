@@ -115,7 +115,7 @@ example:
 
 The script must export a default class that extends from the `Command` class provided by **offdjs** which is initialized in the super with at least the name that must match the name put in the file and a description, both properties are objects with properties named as [local Discord API](https://discord.com/developers/docs/reference#locales), `en-US` at least (this will change in the future)
 
-The `Comand` class has an interaction method with a parameter of type `ChatInputCommandInteraction<'cached'>` which is executed every time it receives a command interaction with the same name set which you can override to execute and respond to said interaction
+The `Comand` class has an ChatInputCommandInteraction method with a parameter of type `ChatInputCommandInteraction<'cached'>` which is executed every time it receives a command interaction with the same name set which you can override to execute and respond to said interaction
 
 example:
 
@@ -126,18 +126,65 @@ export default class Ping extends Command {
     constructor() {
         super({
             name: {
-                'en-US': 'ping'
+                'en-US': 'ping',
             },
             description: {
-                'en-US': 'Ping the bot'
+                'en-US': 'Ping the bot',
             },
-            global: false
+            global: false,
         })
     }
 
-    async interaction(interaction) {
+    async ChatInputCommandInteraction(interaction) {
         interaction.reply('Pong!')
     }
+}
+```
+
+If you want to abstract the functionality of the command you can create a folder called `interactions` and export a function `chatInputCommandInteraction` in a file with the name of the command, it will receive the interaction as a parameter of type `ChatInputCommandInteraction<'cached'>`
+
+example:
+
+```
+.
+├── interactions
+│   └── ping.js
+├── node_modules
+│   └── ...
+├── .env
+└── package.json
+```
+
+```js
+//ping.js
+import { Command } from 'offdjs'
+
+export function chatInputCommandInteraction(interaction) {
+    interaction.reply('Pong!')
+}
+```
+
+If you use subcommands you can create folders to use them as if the command name were a path; `/test ping` => `interactions/test/ping.js`
+
+example:
+
+```
+.
+├── interactions
+│   └── test
+│       └── ping.js
+├── node_modules
+│   └── ...
+├── .env
+└── package.json
+```
+
+```js
+//ping.js
+import { Command } from 'offdjs'
+
+export function chatInputCommandInteraction(interaction) {
+    interaction.reply('Pong!')
 }
 ```
 
@@ -205,8 +252,8 @@ export default {
         IntentsBitField.Flags.Guilds,
         IntentsBitField.Flags.GuildMembers,
         IntentsBitField.Flags.MessageContent,
-        IntentsBitField.Flags.DirectMessages
-    ]
+        IntentsBitField.Flags.DirectMessages,
+    ],
 }
 ```
 
@@ -235,7 +282,7 @@ example:
 // offdjs.config.js
 export default {
     intents: [IntentsBitField.Flags.Guilds],
-    root: 'build'
+    root: 'build',
 }
 ```
 
@@ -248,7 +295,7 @@ example:
 ```js
 // offdjs.config.js
 export default {
-    i18n: true
+    i18n: true,
 }
 ```
 
@@ -261,9 +308,9 @@ export default {
         locales: ['en', es],
         directory: join(cwd, 'lang'),
         defaultLocale: 'en',
-        retryInDefaultLocale: true
+        retryInDefaultLocale: true,
         // more config
-    }
+    },
 }
 ```
 

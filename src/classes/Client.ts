@@ -7,11 +7,10 @@ import {
     Interaction,
     InteractionType,
     ModalSubmitInteraction,
-    SelectMenuInteraction
+    SelectMenuInteraction,
 } from 'discord.js'
 import { createRequire } from 'module'
 import CommandManager from '../handlers/CommandManager.js'
-import ComponentManager from '../handlers/ComponentManager.js'
 import i18n, { ConfigurationOptions } from 'i18n'
 import { join } from 'path'
 import { readdirSync } from 'fs'
@@ -23,7 +22,7 @@ export interface ClientOptions extends BaseClientOptions {
     routes: {
         commands: string
         events: string
-        components: string
+        interactions: string
     }
     i18n: ConfigurationOptions
 }
@@ -32,18 +31,21 @@ export default class Client extends BaseClient<true> {
     version: string
     i18n = i18n
     commands: CommandManager
-    components: ComponentManager
+    routes = {
+        interactions: process.cwd(),
+    }
 
     constructor(options: ClientOptions) {
         super(options)
 
         this.commands = new CommandManager(options.routes.commands)
-        this.components = new ComponentManager(options.routes.components)
 
         this.i18n.configure(options.i18n)
         this.version = version ?? '1.0.0'
 
-        this.initializeEventListener(options.routes.events).then((c) => {
+        this.routes.interactions = options.routes.interactions
+
+        this.initializeEventListener(options.routes.events).then(c => {
             if (c) console.log('\x1b[35m%s\x1b[0m', 'Eventos Cargados!!')
         })
 
@@ -53,7 +55,7 @@ export default class Client extends BaseClient<true> {
     get embedFooter() {
         return {
             text: `${this.user?.username} Bot v${this.version}`,
-            iconURL: this.user?.avatarURL() as string
+            iconURL: this.user?.avatarURL() as string,
         }
     }
 
@@ -61,41 +63,84 @@ export default class Client extends BaseClient<true> {
         await this.commands.deploy()
         if (this.commands.size) console.log('\x1b[32m%s\x1b[0m', 'Comandos Desplegados!!')
         this.on('interactionCreate', (interaction: Interaction) => {
-            if (interaction.isChatInputCommand())
-                this.commands
-                    .get(interaction.commandName)
-                    ?.interaction(interaction as ChatInputCommandInteraction<'cached'>)
+            // isChatInputCommand
+            if (interaction.isChatInputCommand()) {
+                const cm = this.commands.get(interaction.commandName)
+                // cm?.interaction(interaction)
+                cm?.chatInputCommandInteraction(
+                    interaction as ChatInputCommandInteraction<'cached'>
+                )
+
+                try {
+                    const subcommandGroupName = interaction.options.getSubcommandGroup()
+                    const subcommandName = interaction.options.getSubcommand()
+                    const commandName = interaction.commandName
+                    // existen grupos
+                    if (subcommandGroupName) {
+                        // importar int/group/sub
+                        import(
+                            join(
+                                this.routes.interactions,
+                                commandName,
+                                subcommandGroupName,
+                                subcommandName + '.js'
+                            )
+                        )
+                            .then(c => {
+                                c.chatInputCommandInteraction?.(interaction)
+                                // c.default?.(interaction)
+                            })
+                            .catch(e => null)
+                        // importar int/group
+                        import(
+                            join(this.routes.interactions, commandName, subcommandGroupName + '.js')
+                        )
+                            .then(c => {
+                                c.chatInputCommandInteraction?.(interaction)
+                                c.default?.(interaction)
+                            })
+                            .catch(e => null)
+                        // existen subcomandos
+                    } else if (subcommandName) {
+                        import(join(this.routes.interactions, commandName, subcommandName + '.js'))
+                            .then(c => {
+                                c.chatInputCommandInteraction?.(interaction)
+                                // c.default?.(interaction)
+                            })
+                            .catch(e => null)
+                    }
+                    // importar int
+                    import(join(this.routes.interactions, commandName + '.js'))
+                        .then(c => {
+                            c.chatInputCommandInteraction?.(interaction)
+                            // c.default?.(interaction)
+                        })
+                        .catch(e => null)
+                } catch (error) {}
+            }
 
             if (interaction.isButton()) {
-                this.commands
-                    .find((cmd) => interaction.customId.startsWith(cmd.name))
-                    ?.button(interaction as ButtonInteraction<'cached'>)
-                this.components
-                    .find((btn) => btn.regexp.test(interaction.customId))
-                    ?.button(interaction as ButtonInteraction<'cached'>)
+                const bt = this.commands.find(cmd => interaction.customId.startsWith(cmd.name))
+                bt?.button(interaction as ButtonInteraction<'cached'>)
+                // bt?.interaction(interaction)
             }
 
             if (interaction.type === InteractionType.ModalSubmit) {
-                this.commands
-                    .find((cmd) => interaction.customId.startsWith(cmd.name))
-                    ?.modal(interaction as ModalSubmitInteraction<'cached'>)
-                this.components
-                    .find((btn) => btn.regexp.test(interaction.customId))
-                    ?.modal(interaction as ModalSubmitInteraction<'cached'>)
+                const md = this.commands.find(cmd => interaction.customId.startsWith(cmd.name))
+                md?.modal(interaction as ModalSubmitInteraction<'cached'>)
+                // md?.interaction(interaction)
             }
 
-            if (interaction.type === InteractionType.ApplicationCommandAutocomplete)
-                this.commands
-                    .get(interaction.commandName)
-                    ?.autocomplete(interaction as AutocompleteInteraction<'cached'>)
+            if (interaction.type === InteractionType.ApplicationCommandAutocomplete) {
+                const au = this.commands.get(interaction.commandName)
+                au?.autocomplete(interaction as AutocompleteInteraction<'cached'>)
+                // au?.interaction(interaction)
+            }
 
             if (interaction.isSelectMenu()) {
-                this.commands
-                    .find((cmd) => interaction.customId.startsWith(cmd.name))
-                    ?.select(interaction as SelectMenuInteraction<'cached'>)
-                this.components
-                    .find((btn) => btn.regexp.test(interaction.customId))
-                    ?.select(interaction as SelectMenuInteraction<'cached'>)
+                const mn = this.commands.find(cmd => interaction.customId.startsWith(cmd.name))
+                mn?.select(interaction as SelectMenuInteraction<'cached'>)
+                // mn?.interaction(interaction)
             }
         })
 
@@ -105,11 +150,11 @@ export default class Client extends BaseClient<true> {
     initializeEventListener(path: string) {
         try {
             return Promise.all(
-                readdirSync(path, { withFileTypes: true }).map(async (file) => {
+                readdirSync(path, { withFileTypes: true }).map(async file => {
                     if (file.isDirectory()) {
                         readdirSync(join(path, file.name))
-                            .filter((f) => f.endsWith('.event.js'))
-                            .forEach(async (f) => {
+                            .filter(f => f.endsWith('.event.js'))
+                            .forEach(async f => {
                                 const event = await import('file:///' + join(path, file.name, f))
                                 const [eventName] = f.split('.')
                                 this.on(eventName as string, (...args) => event.default(...args))
@@ -120,7 +165,7 @@ export default class Client extends BaseClient<true> {
                         this.on(eventName as string, (...args) => event.default(...args))
                     }
                 })
-            ).then((r) => r.length)
+            ).then(r => r.length)
         } catch (error) {
             return Promise.resolve()
         }
