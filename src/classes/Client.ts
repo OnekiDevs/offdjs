@@ -7,7 +7,7 @@ import {
     Interaction,
     InteractionType,
     ModalSubmitInteraction,
-    SelectMenuInteraction,
+    SelectMenuInteraction
 } from 'discord.js'
 import { createRequire } from 'module'
 import CommandManager from '../handlers/CommandManager.js'
@@ -32,7 +32,7 @@ export default class Client extends BaseClient<true> {
     i18n = i18n
     commands: CommandManager
     routes = {
-        interactions: process.cwd(),
+        interactions: process.cwd()
     }
 
     constructor(options: ClientOptions) {
@@ -55,7 +55,7 @@ export default class Client extends BaseClient<true> {
     get embedFooter() {
         return {
             text: `${this.user?.username} Bot v${this.version}`,
-            iconURL: this.user?.avatarURL() as string,
+            iconURL: this.user?.avatarURL() as string
         }
     }
 
@@ -67,56 +67,11 @@ export default class Client extends BaseClient<true> {
             if (interaction.isChatInputCommand()) {
                 const cm = this.commands.get(interaction.commandName)
                 // cm?.interaction(interaction)
-                cm?.chatInputCommandInteraction(
-                    interaction as ChatInputCommandInteraction<'cached'>
-                )
+                cm?.chatInputCommandInteraction(interaction as ChatInputCommandInteraction<'cached'>)
 
-                try {
-                    const subcommandGroupName = interaction.options.getSubcommandGroup()
-                    const subcommandName = interaction.options.getSubcommand()
-                    const commandName = interaction.commandName
-                    // existen grupos
-                    if (subcommandGroupName) {
-                        // importar int/group/sub
-                        import(
-                            join(
-                                this.routes.interactions,
-                                commandName,
-                                subcommandGroupName,
-                                subcommandName + '.js'
-                            )
-                        )
-                            .then(c => {
-                                c.chatInputCommandInteraction?.(interaction)
-                                // c.default?.(interaction)
-                            })
-                            .catch(e => null)
-                        // importar int/group
-                        import(
-                            join(this.routes.interactions, commandName, subcommandGroupName + '.js')
-                        )
-                            .then(c => {
-                                c.chatInputCommandInteraction?.(interaction)
-                                c.default?.(interaction)
-                            })
-                            .catch(e => null)
-                        // existen subcomandos
-                    } else if (subcommandName) {
-                        import(join(this.routes.interactions, commandName, subcommandName + '.js'))
-                            .then(c => {
-                                c.chatInputCommandInteraction?.(interaction)
-                                // c.default?.(interaction)
-                            })
-                            .catch(e => null)
-                    }
-                    // importar int
-                    import(join(this.routes.interactions, commandName + '.js'))
-                        .then(c => {
-                            c.chatInputCommandInteraction?.(interaction)
-                            // c.default?.(interaction)
-                        })
-                        .catch(e => null)
-                } catch (error) {}
+                const names: string[] = getFullCommandName(interaction).filter(Boolean)
+
+                executeRouteCommand(interaction, this.routes.interactions, ...names)
             }
 
             if (interaction.isButton()) {
@@ -147,27 +102,64 @@ export default class Client extends BaseClient<true> {
         console.log('\x1b[31m%s\x1b[0m', `${this.user?.username} ${this.version} ready!!!`)
     }
 
-    initializeEventListener(path: string) {
+    async initializeEventListener(path: string) {
         try {
-            return Promise.all(
+            const r = await Promise.all(
                 readdirSync(path, { withFileTypes: true }).map(async file => {
                     if (file.isDirectory()) {
                         readdirSync(join(path, file.name))
                             .filter(f => f.endsWith('.event.js'))
-                            .forEach(async f => {
-                                const event = await import('file:///' + join(path, file.name, f))
-                                const [eventName] = f.split('.')
+                            .forEach(async f_1 => {
+                                const event = await import('file:///' + join(path, file.name, f_1))
+                                const [eventName] = f_1.split('.')
                                 this.on(eventName as string, (...args) => event.default(...args))
                             })
                     } else if (file.name.endsWith('.event.js')) {
-                        const event = await import('file:///' + join(path, file.name))
-                        const [eventName] = file.name.split('.')
-                        this.on(eventName as string, (...args) => event.default(...args))
+                        const event_2 = await import('file:///' + join(path, file.name))
+                        const [eventName_1] = file.name.split('.')
+                        this.on(eventName_1 as string, (...args_1) => event_2.default(...args_1))
                     }
                 })
-            ).then(r => r.length)
+            )
+            return r.length
         } catch (error) {
             return Promise.resolve()
         }
     }
+}
+
+function executeRouteCommand(interaction: Interaction, path: string, ...args: string[]) {
+    processRoutesFileNames(path, ...args).map(i =>
+        import(i)
+            .then(f => {
+                if (interaction.isChatInputCommand()) f.chatInputCommandInteraction?.(interaction)
+                f.default?.(interaction)
+            })
+            .catch(e => null)
+    )
+}
+
+function processRoutesFileNames(path: string, ...args: string[]) {
+    const routes: string[] = []
+    const names: string[] = []
+    for (const i of args) {
+        names.push(i)
+        routes.push(join(path, names.join('/') + '.js'))
+    }
+    return routes
+}
+
+function getFullCommandName(interaction: ChatInputCommandInteraction | AutocompleteInteraction) {
+    let name = interaction.commandName,
+        subcommandGroup,
+        subcommand
+    try {
+        subcommand = interaction.options.getSubcommand()
+    } catch {}
+
+    try {
+        subcommandGroup = interaction.options.getSubcommandGroup()
+    } catch {}
+
+    return [name, subcommandGroup ?? '', subcommand ?? '']
 }
