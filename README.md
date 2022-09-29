@@ -126,12 +126,12 @@ export default class Ping extends Command {
     constructor() {
         super({
             name: {
-                'en-US': 'ping',
+                'en-US': 'ping'
             },
             description: {
-                'en-US': 'Ping the bot',
+                'en-US': 'Ping the bot'
             },
-            global: false,
+            global: false
         })
     }
 
@@ -157,7 +157,6 @@ example:
 
 ```js
 //ping.js
-import { Command } from 'offdjs'
 
 export function chatInputCommandInteraction(interaction) {
     interaction.reply('Pong!')
@@ -181,10 +180,70 @@ example:
 
 ```js
 //ping.js
-import { Command } from 'offdjs'
 
 export function chatInputCommandInteraction(interaction) {
     interaction.reply('Pong!')
+}
+```
+
+## Buttons
+
+To receive button interactions you can create a folder called `interactions` and export a function `buttonInteraction` in a file with the name of the button id, it will receive the interaction as a parameter of type `ButtonInteraction<'cached'>`
+
+example:
+
+```
+.
+├── interactions
+│   └── custom_id.js
+├── node_modules
+│   └── ...
+├── .env
+└── package.json
+```
+
+```js
+//ping.js
+
+export function buttonInteraction(interaction) {
+    interaction.reply('you clicked the button')
+}
+```
+
+if you need to use arguments in the button, you can pass them by the `customId` as a `string` separating them with `:` (you can custom `interactionSplit`). This also allows you to create subinteractions with the commands that like the `chatInputCommandInteraction` will split the logic into different files for example `interaction.customId = 'test:yes'` => `interactions/test/yes.js`. The arguments passed by id will be received along with the interaction
+
+example:
+
+```
+.
+├── interactions
+│   ├── test.js
+│   └── test
+│       └── yes.js
+├── node_modules
+│   └── ...
+├── .env
+└── package.json
+```
+
+```js
+//test.js
+
+export function buttonInteraction(interaction, _, choice) {
+    // this is executed in case the interaction.customId
+    // is 'test:yes' or 'test:no'
+    interaction.reply('you selected ' + choice)
+    // choice contains a 'yes' or 'no'
+}
+```
+
+```js
+//test/yes.js
+
+export function buttonInteraction(interaction) {
+    // this is executed only in case
+    // the interaction.customId is 'test:yes'
+    interaction.reply('you selected yes')
 }
 ```
 
@@ -252,8 +311,8 @@ export default {
         IntentsBitField.Flags.Guilds,
         IntentsBitField.Flags.GuildMembers,
         IntentsBitField.Flags.MessageContent,
-        IntentsBitField.Flags.DirectMessages,
-    ],
+        IntentsBitField.Flags.DirectMessages
+    ]
 }
 ```
 
@@ -282,7 +341,7 @@ example:
 // offdjs.config.js
 export default {
     intents: [IntentsBitField.Flags.Guilds],
-    root: 'build',
+    root: 'build'
 }
 ```
 
@@ -295,7 +354,7 @@ example:
 ```js
 // offdjs.config.js
 export default {
-    i18n: true,
+    i18n: true
 }
 ```
 
@@ -308,9 +367,9 @@ export default {
         locales: ['en', es],
         directory: join(cwd, 'lang'),
         defaultLocale: 'en',
-        retryInDefaultLocale: true,
+        retryInDefaultLocale: true
         // more config
-    },
+    }
 }
 ```
 

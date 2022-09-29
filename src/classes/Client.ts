@@ -25,6 +25,7 @@ export interface ClientOptions extends BaseClientOptions {
         interactions: string
     }
     i18n: ConfigurationOptions
+    interactionSplit: string | RegExp
 }
 
 export default class Client extends BaseClient<true> {
@@ -34,6 +35,7 @@ export default class Client extends BaseClient<true> {
     routes = {
         interactions: process.cwd()
     }
+    interactionSplit: string | RegExp = ':'
 
     constructor(options: ClientOptions) {
         super(options)
@@ -44,6 +46,7 @@ export default class Client extends BaseClient<true> {
         this.version = version ?? '1.0.0'
 
         this.routes.interactions = options.routes.interactions
+        this.interactionSplit = options.interactionSplit
 
         this.initializeEventListener(options.routes.events).then(c => {
             if (c) console.log('\x1b[35m%s\x1b[0m', 'Eventos Cargados!!')
@@ -66,17 +69,19 @@ export default class Client extends BaseClient<true> {
             // isChatInputCommand
             if (interaction.isChatInputCommand()) {
                 const cm = this.commands.get(interaction.commandName)
-                // cm?.interaction(interaction)
                 cm?.chatInputCommandInteraction(interaction as ChatInputCommandInteraction<'cached'>)
-
                 const names: string[] = getFullCommandName(interaction).filter(Boolean)
-
                 executeRouteCommand(interaction, this.routes.interactions, ...names)
             }
 
             if (interaction.isButton()) {
                 const bt = this.commands.find(cmd => interaction.customId.startsWith(cmd.name))
                 bt?.button(interaction as ButtonInteraction<'cached'>)
+                executeRouteCommand(
+                    interaction,
+                    this.routes.interactions,
+                    ...interaction.customId.split(this.interactionSplit)
+                )
                 // bt?.interaction(interaction)
             }
 
@@ -129,14 +134,21 @@ export default class Client extends BaseClient<true> {
 }
 
 function executeRouteCommand(interaction: Interaction, path: string, ...args: string[]) {
-    processRoutesFileNames(path, ...args).map(i =>
-        import(i)
-            .then(f => {
-                if (interaction.isChatInputCommand()) f.chatInputCommandInteraction?.(interaction)
-                f.default?.(interaction)
-            })
-            .catch(e => null)
-    )
+    try {
+        processRoutesFileNames(path, ...args).map(i =>
+            import(i)
+                .then(f => {
+                    if (interaction.isChatInputCommand()) f.chatInputCommandInteraction?.(interaction)
+                    else if (interaction.isButton()) f.buttonInteraction?.(interaction, ...args)
+                    f.default?.(interaction)
+                })
+                .catch(e => {
+                    if (!e.message.startsWith('Cannot find module')) throw e
+                })
+        )
+    } catch (error) {
+        throw error
+    }
 }
 
 function processRoutesFileNames(path: string, ...args: string[]) {
