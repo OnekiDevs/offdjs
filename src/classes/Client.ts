@@ -85,6 +85,17 @@ export default class Client extends BaseClient<true> {
                 // bt?.interaction(interaction)
             }
 
+            if (interaction.isSelectMenu()) {
+                const mn = this.commands.find(cmd => interaction.customId.startsWith(cmd.name))
+                mn?.select(interaction as SelectMenuInteraction<'cached'>)
+                executeRouteCommand(
+                    interaction,
+                    this.routes.interactions,
+                    ...interaction.customId.split(this.interactionSplit)
+                )
+                // mn?.interaction(interaction)
+            }
+
             if (interaction.type === InteractionType.ModalSubmit) {
                 const md = this.commands.find(cmd => interaction.customId.startsWith(cmd.name))
                 md?.modal(interaction as ModalSubmitInteraction<'cached'>)
@@ -95,12 +106,6 @@ export default class Client extends BaseClient<true> {
                 const au = this.commands.get(interaction.commandName)
                 au?.autocomplete(interaction as AutocompleteInteraction<'cached'>)
                 // au?.interaction(interaction)
-            }
-
-            if (interaction.isSelectMenu()) {
-                const mn = this.commands.find(cmd => interaction.customId.startsWith(cmd.name))
-                mn?.select(interaction as SelectMenuInteraction<'cached'>)
-                // mn?.interaction(interaction)
             }
         })
 
@@ -139,6 +144,7 @@ function executeRouteCommand(interaction: Interaction, path: string, ...args: st
             import(i)
                 .then(f => {
                     if (interaction.isChatInputCommand()) f.chatInputCommandInteraction?.(interaction)
+                    if (interaction.isSelectMenu()) f.selectMenuInteraction?.(interaction, ...args)
                     else if (interaction.isButton()) f.buttonInteraction?.(interaction, ...args)
                     f.default?.(interaction)
                 })

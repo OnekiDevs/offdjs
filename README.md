@@ -22,7 +22,7 @@ offdjs is a small framework that uses [discord.js](https://https://discord.js.or
 **Node.js 16.9.0 or newer is required.**
 
 ```
-npm install off
+npm install offdjs
 ```
 
 ## Example usage
@@ -244,6 +244,67 @@ export function buttonInteraction(interaction) {
     // this is executed only in case
     // the interaction.customId is 'test:yes'
     interaction.reply('you selected yes')
+}
+```
+
+## Menus
+
+To receive menu interactions you can create a folder called `interactions` and export a function `selectMenuInteraction` in a file with the name of the menu id, it will receive the interaction as a parameter of type `SelectMenuInteraction<'cached'>`
+
+example:
+
+```
+.
+├── interactions
+│   └── custom_id.js
+├── node_modules
+│   └── ...
+├── .env
+└── package.json
+```
+
+```js
+//ping.js
+
+export function selectMenuInteraction(interaction) {
+    interaction.reply('you selected: ' + interaction.vaues.join(', '))
+}
+```
+
+if you need to use arguments in the menu, you can pass them by the `customId` as a `string` separating them with `:` (you can custom `interactionSplit`). This also allows you to create subinteractions with the commands that like the `chatInputCommandInteraction` will split the logic into different files for example `interaction.customId = 'test:add'` => `interactions/test/add.js`. The arguments passed by id will be received along with the interaction
+
+example:
+
+```
+.
+├── interactions
+│   ├── test.js
+│   └── test
+│       └── yes.js
+├── node_modules
+│   └── ...
+├── .env
+└── package.json
+```
+
+```js
+//test.js
+
+export function selectMenuInteraction(interaction, _, choice) {
+    // this is executed in case the interaction.customId
+    // is 'test:add' or 'test:remove'
+    interaction.reply('you selected ' + choice + ' this options: ' interaction.values.join(', '))
+    // choice contains a 'add' or 'remove'
+}
+```
+
+```js
+//test/add.js
+
+export function selectMenuInteraction(interaction) {
+    // this is executed only in case
+    // the interaction.customId is 'test:add'
+    interaction.reply('you selected add this options: ' + interaction.values.join(', '))
 }
 ```
 

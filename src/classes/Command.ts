@@ -1,19 +1,20 @@
 import client from '../index.js'
 import {
+    ApplicationCommandDataResolvable,
+    ApplicationCommandOptionType,
     ChatInputCommandInteraction,
     AutocompleteInteraction,
     ModalSubmitInteraction,
+    ApplicationCommandType,
     SelectMenuInteraction,
     PermissionsBitField,
     SlashCommandBuilder,
     ButtonInteraction,
-    Message,
-    Guild,
-    ApplicationCommandOptionType,
-    ChannelType,
-    ApplicationCommandType,
     LocaleString,
+    ChannelType,
     Interaction,
+    Message,
+    Guild
 } from 'discord.js'
 
 export default class Command {
@@ -34,7 +35,7 @@ export default class Command {
         options = [],
         dm = true,
         permissions,
-        hibrid = false,
+        hibrid = false
     }: cmdOptions) {
         this.name = name['en-US']
         this.description = description['en-US']
@@ -53,21 +54,18 @@ export default class Command {
      * @returns A promise that resolves to an array of commands.
      */
     async deploy(guild?: Guild) {
-        if (this.global)
-            return client.application.commands.create(await this.createData()).catch(console.error)
+        if (this.global) return client.application.commands.create(await this.createData()).catch(console.error)
 
         if (guild)
             return guild.commands.create(await this.createData(guild)).catch((e: Error) => {
-                if (e.message.includes('Missing Access'))
-                    console.log('Missing Access on', guild.name, guild.id)
+                if (e.message.includes('Missing Access')) console.log('Missing Access on', guild.name, guild.id)
                 else console.error(e)
             })
 
         return Promise.all(
             client.guilds.cache.map(async guild =>
                 guild.commands.create(await this.createData(guild)).catch(e => {
-                    if (e.message.includes('Missing Access'))
-                        console.log('Missing Access on', guild.name, guild.id)
+                    if (e.message.includes('Missing Access')) console.log('Missing Access on', guild.name, guild.id)
                     else console.error(e)
                 })
             )
@@ -78,7 +76,7 @@ export default class Command {
      * It returns the data of the command.
      * @returns {ApplicationCommandDataResolvable} The data is being returned as a JSON object.
      */
-    get data() {
+    get data(): ApplicationCommandDataResolvable {
         const command: any = new SlashCommandBuilder()
             .setName(this.name)
             .setDescription(this.description)
@@ -121,10 +119,10 @@ export default class Command {
                           ...c,
                           name_localizations: typeof c.name === 'string' ? null : c.name,
                           name: typeof c.name === 'string' ? c.name : c.name['en-US'],
-                          value: c.value,
+                          value: c.value
                       }))
                     : null,
-            options: 'options' in o ? this.parseOptions(o.options) : undefined,
+            options: 'options' in o ? this.parseOptions(o.options) : undefined
         }))
     }
 
@@ -140,9 +138,7 @@ export default class Command {
         return null
     }
 
-    async chatInputCommandInteraction(
-        interaction: ChatInputCommandInteraction<'cached'>
-    ): Promise<any> {
+    async chatInputCommandInteraction(interaction: ChatInputCommandInteraction<'cached'>): Promise<any> {
         return interaction.deferReply()
     }
 
@@ -169,10 +165,10 @@ export default class Command {
     /**
      * It adds an option to the command and returns the Command class.
      * @param {ApplicationCommandOption} option - The option to add to the command.
-     * @returns {Command} The ApplicationCommand object
+     * @returns {ApiCommand} The ApplicationCommand object
      */
     //addOption(option: ApplicationCommandOption)
-    addOption(command: ApiCommand, option: CommandOptions) {
+    addOption(command: ApiCommand, option: CommandOptions): ApiCommand {
         if (command.options?.find(o => o.name['en-US'] === option.name['en-US'])) {
             const i = this.options.findIndex(o => o.name['en-US'] === option.name['en-US'])
             command.options.splice(i, 1, this.parseOptions([option]))
@@ -184,7 +180,7 @@ export default class Command {
      * It clears the options array and returns the object
      * @returns {Command} The object itself.
      */
-    clearOptions() {
+    clearOptions(): Command {
         this.options = []
         return this
     }
