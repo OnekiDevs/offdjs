@@ -257,6 +257,8 @@ example:
 import client, { Command } from 'offdjs'
 
 client.on('ready', () => console.log('ready'))
+
+// client.login() isn't necessary
 ```
 
 ## executing index file
