@@ -82,7 +82,6 @@ export default class Client extends BaseClient<true> {
                     this.routes.interactions,
                     ...interaction.customId.split(this.interactionSplit)
                 )
-                // bt?.interaction(interaction)
             }
 
             if (interaction.isSelectMenu()) {
@@ -93,19 +92,22 @@ export default class Client extends BaseClient<true> {
                     this.routes.interactions,
                     ...interaction.customId.split(this.interactionSplit)
                 )
-                // mn?.interaction(interaction)
             }
 
             if (interaction.type === InteractionType.ModalSubmit) {
                 const md = this.commands.find(cmd => interaction.customId.startsWith(cmd.name))
                 md?.modal(interaction as ModalSubmitInteraction<'cached'>)
-                // md?.interaction(interaction)
+                executeRouteCommand(
+                    interaction,
+                    this.routes.interactions,
+                    ...interaction.customId.split(this.interactionSplit)
+                )
             }
 
             if (interaction.type === InteractionType.ApplicationCommandAutocomplete) {
                 const au = this.commands.get(interaction.commandName)
                 au?.autocomplete(interaction as AutocompleteInteraction<'cached'>)
-                // au?.interaction(interaction)
+                //TODO: interacciones aqui (executeRouteCommand)
             }
         })
 
@@ -144,8 +146,10 @@ function executeRouteCommand(interaction: Interaction, path: string, ...args: st
             import(i)
                 .then(f => {
                     if (interaction.isChatInputCommand()) f.chatInputCommandInteraction?.(interaction)
-                    if (interaction.isSelectMenu()) f.selectMenuInteraction?.(interaction, ...args)
                     else if (interaction.isButton()) f.buttonInteraction?.(interaction, ...args)
+                    else if (interaction.isSelectMenu()) f.selectMenuInteraction?.(interaction, ...args)
+                    else if (interaction.type === InteractionType.ModalSubmit)
+                        f.modalSubmitInteraction?.(interaction, ...args)
                     f.default?.(interaction)
                 })
                 .catch(e => {

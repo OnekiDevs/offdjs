@@ -280,7 +280,7 @@ example:
 ├── interactions
 │   ├── test.js
 │   └── test
-│       └── yes.js
+│       └── add.js
 ├── node_modules
 │   └── ...
 ├── .env
@@ -293,7 +293,7 @@ example:
 export function selectMenuInteraction(interaction, _, choice) {
     // this is executed in case the interaction.customId
     // is 'test:add' or 'test:remove'
-    interaction.reply('you selected ' + choice + ' this options: ' interaction.values.join(', '))
+    interaction.reply('you selected ' + choice + ' this options: ' + interaction.values.join(', '))
     // choice contains a 'add' or 'remove'
 }
 ```
@@ -305,6 +305,67 @@ export function selectMenuInteraction(interaction) {
     // this is executed only in case
     // the interaction.customId is 'test:add'
     interaction.reply('you selected add this options: ' + interaction.values.join(', '))
+}
+```
+
+## Modals
+
+To receive modal interactions you can create a folder called `interactions` and export a function `modalSubmitInteraction` in a file with the name of the modal id, it will receive the interaction as a parameter of type `ModalSubmitInteraction<'cached'>`
+
+example:
+
+```
+.
+├── interactions
+│   └── custom_id.js
+├── node_modules
+│   └── ...
+├── .env
+└── package.json
+```
+
+```js
+//ping.js
+
+export function modalSubmitInteraction(interaction) {
+    interaction.reply('you selected: ' + interaction.vaues.join(', '))
+}
+```
+
+if you need to use arguments in the modal, you can pass them by the `customId` as a `string` separating them with `:` (you can custom `interactionSplit`). This also allows you to create subinteractions with the commands that like the `modalSubmitInteraction` will split the logic into different files for example `interaction.customId = 'test:add'` => `interactions/send/suggest.js`. The arguments passed by id will be received along with the interaction
+
+example:
+
+```
+.
+├── interactions
+│   ├── send.js
+│   └── send
+│       └── suggest.js
+├── node_modules
+│   └── ...
+├── .env
+└── package.json
+```
+
+```js
+//send.js
+
+export function modalSubmitInteraction(interaction, _, choice) {
+    // this is executed in case the interaction.customId
+    // is 'send:suggest' or 'send:issue'
+    interaction.reply(choice + ' sent')
+    // choice contains a 'suggest' or 'issue'
+}
+```
+
+```js
+//send/suggest.js
+
+export function modalSubmitInteraction(interaction) {
+    // this is executed only in case
+    // the interaction.customId is 'send:suggest'
+    interaction.reply('suggest sent')
 }
 ```
 
