@@ -293,7 +293,7 @@ example:
 export function selectMenuInteraction(interaction, _, choice) {
     // this is executed in case the interaction.customId
     // is 'test:add' or 'test:remove'
-    interaction.reply('you selected ' + choice + ' this options: ' + interaction.values.join(', '))
+    interaction.reply(`you selected ${choice} this options: ${interaction.values.join(', ')}`)
     // choice contains a 'add' or 'remove'
 }
 ```
@@ -366,6 +366,53 @@ export function modalSubmitInteraction(interaction) {
     // this is executed only in case
     // the interaction.customId is 'send:suggest'
     interaction.reply('suggest sent')
+}
+```
+
+## Autocomplete
+
+To receive autocomplete interactions you can create a folder called `interactions` and export a function `autocompleteInteraction` in a file with the name of the command or the name of the option focused in a folder with the name of the command, it will receive the interaction as a parameter of type `AutocompleteInteraction<'cached'>`
+
+example:
+
+```
+.
+├── interactions
+│   └── search
+│       └── query.js
+├── node_modules
+│   └── ...
+├── .env
+└── package.json
+```
+
+```js
+//query.js
+
+export function autocompleteInteraction(interaction) {
+    const query = interaction.options.getFocused()
+    interaction.respond(autocomplete(query))
+}
+```
+
+```
+.
+├── interactions
+│   └── search.js
+├── node_modules
+│   └── ...
+├── .env
+└── package.json
+```
+
+```js
+//query.js
+
+export function autocompleteInteraction(interaction) {
+    const query = interaction.options.getFocused()
+    if (interaction.options.getFocused(true).name === 'query') {
+        interaction.respond(autocomplete(query))
+    }
 }
 ```
 
@@ -520,4 +567,43 @@ export default class Ping extends Command {
 
 ## interactions
 
-...coming soon
+To receive interactions you can create a folder called `interactions` and export a default function in a file with the name of the command or the id of the button, it will receive the interaction as a parameter of type `Interaction`. If the interaction contains a `customId`, in the parameters you recibe a `customId` splited for `:`
+
+Example:
+
+```
+.
+├── interactions
+│   └── avatar.js
+├── node_modules
+│   └── ...
+├── .env
+└── package.json
+```
+
+```js
+//avatar.js
+import { getToggleButton, getAvatarEmbed } from '../myUtils.js'
+
+export default function (interaction, _, selected = 'user') {
+    const button = getToggleButton(selected) // customId = 'avatar:user' | 'avatar:member'
+
+    if (interaction.isChatInputCommand()) {
+        const embed = getAvatarEmbed(interaction, selected)
+
+        interaction.reply({
+            embeds: [embed],
+            components: [button]
+        })
+    } else if (interaction.isButton()) {
+        const embed = getAvatarEmbed(interaction, selected)
+
+        interaction.update({
+            embeds: [embed],
+            components: [button]
+        })
+    }
+}
+```
+
+if you need recibe a specific interaction see [commands](#commands), [buttons](#buttons), [menus](#menus), [modals](#modals) and [autocomplete](#autocomplete)

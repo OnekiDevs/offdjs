@@ -107,7 +107,13 @@ export default class Client extends BaseClient<true> {
             if (interaction.type === InteractionType.ApplicationCommandAutocomplete) {
                 const au = this.commands.get(interaction.commandName)
                 au?.autocomplete(interaction as AutocompleteInteraction<'cached'>)
-                //TODO: interacciones aqui (executeRouteCommand)
+                const names: string[] = getFullCommandName(interaction).filter(Boolean)
+                executeRouteCommand(
+                    interaction,
+                    this.routes.interactions,
+                    ...names,
+                    interaction.options.getFocused(true).name
+                )
             }
         })
 
@@ -150,6 +156,8 @@ function executeRouteCommand(interaction: Interaction, path: string, ...args: st
                     else if (interaction.isSelectMenu()) f.selectMenuInteraction?.(interaction, ...args)
                     else if (interaction.type === InteractionType.ModalSubmit)
                         f.modalSubmitInteraction?.(interaction, ...args)
+                    else if (interaction.type === InteractionType.ApplicationCommandAutocomplete)
+                        f.autocompleteInteraction(interaction)
                     f.default?.(interaction)
                 })
                 .catch(e => {
@@ -162,8 +170,8 @@ function executeRouteCommand(interaction: Interaction, path: string, ...args: st
 }
 
 function processRoutesFileNames(path: string, ...args: string[]) {
-    const routes: string[] = []
-    const names: string[] = []
+    const routes: string[] = [],
+        names: string[] = []
     for (const i of args) {
         names.push(i)
         routes.push(join(path, names.join('/') + '.js'))

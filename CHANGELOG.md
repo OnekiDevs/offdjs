@@ -2,6 +2,12 @@ Changelog
 
 All notable changes to this project will be documented in this file.
 
+# 0.6.0
+
+## Features
+
+-   **interactions:** `AutocompleteInteraction` added method to reply
+
 # 0.5.0
 
 ## Features
