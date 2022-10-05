@@ -416,6 +416,30 @@ export function autocompleteInteraction(interaction) {
 }
 ```
 
+## Message context menu
+
+To receive message context menu interactions you can create a folder called `interactions` and export a function `messageContextMenuCommandInteraction` in a file with the name of the command, it will receive the interaction as a parameter of type `MessageContextMenuCommandInteraction<'cached'>`
+
+example:
+
+```
+.
+├── interactions
+│   └── translate.js
+├── node_modules
+│   └── ...
+├── .env
+└── package.json
+```
+
+```js
+//query.js
+
+export function messageContextMenuCommandInteraction(interaction) {
+    interaction.respond(translate(interaction.targetMessage.content, interaction.locale))
+}
+```
+
 ## Client
 
 To obtain the client, offdjs exports the client already initialized as default so if it requires. this is initialized by running `offdjs`

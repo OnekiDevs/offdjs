@@ -115,6 +115,10 @@ export default class Client extends BaseClient<true> {
                     interaction.options.getFocused(true).name
                 )
             }
+
+            if (interaction.isMessageContextMenuCommand()) {
+                executeRouteCommand(interaction, this.routes.interactions, interaction.commandName)
+            }
         })
 
         console.log('\x1b[31m%s\x1b[0m', `${this.user?.username} ${this.version} ready!!!`)
@@ -157,7 +161,9 @@ function executeRouteCommand(interaction: Interaction, path: string, ...args: st
                     else if (interaction.type === InteractionType.ModalSubmit)
                         f.modalSubmitInteraction?.(interaction, ...args)
                     else if (interaction.type === InteractionType.ApplicationCommandAutocomplete)
-                        f.autocompleteInteraction(interaction)
+                        f.autocompleteInteraction?.(interaction)
+                    else if (interaction.isMessageContextMenuCommand())
+                        f.messageContextMenuCommandInteraction?.(interaction)
                     f.default?.(interaction)
                 })
                 .catch(e => {
