@@ -119,6 +119,10 @@ export default class Client extends BaseClient<true> {
             if (interaction.isMessageContextMenuCommand()) {
                 executeRouteCommand(interaction, this.routes.interactions, interaction.commandName)
             }
+
+            if (interaction.isUserContextMenuCommand()) {
+                executeRouteCommand(interaction, this.routes.interactions, interaction.commandName)
+            }
         })
 
         console.log('\x1b[31m%s\x1b[0m', `${this.user?.username} ${this.version} ready!!!`)
@@ -164,6 +168,7 @@ function executeRouteCommand(interaction: Interaction, path: string, ...args: st
                         f.autocompleteInteraction?.(interaction)
                     else if (interaction.isMessageContextMenuCommand())
                         f.messageContextMenuCommandInteraction?.(interaction)
+                    else if (interaction.isUserContextMenuCommand()) f.userContextMenuCommandInteraction?.(interaction)
                     f.default?.(interaction)
                 })
                 .catch(e => {

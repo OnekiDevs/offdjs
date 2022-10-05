@@ -436,7 +436,31 @@ example:
 //query.js
 
 export function messageContextMenuCommandInteraction(interaction) {
-    interaction.respond(translate(interaction.targetMessage.content, interaction.locale))
+    interaction.reply(translate(interaction.targetMessage.content, interaction.locale))
+}
+```
+
+## User context menu
+
+To receive user context menu interactions you can create a folder called `interactions` and export a function `mserContextMenuCommandInteraction` in a file with the name of the command, it will receive the interaction as a parameter of type `UserContextMenuCommandInteraction<'cached'>`
+
+example:
+
+```
+.
+├── interactions
+│   └── report.js
+├── node_modules
+│   └── ...
+├── .env
+└── package.json
+```
+
+```js
+//report.js
+
+export function userContextMenuCommandInteraction(interaction) {
+    interaction.reply('User reported')
 }
 ```
 
@@ -630,4 +654,4 @@ export default function (interaction, _, selected = 'user') {
 }
 ```
 
-if you need recibe a specific interaction see [commands](#commands), [buttons](#buttons), [menus](#menus), [modals](#modals) and [autocomplete](#autocomplete)
+if you need recibe a specific interaction see [commands](#commands), [buttons](#buttons), [menus](#menus), [modals](#modals), [autocomplete](#autocomplete), [Message context menu](#message-context-menu) and [User context menu](#user-context-menu)
