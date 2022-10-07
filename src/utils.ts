@@ -1,4 +1,12 @@
-import { TextChannel, GuildMember, PermissionsBitField, Message, BaseInteraction } from 'discord.js'
+import {
+    TextChannel,
+    GuildMember,
+    PermissionsBitField,
+    Message,
+    BaseInteraction,
+    ApplicationCommandData,
+    ApplicationCommandType
+} from 'discord.js'
 import client from './index.js'
 
 /**
@@ -7,7 +15,7 @@ import client from './index.js'
  * @returns A promise that resolves after a certain amount of time.
  */
 export function sleep(ms: number = 1_000) {
-    return new Promise((resolve) => setTimeout(resolve, ms))
+    return new Promise(resolve => setTimeout(resolve, ms))
 }
 
 /**
@@ -71,3 +79,35 @@ export const Translator = function (interaction: BaseInteraction | Message<true>
         return i18n.__mf({ phrase, locale: lang }, params)
     }
 }
+
+// /**
+//  * Check if the command is valid
+//  * @param {object} command the command to validate
+//  * @returns {boolean} true if the command is valid
+//  */
+// export function validateCommand(command: ApplicationCommandData) {
+//     if (command.type === ApplicationCommandType.User) {
+//         // const { name, nameLocalizations, dmPermission, defaultMemberPermissions } = command
+//         // if (typeof name === 'string') {
+//         //     if (typeof nameLocalizations === 'object' || typeof nameLocalizations === 'undefined') {
+//         //         if (defaultMemberPermissions === null || typeof defaultMemberPermissions === 'undefined' || typeof PermissionsBitField) {
+//         //     } else return false
+//         // } else return false
+//     } else return true
+// }
+
+// export function parseCommand(command: ApplicationCommandData) {
+//     const newcommand: any = {}
+//     if (!validateCommand(command)) throw new Error('Invalid command')
+//     const { type } = command
+//     if (type === ApplicationCommandType.User) {
+//         //user
+//         newcommand.type = ApplicationCommandType.User
+//     } else if (type === ApplicationCommandType.Message) {
+//         //message
+//         newcommand.type = ApplicationCommandType.Message
+//     } else if (type === ApplicationCommandType.ChatInput || type === undefined) {
+//         //chat
+//         newcommand.type = ApplicationCommandType.ChatInput
+//     }
+// }

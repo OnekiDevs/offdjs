@@ -1,19 +1,22 @@
+import i18n, { ConfigurationOptions } from 'i18n'
+import { createRequire } from 'module'
+import { readdirSync } from 'fs'
+import { join } from 'path'
 import {
+    ApplicationCommandData,
     AutocompleteInteraction,
-    ButtonInteraction,
+    // ButtonInteraction,
     ChatInputCommandInteraction,
     Client as BaseClient,
     ClientOptions as BaseClientOptions,
     Interaction,
-    InteractionType,
-    ModalSubmitInteraction,
-    SelectMenuInteraction
+    InteractionType
+    // ModalSubmitInteraction,
+    // SelectMenuInteraction
 } from 'discord.js'
-import { createRequire } from 'module'
-import CommandManager from '../handlers/CommandManager.js'
-import i18n, { ConfigurationOptions } from 'i18n'
-import { join } from 'path'
-import { readdirSync } from 'fs'
+// import { json } from 'stream/consumers'
+// import { validateCommand } from '../utils'
+// import CommandManager from '../handlers/CommandManager.js'
 
 const version = createRequire(import.meta.url)('../../package.json').version
 
@@ -31,28 +34,30 @@ export interface ClientOptions extends BaseClientOptions {
 export default class Client extends BaseClient<true> {
     version: string
     i18n = i18n
-    commands: CommandManager
+    // commands: CommandManager
     routes = {
-        interactions: process.cwd()
+        interactions: join(process.cwd(), 'interactions'),
+        commands: join(process.cwd(), 'commands')
     }
     interactionSplit: string | RegExp = ':'
 
     constructor(options: ClientOptions) {
         super(options)
 
-        this.commands = new CommandManager(options.routes.commands)
+        // this.commands = new CommandManager(options.routes.commands)
 
         this.i18n.configure(options.i18n)
         this.version = version ?? '1.0.0'
 
         this.routes.interactions = options.routes.interactions
+        this.routes.commands = options.routes.commands
         this.interactionSplit = options.interactionSplit
 
         this.initializeEventListener(options.routes.events).then(c => {
             if (c) console.log('\x1b[35m%s\x1b[0m', 'Eventos Cargados!!')
         })
 
-        this.once('ready', () => this._onReady())
+        this.once('ready', () => this.#onReady())
     }
 
     get embedFooter() {
@@ -62,51 +67,46 @@ export default class Client extends BaseClient<true> {
         }
     }
 
-    private async _onReady() {
-        await this.commands.deploy()
-        if (this.commands.size) console.log('\x1b[32m%s\x1b[0m', 'Comandos Desplegados!!')
+    async #onReady() {
+        // if ()
+        const commands = this.#getJsonCommands(this.routes.commands)
+        for (const command of commands) this.application.commands.create(command as ApplicationCommandData)
+        // await this.commands.deploy()
+        // if (this.commands.size) console.log('\x1b[32m%s\x1b[0m', 'Comandos Desplegados!!')
         this.on('interactionCreate', (interaction: Interaction) => {
             // isChatInputCommand
             if (interaction.isChatInputCommand()) {
-                const cm = this.commands.get(interaction.commandName)
-                cm?.chatInputCommandInteraction(interaction as ChatInputCommandInteraction<'cached'>)
+                // const cm = this.commands.get(interaction.commandName)
+                // cm?.chatInputCommandInteraction(interaction as ChatInputCommandInteraction<'cached'>)
                 const names: string[] = getFullCommandName(interaction).filter(Boolean)
                 executeRouteCommand(interaction, this.routes.interactions, ...names)
-            }
-
-            if (interaction.isButton()) {
-                const bt = this.commands.find(cmd => interaction.customId.startsWith(cmd.name))
-                bt?.button(interaction as ButtonInteraction<'cached'>)
+            } else if (interaction.isButton()) {
+                // const bt = this.commands.find(cmd => interaction.customId.startsWith(cmd.name))
+                // bt?.button(interaction as ButtonInteraction<'cached'>)
                 executeRouteCommand(
                     interaction,
                     this.routes.interactions,
                     ...interaction.customId.split(this.interactionSplit)
                 )
-            }
-
-            if (interaction.isSelectMenu()) {
-                const mn = this.commands.find(cmd => interaction.customId.startsWith(cmd.name))
-                mn?.select(interaction as SelectMenuInteraction<'cached'>)
+            } else if (interaction.isSelectMenu()) {
+                // const mn = this.commands.find(cmd => interaction.customId.startsWith(cmd.name))
+                // mn?.select(interaction as SelectMenuInteraction<'cached'>)
                 executeRouteCommand(
                     interaction,
                     this.routes.interactions,
                     ...interaction.customId.split(this.interactionSplit)
                 )
-            }
-
-            if (interaction.type === InteractionType.ModalSubmit) {
-                const md = this.commands.find(cmd => interaction.customId.startsWith(cmd.name))
-                md?.modal(interaction as ModalSubmitInteraction<'cached'>)
+            } else if (interaction.type === InteractionType.ModalSubmit) {
+                // const md = this.commands.find(cmd => interaction.customId.startsWith(cmd.name))
+                // md?.modal(interaction as ModalSubmitInteraction<'cached'>)
                 executeRouteCommand(
                     interaction,
                     this.routes.interactions,
                     ...interaction.customId.split(this.interactionSplit)
                 )
-            }
-
-            if (interaction.type === InteractionType.ApplicationCommandAutocomplete) {
-                const au = this.commands.get(interaction.commandName)
-                au?.autocomplete(interaction as AutocompleteInteraction<'cached'>)
+            } else if (interaction.type === InteractionType.ApplicationCommandAutocomplete) {
+                // const au = this.commands.get(interaction.commandName)
+                // au?.autocomplete(interaction as AutocompleteInteraction<'cached'>)
                 const names: string[] = getFullCommandName(interaction).filter(Boolean)
                 executeRouteCommand(
                     interaction,
@@ -114,18 +114,39 @@ export default class Client extends BaseClient<true> {
                     ...names,
                     interaction.options.getFocused(true).name
                 )
-            }
-
-            if (interaction.isMessageContextMenuCommand()) {
+            } else if (interaction.isMessageContextMenuCommand()) {
                 executeRouteCommand(interaction, this.routes.interactions, interaction.commandName)
-            }
-
-            if (interaction.isUserContextMenuCommand()) {
+            } else if (interaction.isUserContextMenuCommand()) {
                 executeRouteCommand(interaction, this.routes.interactions, interaction.commandName)
             }
         })
 
         console.log('\x1b[31m%s\x1b[0m', `${this.user?.username} ${this.version} ready!!!`)
+    }
+
+    #getJsonCommands(path: string) {
+        const commands: ApplicationCommandData[] = []
+        const dir = readdirSync(path).filter(file => file.endsWith('.json'))
+        for (const file of dir)
+            import(join(path, file))
+                .then(json => commands.push(json.default))
+                .catch(err => {
+                    if (!err.message.startsWith('Cannot find module')) throw err
+                })
+        // const dir = readdirSync(path, { withFileTypes: true })
+        // for (const file of dir) {
+        //     if (file.isDirectory()) {
+        //         const j = this.#getJsonCommands(join(path, file.name))
+        //         commands.push(...j)
+        //     } else if (file.isFile() && file.name.endsWith('.json')) {
+        //         import(join(path, file.name + '.json'), { assert: { type: 'json' } })
+        //             .then(json => commands.push(json.default))
+        //             .catch(err => {
+        //                 if (!err.message.startsWith('Cannot find module')) throw err
+        //             })
+        //     }
+        // }
+        return commands
     }
 
     async initializeEventListener(path: string) {

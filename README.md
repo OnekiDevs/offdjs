@@ -90,58 +90,25 @@ export default function ready(client) {
 
 ## Commands
 
-To load commands you just need to create a folder in the root called `commands` and **offdjs** will read all the files whose name has the following structure:
+To load commands you just need to create a folder in the root called `commands` and **offdjs** will read all the json files and will load them as global commands
 
-```
-commandName.command.js
-```
-
-**offdjs** can read subfolders within the `commands` folder to make managing commands easier
+<!-- **offdjs** can read subfolders within the `commands` folder to make managing commands easier -->
 
 example:
 
 ```
 .
 ├── commands
-│   ├── ping.command.js
-│   └── actions
-│       ├── punch.command.js
-│       └── kiss.command.js
+│   └── ping.json
 ├── node_modules
 │   └── ...
 ├── .env
 └── package.json
 ```
 
-The script must export a default class that extends from the `Command` class provided by **offdjs** which is initialized in the super with at least the name that must match the name put in the file and a description, both properties are objects with properties named as [local Discord API](https://discord.com/developers/docs/reference#locales), `en-US` at least (this will change in the future)
+## Chat input commands
 
-The `Comand` class has an ChatInputCommandInteraction method with a parameter of type `ChatInputCommandInteraction<'cached'>` which is executed every time it receives a command interaction with the same name set which you can override to execute and respond to said interaction
-
-example:
-
-```js
-import { Command } from 'offdjs'
-
-export default class Ping extends Command {
-    constructor() {
-        super({
-            name: {
-                'en-US': 'ping'
-            },
-            description: {
-                'en-US': 'Ping the bot'
-            },
-            global: false
-        })
-    }
-
-    async ChatInputCommandInteraction(interaction) {
-        interaction.reply('Pong!')
-    }
-}
-```
-
-If you want to abstract the functionality of the command you can create a folder called `interactions` and export a function `chatInputCommandInteraction` in a file with the name of the command, it will receive the interaction as a parameter of type `ChatInputCommandInteraction<'cached'>`
+If you need to respond to a command you can create a folder called `interactions` and export a function `chatInputCommandInteraction` in a file with the name of the command, it will receive the interaction as a parameter of type `ChatInputCommandInteraction<'cached'>`
 
 example:
 
