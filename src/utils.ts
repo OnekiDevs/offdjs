@@ -3,9 +3,9 @@ import {
     GuildMember,
     PermissionsBitField,
     Message,
-    BaseInteraction,
-    ApplicationCommandData,
-    ApplicationCommandType
+    BaseInteraction
+    // ApplicationCommandData,
+    // ApplicationCommandType
 } from 'discord.js'
 import client from './index.js'
 
