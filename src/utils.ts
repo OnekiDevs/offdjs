@@ -31,7 +31,8 @@ import {
     APIApplicationCommandNumberOption,
     APIApplicationCommandAttachmentOption,
     APIApplicationCommandOptionChoice,
-    APIApplicationCommandBasicOption
+    APIApplicationCommandBasicOption,
+    MessageApplicationCommandData
 } from 'discord.js'
 import client from './index.js'
 import { z } from 'zod'
@@ -150,18 +151,17 @@ export const Translator = function (interaction: BaseInteraction | Message<true>
     }
 }
 
-export function parseAPICommand(command: object): RESTPostAPIApplicationCommandsJSONBody {
-    if ((command as ApplicationCommandData).type === ApplicationCommandType.User) {
+export function parseAPICommand(command: ApplicationCommandData): RESTPostAPIApplicationCommandsJSONBody {
+    if (command.type === ApplicationCommandType.User) {
         // UserApplicationCommandData
-        if (String((command as UserApplicationCommandData).name).length < 1) throw new Error('Command name is required')
+        if (!command.name?.length) throw new Error('Command name is required')
         return parseUserApplicationCommandData(command as UserApplicationCommandData)
-    } else if ((command as ApplicationCommandData).type === ApplicationCommandType.Message) {
+    } else if (command.type === ApplicationCommandType.Message) {
         // MessageApplicationCommandData
-        if (String((command as UserApplicationCommandData).name).length < 1) throw new Error('Command name is required')
-        return parseMessageApplicationCommandData(command as UserApplicationCommandData)
+        if (!command.name?.length) throw new Error('Command name is required')
+        return parseMessageApplicationCommandData(command as MessageApplicationCommandData)
     } else {
-        if (!String((command as ChatInputApplicationCommandData).name).length)
-            throw new Error('Command name is required')
+        if (!command.name?.length) throw new Error('Command name is required')
         return parseChatInputApplicationCommandData(command as ChatInputApplicationCommandData)
     }
 }
@@ -183,7 +183,7 @@ export function parseUserApplicationCommandData(command: UserApplicationCommandD
     return api
 }
 
-export function parseMessageApplicationCommandData(command: UserApplicationCommandData) {
+export function parseMessageApplicationCommandData(command: MessageApplicationCommandData) {
     if (typeof command.name !== 'string') throw new Error('Command name is required')
     const api: RESTPostAPIContextMenuApplicationCommandsJSONBody = {
         type: 3,
@@ -636,7 +636,7 @@ export function parseAttachmentCommandOption(option: commandOption): APIApplicat
     return op
 }
 
-type commandOption = {
+export type commandOption = {
     type: number
     name: string
     descripton?: string

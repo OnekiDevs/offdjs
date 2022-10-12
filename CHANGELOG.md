@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+# 0.10.0
+
+## Features
+
+-   **utils:** `parseAPICommand` added method to parse objecs to `RESTPostAPIApplicationCommandsJSONBody`
+-   **Client:** `syncCommands` the client sync the commands whith the local files
+
 # 0.9.0
 
 ## Features

@@ -22,18 +22,12 @@ offdjs is a small framework that uses [discord.js](https://https://discord.js.or
 **Node.js 16.9.0 or newer is required.**
 
 ```
-npm install offdjs
+npm install offdjs -g
 ```
 
 ## Example usage
 
-Install discord.js:
-
-```sh-session
-npm i offdjs
-```
-
-create a script in your **package.json** that runs `offdjs`:
+<!-- create a script in your **package.json** that runs `offdjs`:
 
 ```json
 {
@@ -41,18 +35,18 @@ create a script in your **package.json** that runs `offdjs`:
         "start": "offdjs"
     }
 }
-```
+``` -->
 
 Set your token in an .env file at the root of the project (according to [discord.js](https://https://discord.js.org/) specs)
 
 ```env
-DISCORD_TOKEN=your_discord_token
+DISCORD_TOKEN="your_discord_token"
 ```
 
 At this point you can run your script and the bot will turn on without requiring any configuration
 
 ```sh-session
-npm start
+offdjs
 ```
 
 ## Events
@@ -90,7 +84,7 @@ export default function ready(client) {
 
 ## Commands
 
-To load commands you just need to create a folder in the root called `commands` and **offdjs** will read all the json files and will load them as global commands
+To load commands you just need to create a folder in the root called `commands` and **offdjs** will read all the json files and will load them as global commands.
 
 <!-- **offdjs** can read subfolders within the `commands` folder to make managing commands easier -->
 
@@ -105,6 +99,8 @@ example:
 ├── .env
 └── package.json
 ```
+
+The json structure is the `ApplicationCommandData` type which exports discord.js
 
 ## Chat input commands
 

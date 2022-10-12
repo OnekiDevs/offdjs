@@ -1,22 +1,19 @@
 import i18n, { ConfigurationOptions } from 'i18n'
+import { parseAPICommand } from '../utils.js'
 import { createRequire } from 'module'
 import { readdirSync } from 'fs'
 import { join } from 'path'
 import {
+    ApplicationCommand,
     ApplicationCommandData,
     AutocompleteInteraction,
-    // ButtonInteraction,
     ChatInputCommandInteraction,
     Client as BaseClient,
     ClientOptions as BaseClientOptions,
     Interaction,
-    InteractionType
-    // ModalSubmitInteraction,
-    // SelectMenuInteraction
+    InteractionType,
+    RESTPostAPIApplicationCommandsJSONBody
 } from 'discord.js'
-// import { json } from 'stream/consumers'
-// import { validateCommand } from '../utils'
-// import CommandManager from '../handlers/CommandManager.js'
 
 const version = createRequire(import.meta.url)('../../package.json').version
 
@@ -53,60 +50,65 @@ export default class Client extends BaseClient<true> {
         this.routes.commands = options.routes.commands
         this.interactionSplit = options.interactionSplit
 
-        this.initializeEventListener(options.routes.events).then(c => {
+        this.initializeEventListener(options.routes.events).then((c) => {
             if (c) console.log('\x1b[35m%s\x1b[0m', 'Eventos Cargados!!')
         })
 
         this.once('ready', () => this.#onReady())
     }
 
-    get embedFooter() {
-        return {
-            text: `${this.user?.username} Bot v${this.version}`,
-            iconURL: this.user?.avatarURL() as string
+    async syncCommands() {
+        const remoteCommands = await this.application.commands.fetch()
+        const localCommands = await this.#getJsonCommands(join(process.cwd(), 'commands'))
+        const toCreate: RESTPostAPIApplicationCommandsJSONBody[] = []
+        const toDelete: ApplicationCommand[] = []
+
+        for (const command of localCommands) {
+            const remoteCommand = remoteCommands.find((c) => c.name === command.name)
+            if (
+                remoteCommand &&
+                JSON.stringify(parseAPICommand(remoteCommand as ApplicationCommandData)) !== JSON.stringify(command)
+            )
+                toCreate.push(command)
         }
+
+        for (const command of remoteCommands.values()) {
+            if (!localCommands.find((c) => c.name === command.name)) toDelete.push(command)
+        }
+
+        for (const command of toCreate) await this.application.commands.create(command)
+
+        for (const command of toDelete) await command.delete()
     }
 
     async #onReady() {
-        // if ()
-        const commands = this.#getJsonCommands(this.routes.commands)
-        for (const command of commands) this.application.commands.create(command as ApplicationCommandData)
-        // await this.commands.deploy()
-        // if (this.commands.size) console.log('\x1b[32m%s\x1b[0m', 'Comandos Desplegados!!')
+        await this.syncCommands()
+        console.log('\x1b[35m%s\x1b[0m', 'Commands Synced!!')
+        // TODO: activar
         this.on('interactionCreate', (interaction: Interaction) => {
             // isChatInputCommand
             if (interaction.isChatInputCommand()) {
-                // const cm = this.commands.get(interaction.commandName)
-                // cm?.chatInputCommandInteraction(interaction as ChatInputCommandInteraction<'cached'>)
                 const names: string[] = getFullCommandName(interaction).filter(Boolean)
                 executeRouteCommand(interaction, this.routes.interactions, ...names)
             } else if (interaction.isButton()) {
-                // const bt = this.commands.find(cmd => interaction.customId.startsWith(cmd.name))
-                // bt?.button(interaction as ButtonInteraction<'cached'>)
                 executeRouteCommand(
                     interaction,
                     this.routes.interactions,
                     ...interaction.customId.split(this.interactionSplit)
                 )
             } else if (interaction.isSelectMenu()) {
-                // const mn = this.commands.find(cmd => interaction.customId.startsWith(cmd.name))
-                // mn?.select(interaction as SelectMenuInteraction<'cached'>)
                 executeRouteCommand(
                     interaction,
                     this.routes.interactions,
                     ...interaction.customId.split(this.interactionSplit)
                 )
             } else if (interaction.type === InteractionType.ModalSubmit) {
-                // const md = this.commands.find(cmd => interaction.customId.startsWith(cmd.name))
-                // md?.modal(interaction as ModalSubmitInteraction<'cached'>)
                 executeRouteCommand(
                     interaction,
                     this.routes.interactions,
                     ...interaction.customId.split(this.interactionSplit)
                 )
             } else if (interaction.type === InteractionType.ApplicationCommandAutocomplete) {
-                // const au = this.commands.get(interaction.commandName)
-                // au?.autocomplete(interaction as AutocompleteInteraction<'cached'>)
                 const names: string[] = getFullCommandName(interaction).filter(Boolean)
                 executeRouteCommand(
                     interaction,
@@ -124,39 +126,33 @@ export default class Client extends BaseClient<true> {
         console.log('\x1b[31m%s\x1b[0m', `${this.user?.username} ${this.version} ready!!!`)
     }
 
-    #getJsonCommands(path: string) {
-        const commands: ApplicationCommandData[] = []
-        const dir = readdirSync(path).filter(file => file.endsWith('.json'))
-        for (const file of dir)
-            import(join(path, file))
-                .then(json => commands.push(json.default))
-                .catch(err => {
-                    if (!err.message.startsWith('Cannot find module')) throw err
-                })
-        // const dir = readdirSync(path, { withFileTypes: true })
-        // for (const file of dir) {
-        //     if (file.isDirectory()) {
-        //         const j = this.#getJsonCommands(join(path, file.name))
-        //         commands.push(...j)
-        //     } else if (file.isFile() && file.name.endsWith('.json')) {
-        //         import(join(path, file.name + '.json'), { assert: { type: 'json' } })
-        //             .then(json => commands.push(json.default))
-        //             .catch(err => {
-        //                 if (!err.message.startsWith('Cannot find module')) throw err
-        //             })
-        //     }
-        // }
+    async #getJsonCommands(path: string) {
+        const commands: RESTPostAPIApplicationCommandsJSONBody[] = []
+        const dir = readdirSync(path, { withFileTypes: true })
+        for (const file of dir) {
+            if (file.isFile()) {
+                await import(join(path, file.name), { assert: { type: 'json' } })
+                    .then((json) => commands.push(parseAPICommand(json.default)))
+                    .catch((err) => {
+                        if (!err.message.startsWith('Cannot find module')) throw err
+                    })
+            } else if (file.isDirectory()) {
+                const nc = await this.#getJsonCommands(join(path, file.name))
+                commands.push(...nc)
+            }
+        }
+
         return commands
     }
 
     async initializeEventListener(path: string) {
         try {
             const r = await Promise.all(
-                readdirSync(path, { withFileTypes: true }).map(async file => {
+                readdirSync(path, { withFileTypes: true }).map(async (file) => {
                     if (file.isDirectory()) {
                         readdirSync(join(path, file.name))
-                            .filter(f => f.endsWith('.event.js'))
-                            .forEach(async f_1 => {
+                            .filter((f) => f.endsWith('.event.js'))
+                            .forEach(async (f_1) => {
                                 const event = await import('file:///' + join(path, file.name, f_1))
                                 const [eventName] = f_1.split('.')
                                 this.on(eventName as string, (...args) => event.default(...args))
@@ -177,9 +173,9 @@ export default class Client extends BaseClient<true> {
 
 function executeRouteCommand(interaction: Interaction, path: string, ...args: string[]) {
     try {
-        processRoutesFileNames(path, ...args).map(i =>
+        processRoutesFileNames(path, ...args).map((i) =>
             import(i)
-                .then(f => {
+                .then((f) => {
                     if (interaction.isChatInputCommand()) f.chatInputCommandInteraction?.(interaction)
                     else if (interaction.isButton()) f.buttonInteraction?.(interaction, ...args)
                     else if (interaction.isSelectMenu()) f.selectMenuInteraction?.(interaction, ...args)
@@ -192,11 +188,12 @@ function executeRouteCommand(interaction: Interaction, path: string, ...args: st
                     else if (interaction.isUserContextMenuCommand()) f.userContextMenuCommandInteraction?.(interaction)
                     f.default?.(interaction)
                 })
-                .catch(e => {
+                .catch((e) => {
                     if (!e.message.startsWith('Cannot find module')) throw e
                 })
         )
     } catch (error) {
+        // deepscan-disable-line USELESS_CATCH
         throw error
     }
 }
