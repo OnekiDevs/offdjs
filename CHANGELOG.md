@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+# 0.10.1
+
+## Changues
+
+-   **Client:** `Commands` the client load js command files
+-   **Client:** `Commands` the client read rest djs command properties
+-   **Client:** `Events` the event files don't need a .event.js nomenglature
+
 # 0.10.0
 
 ## Features

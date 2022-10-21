@@ -37,49 +37,20 @@ import {
 import client from './index.js'
 import { z } from 'zod'
 
-export const ApiPermissionFlagsBits = {
-    create_instant_invite: 1n,
-    kick_members: 2n,
-    ban_members: 4n,
-    administrator: 8n,
-    manage_channels: 16n,
-    manage_guild: 32n,
-    add_reactions: 64n,
-    view_audit_log: 128n,
-    priority_speaker: 256n,
-    stream: 512n,
-    view_channel: 1024n,
-    send_messages: 2048n,
-    send_t_t_s_messages: 4096n,
-    manage_messages: 8192n,
-    embed_links: 16384n,
-    attach_files: 32768n,
-    read_message_history: 65536n,
-    mention_everyone: 131072n,
-    use_external_emojis: 262144n,
-    view_guild_insights: 524288n,
-    connect: 1048576n,
-    speak: 2097152n,
-    mute_members: 4194304n,
-    deafen_members: 8388608n,
-    move_members: 16777216n,
-    use_v_a_d: 33554432n,
-    change_nickname: 67108864n,
-    manage_nicknames: 134217728n,
-    manage_roles: 268435456n,
-    manage_webhooks: 536870912n,
-    manage_emojis_and_stickers: 1073741824n,
-    use_application_commands: 2147483648n,
-    request_to_speak: 4294967296n,
-    manage_events: 8589934592n,
-    manage_threads: 17179869184n,
-    create_public_threads: 34359738368n,
-    create_private_threads: 68719476736n,
-    use_external_stickers: 137438953472n,
-    send_messages_in_threads: 274877906944n,
-    use_embedded_activities: 549755813888n,
-    moderate_members: 1099511627776n
+const parsePerType = {
+    [ApplicationCommandOptionType.Subcommand]: parseSubcommandCommandOption,
+    [ApplicationCommandOptionType.SubcommandGroup]: parseSubcommandGroupCommandOption,
+    [ApplicationCommandOptionType.String]: parseStringCommandOption,
+    [ApplicationCommandOptionType.Integer]: parseIntegerCommandOption,
+    [ApplicationCommandOptionType.Boolean]: parseBooleanCommandOption,
+    [ApplicationCommandOptionType.User]: parseUserCommandOption,
+    [ApplicationCommandOptionType.Channel]: parseChannelCommandOption,
+    [ApplicationCommandOptionType.Role]: parseRoleCommandOption,
+    [ApplicationCommandOptionType.Mentionable]: parseMentionableCommandOption,
+    [ApplicationCommandOptionType.Number]: parseNumberCommandOption,
+    [ApplicationCommandOptionType.Attachment]: parseAttachmentCommandOption
 }
+
 /**
  * Sleep() returns a Promise that resolves after a given number of milliseconds.
  * @param {number} ms - The number of milliseconds to wait before resolving the promise.
@@ -134,7 +105,7 @@ export function randomId() {
 /**
  * It takes an interaction and returns a function that takes a phrase and returns a translation
  * @param {Interaction} interaction - Interaction - The interaction object that contains the locale and client.
- * @returns {transalte} A function that takes a phrase and params and returns a string.
+ * @returns {(phrase: string, params?: object): string }
  */
 export const Translator = function (interaction: BaseInteraction | Message<true>) {
     let lang: string = interaction instanceof BaseInteraction ? interaction.locale : interaction.guild.preferredLocale
@@ -151,22 +122,50 @@ export const Translator = function (interaction: BaseInteraction | Message<true>
     }
 }
 
-export function parseAPICommand(command: ApplicationCommandData): RESTPostAPIApplicationCommandsJSONBody {
-    if (command.type === ApplicationCommandType.User) {
+/**
+ * It takes a object and returns another object formatted for the discord api
+ * @param {ApplicationCommandData} command - The object to parse
+ * @returns {RESTPostAPIApplicationCommandsJSONBody} - The command in the correct format to send to the API
+ * @example parseCommand({
+ *     name: 'say',
+ *     options: [{
+ *         name: 'text',
+ *         description: 'text to say',
+ *         required: true
+ *     }]
+ * })
+ * // {
+ * //     type: 1,
+ * //     name: 'say',
+ * //     description: '...',
+ * //     options: [{
+ * //         name: 'text',
+ * //         description: 'text to say',
+ * //         required: true,
+ * //         type: 3
+ * //    }]
+ * // }
+ */
+export function parseAPICommand(command: CommandData): RESTPostAPIApplicationCommandsJSONBody {
+    if ((command as { type: number }).type === ApplicationCommandType.User) {
         // UserApplicationCommandData
         if (!command.name?.length) throw new Error('Command name is required')
         return parseUserApplicationCommandData(command as UserApplicationCommandData)
-    } else if (command.type === ApplicationCommandType.Message) {
+    } else if ((command as { type: number }).type === ApplicationCommandType.Message) {
         // MessageApplicationCommandData
         if (!command.name?.length) throw new Error('Command name is required')
         return parseMessageApplicationCommandData(command as MessageApplicationCommandData)
     } else {
         if (!command.name?.length) throw new Error('Command name is required')
-        return parseChatInputApplicationCommandData(command as ChatInputApplicationCommandData)
+        return parseChatInputApplicationCommandData(
+            command as Partial<ChatInputApplicationCommandData & RESTPostAPIChatInputApplicationCommandsJSONBody>
+        )
     }
 }
 
-export function parseUserApplicationCommandData(command: UserApplicationCommandData) {
+export function parseUserApplicationCommandData(
+    command: Partial<UserApplicationCommandData & RESTPostAPIContextMenuApplicationCommandsJSONBody>
+) {
     if (typeof command.name !== 'string') throw new Error('Command name is required')
     const api: RESTPostAPIContextMenuApplicationCommandsJSONBody = {
         type: 2,
@@ -183,7 +182,9 @@ export function parseUserApplicationCommandData(command: UserApplicationCommandD
     return api
 }
 
-export function parseMessageApplicationCommandData(command: MessageApplicationCommandData) {
+export function parseMessageApplicationCommandData(
+    command: Partial<MessageApplicationCommandData & RESTPostAPIContextMenuApplicationCommandsJSONBody>
+) {
     if (typeof command.name !== 'string') throw new Error('Command name is required')
     const api: RESTPostAPIContextMenuApplicationCommandsJSONBody = {
         type: 3,
@@ -200,7 +201,9 @@ export function parseMessageApplicationCommandData(command: MessageApplicationCo
     return api
 }
 
-export function parseChatInputApplicationCommandData(command: ChatInputApplicationCommandData) {
+export function parseChatInputApplicationCommandData(
+    command: Partial<ChatInputApplicationCommandData & RESTPostAPIChatInputApplicationCommandsJSONBody>
+) {
     if (typeof command.name !== 'string') throw new Error('Command name is required')
     const name = String(command.name).toLowerCase().substring(0, 32).replace(/ +/g, '-')
     const rg = z.string().regex(/^[\p{Ll}\p{Lm}\p{Lo}\p{N}\p{sc=Devanagari}\p{sc=Thai}_-]+$/u)
@@ -235,20 +238,30 @@ export function resolvePermissions(permissions: PermissionResolvable) {
     } else if (typeof permissions === 'bigint') {
         return permissions
     } else if (typeof permissions === 'string') {
-        if (Object.keys(PermissionFlagsBits).includes(permissions))
+        if (Object.keys(PermissionFlagsBits).includes(parseSnakeToCamellCase(permissions)))
             return PermissionFlagsBits[permissions as keyof typeof PermissionFlagsBits]
-        else if (Object.keys(ApiPermissionFlagsBits).includes(permissions))
-            return ApiPermissionFlagsBits[permissions as keyof typeof ApiPermissionFlagsBits]
         else return 0n
     } else if (typeof permissions === 'number') {
         return BigInt(permissions)
     } else return 0n
 }
 
+/**
+ * convert a string from camelCase to snake_case
+ * @param {string} s - The string to parse
+ * @returns {string} - The string parsed
+ * @example parseCamellToSnake('helloWorld') // hello_world
+ */
 export function parseCamellToSnakeCase(s: string) {
     return s.replace(/([A-Z])/g, (g) => `_${g[0].toLowerCase()}`)
 }
 
+/**
+ * convert a string from snake_case to camelCase
+ * @param {string} s - The string to parse
+ * @returns {string} - The string parsed
+ * @example parseCamellToSnake('hello_world') // helloWorld
+ */
 export function parseSnakeToCamellCase(s: string) {
     return s.replace(/([_][a-z])/g, (g) => g[1].toUpperCase())
 }
@@ -277,49 +290,11 @@ export function parseDescriptionLocalizations(localizations: LocalizationMap) {
     return local
 }
 
-function parseCommandOption(...option: CommandInteractionOption[]): APIApplicationCommandOption[] {
+export function parseCommandOption(...option: CommandInteractionOption[]): APIApplicationCommandOption[] {
     const op: APIApplicationCommandOption[] = []
-    for (const o of option) {
-        if (typeof o.name !== 'string') throw new Error('Option name is required')
-        if (o.type === ApplicationCommandOptionType.Subcommand) {
-            const opt = parseSubcommandCommandOption(o)
-            op.push(opt)
-        } else if (o.type === ApplicationCommandOptionType.SubcommandGroup) {
-            const opt = parseSubcommandGroupCommandOption(o)
-            op.push(opt)
-        } else if (o.type === ApplicationCommandOptionType.String || o.type === undefined) {
-            const opt = parseStringCommandOption(o)
-            op.push(opt)
-        } else if (o.type === ApplicationCommandOptionType.Integer) {
-            const opt = parseIntegerCommandOption(o)
-            op.push(opt)
-        } else if (o.type === ApplicationCommandOptionType.Boolean) {
-            const opt = parseBooleanCommandOption(o)
-            op.push(opt)
-        } else if (o.type === ApplicationCommandOptionType.User) {
-            const opt = parseUserCommandOption(o)
-            op.push(opt)
-        } else if (o.type === ApplicationCommandOptionType.Channel) {
-            const opt = parseChannelCommandOption(o)
-            op.push(opt)
-        } else if (o.type === ApplicationCommandOptionType.Role) {
-            const opt = parseRoleCommandOption(o)
-            op.push(opt)
-        } else if (o.type === ApplicationCommandOptionType.Mentionable) {
-            const opt = parseMentionableCommandOption(o)
-            op.push(opt)
-        } else if (o.type === ApplicationCommandOptionType.Number) {
-            const opt = parseNumberCommandOption(o)
-            op.push(opt)
-        } else if (o.type === ApplicationCommandOptionType.Attachment) {
-            const opt = parseAttachmentCommandOption(o)
-            op.push(opt)
-        }
-    }
+    for (const o of option) op.push(parsePerType[o.type]?.(o) ?? parseStringCommandOption(o))
     return op
 }
-
-export { parseCommandOption }
 
 // ! subcommand
 export function parseSubcommandCommandOption(option: commandOption): APIApplicationCommandSubcommandOption {
@@ -652,3 +627,10 @@ export type commandOption = {
     autocomplete?: boolean
     channelTypes?: number[]
 }
+
+export type CommandData = Partial<
+    ApplicationCommandData &
+        RESTPostAPIApplicationCommandsJSONBody & {
+            type: ApplicationCommandType
+        }
+>

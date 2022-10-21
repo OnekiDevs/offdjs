@@ -22,12 +22,12 @@ offdjs is a small framework that uses [discord.js](https://https://discord.js.or
 **Node.js 16.9.0 or newer is required.**
 
 ```
-npm install offdjs -g
+npm install offdjs
 ```
 
 ## Example usage
 
-<!-- create a script in your **package.json** that runs `offdjs`:
+create a script in your **package.json** that runs `offdjs`:
 
 ```json
 {
@@ -35,7 +35,7 @@ npm install offdjs -g
         "start": "offdjs"
     }
 }
-``` -->
+```
 
 Set your token in an .env file at the root of the project (according to [discord.js](https://https://discord.js.org/) specs)
 
@@ -51,23 +51,17 @@ offdjs
 
 ## Events
 
-To load events you just need to create a folder in the root called `events` and **offdjs** will read all the files whose name has the following structure:
-
-```
-eventName.event.js
-```
-
-**offdjs** can read subfolders within the `events` folder for easy event management
+To load events you just need to create a folder in the root called `events` and **offdjs** will read all the js files that contain an event as name; (custom events work too). **offdjs** can read subfolders within the `events` folder for easy event management
 
 example:
 
 ```
 .
 ├── events
-│   ├── ready.event.js
+│   ├── ready.js
 │   └── guild
-│       ├── guildMemberAdd.event.js
-│       └── guildMemberRemove.event.js
+│       ├── guildMemberAdd.js
+│       └── guildMemberRemove.js
 ├── node_modules
 │   └── ...
 ├── .env
@@ -84,9 +78,9 @@ export default function ready(client) {
 
 ## Commands
 
-To load commands you just need to create a folder in the root called `commands` and **offdjs** will read all the json files and will load them as global commands.
+To load commands you just need to create a folder in the root called `commands` and **offdjs** will read all the json and js files and will load them as global commands.
 
-<!-- **offdjs** can read subfolders within the `commands` folder to make managing commands easier -->
+**offdjs** can read subfolders within the `commands` folder to make managing commands easier
 
 example:
 
@@ -94,13 +88,15 @@ example:
 .
 ├── commands
 │   └── ping.json
+│   └── others
+│       └── test.js
 ├── node_modules
 │   └── ...
 ├── .env
 └── package.json
 ```
 
-The json structure is the `ApplicationCommandData` type which exports discord.js
+The json structure is the `ApplicationCommandData | RESTPostAPIApplicationCommandsJSONBody` type which exports discord.js
 
 ## Chat input commands
 

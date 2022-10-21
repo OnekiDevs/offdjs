@@ -1,11 +1,10 @@
 import i18n, { ConfigurationOptions } from 'i18n'
 import { parseAPICommand } from '../utils.js'
-import { createRequire } from 'module'
+import { CommandData } from '../utils'
 import { readdirSync } from 'fs'
 import { join } from 'path'
 import {
     ApplicationCommand,
-    ApplicationCommandData,
     AutocompleteInteraction,
     ChatInputCommandInteraction,
     Client as BaseClient,
@@ -14,8 +13,7 @@ import {
     InteractionType,
     RESTPostAPIApplicationCommandsJSONBody
 } from 'discord.js'
-
-const version = createRequire(import.meta.url)('../../package.json').version
+const version = await import('../../' + 'package.json', { assert: { type: 'json' } }).then((i) => i.default.version)
 
 export interface ClientOptions extends BaseClientOptions {
     // constants: ClientConstants
@@ -29,7 +27,7 @@ export interface ClientOptions extends BaseClientOptions {
 }
 
 export default class Client extends BaseClient<true> {
-    version: string
+    version = version ?? '1.0.0'
     i18n = i18n
     // commands: CommandManager
     routes = {
@@ -44,7 +42,6 @@ export default class Client extends BaseClient<true> {
         // this.commands = new CommandManager(options.routes.commands)
 
         this.i18n.configure(options.i18n)
-        this.version = version ?? '1.0.0'
 
         this.routes.interactions = options.routes.interactions
         this.routes.commands = options.routes.commands
@@ -59,7 +56,10 @@ export default class Client extends BaseClient<true> {
 
     async syncCommands() {
         const remoteCommands = await this.application.commands.fetch()
-        const localCommands = await this.#getJsonCommands(join(process.cwd(), 'commands'))
+        const localCommands = [
+            ...(await this.#getJsonCommands(join(process.cwd(), 'commands'))),
+            ...(await this.#getJSCommands(join(process.cwd(), 'commands')))
+        ]
         const toCreate: RESTPostAPIApplicationCommandsJSONBody[] = []
         const toDelete: ApplicationCommand[] = []
 
@@ -67,7 +67,7 @@ export default class Client extends BaseClient<true> {
             const remoteCommand = remoteCommands.find((c) => c.name === command.name)
             if (
                 remoteCommand &&
-                JSON.stringify(parseAPICommand(remoteCommand as ApplicationCommandData)) !== JSON.stringify(command)
+                JSON.stringify(parseAPICommand(remoteCommand as CommandData)) !== JSON.stringify(command)
             )
                 toCreate.push(command)
         }
@@ -130,7 +130,7 @@ export default class Client extends BaseClient<true> {
         const commands: RESTPostAPIApplicationCommandsJSONBody[] = []
         const dir = readdirSync(path, { withFileTypes: true })
         for (const file of dir) {
-            if (file.isFile()) {
+            if (file.isFile() && file.name.endsWith('.json')) {
                 await import(join(path, file.name), { assert: { type: 'json' } })
                     .then((json) => commands.push(parseAPICommand(json.default)))
                     .catch((err) => {
@@ -145,22 +145,41 @@ export default class Client extends BaseClient<true> {
         return commands
     }
 
+    async #getJSCommands(path: string) {
+        const commands: RESTPostAPIApplicationCommandsJSONBody[] = []
+        const dir = readdirSync(path, { withFileTypes: true })
+        for (const file of dir) {
+            if (file.isFile() && file.name.endsWith('.js')) {
+                await import(join(path, file.name))
+                    .then((cmd) => commands.push(parseAPICommand(cmd.default)))
+                    .catch((err) => {
+                        if (!err.message.startsWith('Cannot find module')) throw err
+                    })
+            } else if (file.isDirectory()) {
+                const nc = await this.#getJSCommands(join(path, file.name))
+                commands.push(...nc)
+            }
+        }
+
+        return commands
+    }
+
     async initializeEventListener(path: string) {
         try {
             const r = await Promise.all(
                 readdirSync(path, { withFileTypes: true }).map(async (file) => {
                     if (file.isDirectory()) {
                         readdirSync(join(path, file.name))
-                            .filter((f) => f.endsWith('.event.js'))
-                            .forEach(async (f_1) => {
-                                const event = await import('file:///' + join(path, file.name, f_1))
-                                const [eventName] = f_1.split('.')
+                            .filter((f) => f.endsWith('.js'))
+                            .forEach(async (f) => {
+                                const event = await import('file:///' + join(path, file.name, f))
+                                const [eventName] = f.split('.')
                                 this.on(eventName as string, (...args) => event.default(...args))
                             })
-                    } else if (file.name.endsWith('.event.js')) {
-                        const event_2 = await import('file:///' + join(path, file.name))
-                        const [eventName_1] = file.name.split('.')
-                        this.on(eventName_1 as string, (...args_1) => event_2.default(...args_1))
+                    } else if (file.name.endsWith('.js')) {
+                        const event = await import('file:///' + join(path, file.name))
+                        const [eventName] = file.name.split('.')
+                        this.on(eventName as string, (...args) => event.default(...args))
                     }
                 })
             )

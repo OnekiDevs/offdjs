@@ -1,6 +1,6 @@
 {
     "name": "offdjs",
-    "version": "0.10.0",
+    "version": "0.10.1",
     "type": "module",
     "description": "oneki framework for discord.js",
     "main": "lib/index.js",
@@ -23,13 +23,25 @@
         "nodejs",
         "node.js"
     ],
-    "author": "eliyya",
+    "author": {
+        "name": "eliyya",
+        "email": "elimacmun@gmail.com",
+        "url": "https://twitter.com/eli_yya"
+    },
     "license": "MIT",
     "devDependencies": {
         "@types/i18n": "0.13.4",
         "@types/node": "18.6.2",
         "typescript": "4.8.4"
     },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/OnekiDevs/offdjs.git"
+    },
+    "bugs": {
+        "url": "https://github.com/OnekiDevs/offdjs/issues"
+    },
+    "homepage": "https://github.com/OnekiDevs/offdjs#readme",
     "dependencies": {
         "discord.js": "^14.0.0",
         "dotenv": "16.0.1",

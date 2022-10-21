@@ -1,0 +1,57 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "$id": "http://example.com/example.json",
+    "type": "object",
+    "default": {},
+    "title": "Root Schema",
+    "properties": {
+        "type": {
+            "type": "integer",
+            "enum": [1, 2, 3],
+            "default": 1,
+            "title": "The type command",
+            "examples": [1]
+        },
+        "description": {
+            "type": "string",
+            "default": "...",
+            "title": "The description",
+            "examples": ["..."]
+        },
+        "name": {
+            "type": "string",
+            "title": "The name",
+            "examples": ["test"],
+            "pattern": "^[p{Ll}p{Lm}p{Lo}p{N}p{sc=Devanagari}p{sc=Thai}_-]+$",
+            "flags": "u"
+        }
+    },
+    "required": ["name"],
+    "if": {
+        "properties": {
+            "type": {
+                "const": 1
+            }
+        }
+    },
+    "then": {
+        "required": ["description"]
+    },
+    "if": {
+        "not": {
+            "properties": {
+                "type": {
+                    "const": 1
+                }
+            }
+        }
+    },
+    "then": {
+        "required": ["description"]
+    },
+    "examples": [
+        {
+            "type": 1
+        }
+    ]
+}

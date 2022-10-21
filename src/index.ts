@@ -6,11 +6,12 @@ import { ConfigurationOptions } from 'i18n'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import merge from 'just-extend'
-import Command from './classes/Command.js'
-export * from './classes/Command.js'
+// import Command from './classes/Command.js'
+// export * from './classes/Command.js'
 export * from './utils.js'
 export * from './classes/Component.js'
-export { Client, Command }
+export { Client }
+// export { Client, Command }
 
 // load environment variables
 envLoad()
@@ -43,8 +44,8 @@ if (config.i18n === true) {
             'en-*': 'en',
             'es-*': 'es'
         },
-        logWarnFn: msg => console.warn('WARN i18n', msg),
-        logErrorFn: msg => console.error('ERROR i18n', msg),
+        logWarnFn: (msg) => console.warn('WARN i18n', msg),
+        logErrorFn: (msg) => console.error('ERROR i18n', msg),
         missingKeyFn: (locale: string, value: string) => {
             console.warn(`Missing translation for "${value}" in "${locale}"`)
             return value ?? '_'
