@@ -24,6 +24,7 @@ export interface ClientOptions extends BaseClientOptions {
     }
     i18n: ConfigurationOptions
     interactionSplit: string | RegExp
+    syncCommands: 'none' | 'files_to_discord'
 }
 
 export default class Client extends BaseClient<true> {
@@ -35,6 +36,7 @@ export default class Client extends BaseClient<true> {
         commands: join(process.cwd(), 'commands')
     }
     interactionSplit: string | RegExp = ':'
+    syncCommandsConfig: string
 
     constructor(options: ClientOptions) {
         super(options)
@@ -46,6 +48,7 @@ export default class Client extends BaseClient<true> {
         this.routes.interactions = options.routes.interactions
         this.routes.commands = options.routes.commands
         this.interactionSplit = options.interactionSplit
+        this.syncCommandsConfig = options.syncCommands
 
         this.initializeEventListener(options.routes.events).then((c) => {
             if (c) console.log('\x1b[35m%s\x1b[0m', 'Eventos Cargados!!')
@@ -82,8 +85,9 @@ export default class Client extends BaseClient<true> {
     }
 
     async #onReady() {
-        await this.syncCommands()
-        console.log('\x1b[35m%s\x1b[0m', 'Commands Synced!!')
+        if (typeof this.syncCommandsConfig !== 'string') await this.syncCommands()
+        else if (this.syncCommandsConfig === 'files_to_discord') await this.syncCommands()
+        if (this.syncCommandsConfig !== 'none') console.log('\x1b[35m%s\x1b[0m', 'Commands Synced!!')
         // TODO: activar
         this.on('interactionCreate', (interaction: Interaction) => {
             // isChatInputCommand

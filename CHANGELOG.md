@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+# 0.10.2
+
+## Docs
+
+-   **Sync commands:** `syncCommands` add docs about sync commands
+
 # 0.10.1
 
 ## Changues

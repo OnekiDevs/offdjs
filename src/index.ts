@@ -6,19 +6,21 @@ import { ConfigurationOptions } from 'i18n'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import merge from 'just-extend'
-// import Command from './classes/Command.js'
-// export * from './classes/Command.js'
 export * from './utils.js'
 export { Client }
-// export { Client, Command }
 
 // load environment variables
 envLoad()
 // current work directory
 const cwd = process.cwd()
 
+export type Config = {
+    root: string
+    i18n: ConfigurationOptions
+} & ClientOptions
+
 // create config object
-let config = {
+let config: Config = {
     intents: [],
     root: './',
     i18n: {
@@ -29,7 +31,8 @@ let config = {
         commands: '',
         events: '',
         interactions: ''
-    }
+    },
+    syncCommands: 'files_to_discord'
 }
 try {
     // import config from oneki.config.js
@@ -63,7 +66,7 @@ if (config.i18n === true) {
 // create client
 export default new Client(
     merge(true, {}, config, {
-        intents: config.intents.length ? config.intents : [IntentsBitField.Flags.Guilds],
+        intents: config.intents ?? [IntentsBitField.Flags.Guilds],
         routes: {
             commands: config.routes.commands ?? join(cwd, config.root, 'commands'),
             events: config.routes.events ?? join(cwd, config.root, 'events'),
@@ -71,5 +74,3 @@ export default new Client(
         }
     }) as ClientOptions
 )
-
-export type Config = typeof config

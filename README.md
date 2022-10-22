@@ -78,9 +78,7 @@ export default function ready(client) {
 
 ## Commands
 
-To load commands you just need to create a folder in the root called `commands` and **offdjs** will read all the json and js files and will load them as global commands.
-
-**offdjs** can read subfolders within the `commands` folder to make managing commands easier
+To load commands you just need to create a folder in the root called `commands` and **offdjs** will read all the json and js files and will load them as global commands. **offdjs** can read subfolders within the `commands` folder to make managing commands easier.
 
 example:
 
@@ -96,7 +94,9 @@ example:
 └── package.json
 ```
 
-The json structure is the `ApplicationCommandData | RESTPostAPIApplicationCommandsJSONBody` type which exports discord.js
+The json structure is the `ApplicationCommandData | RESTPostAPIApplicationCommandsJSONBody` type which exports discord.js.
+
+**offdjs** synchronize the commands of your files and those already registered automatically when you turn on. If you want you can configure that behavior in `offdjs.config.js`, for more information see !!!!
 
 ## Chat input commands
 
@@ -571,6 +571,13 @@ export default class Ping extends Command {
     }
 }
 ```
+
+## Sync commands
+
+**offdjs** synchronize the commands of your files and those already registered automatically when you turn on. There are several options to set on `offdjs.config.js` with the `syncCommands` property:
+
+-   `'none'`: Skip this process and do not sync or upload any command
+-   `files_to_discord`: Synchronize all the commands with the local files, deleting the ones that are not local and uploading the ones that are missing
 
 ## interactions
 
