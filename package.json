@@ -4,7 +4,7 @@
     "type": "module",
     "description": "oneki framework for discord.js",
     "main": "lib/index.js",
-    "bin": "lib/oneki.js",
+    "bin": "lib/cli.js",
     "scripts": {
         "prepare": "npm run build",
         "build": "tsc",
