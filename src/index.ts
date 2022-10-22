@@ -24,7 +24,12 @@ let config = {
     i18n: {
         directory: join(path.dirname(fileURLToPath(import.meta.url)), '..', 'locales')
     } as ConfigurationOptions,
-    interactionSplit: ':'
+    interactionSplit: ':',
+    routes: {
+        commands: '',
+        events: '',
+        interactions: ''
+    }
 }
 try {
     // import config from oneki.config.js
@@ -55,15 +60,14 @@ if (config.i18n === true) {
         }
     }
 }
-
 // create client
 export default new Client(
     merge(true, {}, config, {
         intents: config.intents.length ? config.intents : [IntentsBitField.Flags.Guilds],
         routes: {
-            commands: join(cwd, config.root, 'commands'),
-            events: join(cwd, config.root, 'events'),
-            interactions: join(cwd, config.root, 'interactions')
+            commands: config.routes.commands ?? join(cwd, config.root, 'commands'),
+            events: config.routes.events ?? join(cwd, config.root, 'events'),
+            interactions: config.routes.interactions ?? join(cwd, config.root, 'interactions')
         }
     }) as ClientOptions
 )
