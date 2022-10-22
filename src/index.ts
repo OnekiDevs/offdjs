@@ -9,7 +9,6 @@ import merge from 'just-extend'
 // import Command from './classes/Command.js'
 // export * from './classes/Command.js'
 export * from './utils.js'
-export * from './classes/Component.js'
 export { Client }
 // export { Client, Command }
 
