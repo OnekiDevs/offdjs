@@ -7,7 +7,7 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import merge from 'just-extend'
 export * from './utils.js'
-export { Client }
+export { Client, ClientOptions }
 
 // load environment variables
 envLoad()
