@@ -32,7 +32,7 @@ let config: Config = {
         events: '',
         interactions: ''
     },
-    syncCommands: 'files_to_discord'
+    syncCommands: 'local_to_remote'
 }
 try {
     // import config from oneki.config.js

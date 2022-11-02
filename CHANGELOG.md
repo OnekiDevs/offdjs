@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+# 0.10.3
+
+## Features
+
+-   **Sync commands:** `syncCommands` add new option to sync
+
 # 0.10.2
 
 ## Docs

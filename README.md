@@ -577,7 +577,8 @@ export default class Ping extends Command {
 **offdjs** synchronize the commands of your files and those already registered automatically when you turn on. There are several options to set on `offdjs.config.js` with the `syncCommands` property:
 
 -   `'none'`: Skip this process and do not sync or upload any command
--   `files_to_discord`: Synchronize all the commands with the local files, deleting the ones that are not local and uploading the ones that are missing
+-   `local_to_remote_strict`: Synchronize all the commands with the local files, deleting the ones that are not local and uploading the ones that are missing
+-   `local_to_remote`: Upload the local commands to discord by overwriting them but without deleting any
 
 ## interactions
 

@@ -15,6 +15,7 @@ import {
 } from 'discord.js'
 const version = await import('../../' + 'package.json', { assert: { type: 'json' } }).then((i) => i.default.version)
 
+type syncCommands = 'none' | 'local_to_remote' | 'local_to_remote_strict'
 export interface ClientOptions extends BaseClientOptions {
     // constants: ClientConstants
     routes: {
@@ -24,7 +25,7 @@ export interface ClientOptions extends BaseClientOptions {
     }
     i18n: ConfigurationOptions
     interactionSplit: string | RegExp
-    syncCommands: 'none' | 'files_to_discord'
+    syncCommands: syncCommands
 }
 
 export default class Client extends BaseClient<true> {
@@ -36,7 +37,7 @@ export default class Client extends BaseClient<true> {
         commands: join(process.cwd(), 'commands')
     }
     interactionSplit: string | RegExp = ':'
-    syncCommandsConfig: string
+    syncCommandsConfig: syncCommands
 
     constructor(options: ClientOptions) {
         super(options)
@@ -58,6 +59,7 @@ export default class Client extends BaseClient<true> {
     }
 
     async syncCommands() {
+        if (typeof this.syncCommandsConfig !== 'string' || this.syncCommandsConfig === 'none') return
         const remoteCommands = await this.application.commands.fetch()
         const localCommands = [
             ...(await this.#getJsonCommands(join(process.cwd(), 'commands'))),
@@ -75,18 +77,17 @@ export default class Client extends BaseClient<true> {
                 toCreate.push(command)
         }
 
-        for (const command of remoteCommands.values()) {
-            if (!localCommands.find((c) => c.name === command.name)) toDelete.push(command)
-        }
+        if (this.syncCommandsConfig === 'local_to_remote_strict')
+            for (const command of remoteCommands.values())
+                if (!localCommands.find((c) => c.name === command.name)) toDelete.push(command)
 
         for (const command of toCreate) await this.application.commands.create(command)
 
-        for (const command of toDelete) await command.delete()
+        if (this.syncCommandsConfig === 'local_to_remote_strict') for (const command of toDelete) await command.delete()
     }
 
     async #onReady() {
-        if (typeof this.syncCommandsConfig !== 'string') await this.syncCommands()
-        else if (this.syncCommandsConfig === 'files_to_discord') await this.syncCommands()
+        await this.syncCommands()
         if (this.syncCommandsConfig !== 'none') console.log('\x1b[35m%s\x1b[0m', 'Commands Synced!!')
         // TODO: activar
         this.on('interactionCreate', (interaction: Interaction) => {
