@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+# 0.10.4
+
+## Fix
+
+-   **Sync commands:** `ENOENT` no such file or directory
+
 # 0.10.3
 
 ## Features

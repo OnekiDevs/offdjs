@@ -133,7 +133,13 @@ export default class Client extends BaseClient<true> {
 
     async #getJsonCommands(path: string) {
         const commands: RESTPostAPIApplicationCommandsJSONBody[] = []
-        const dir = readdirSync(path, { withFileTypes: true })
+        let dir
+        try {
+            dir = readdirSync(path, { withFileTypes: true })
+        } catch (error) {
+            if ((error as Error).message.startsWith('ENOENT: no such file or directory')) return commands
+            throw error
+        }
         for (const file of dir) {
             if (file.isFile() && file.name.endsWith('.json')) {
                 await import(join(path, file.name), { assert: { type: 'json' } })
@@ -152,7 +158,13 @@ export default class Client extends BaseClient<true> {
 
     async #getJSCommands(path: string) {
         const commands: RESTPostAPIApplicationCommandsJSONBody[] = []
-        const dir = readdirSync(path, { withFileTypes: true })
+        let dir
+        try {
+            dir = readdirSync(path, { withFileTypes: true })
+        } catch (error) {
+            if ((error as Error).message.startsWith('ENOENT: no such file or directory')) return commands
+            throw error
+        }
         for (const file of dir) {
             if (file.isFile() && file.name.endsWith('.js')) {
                 await import(join(path, file.name))
