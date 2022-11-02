@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+# 0.10.5
+
+## Fix
+
+-   **Events:** `Load` the events path is fixed
+
 # 0.10.4
 
 ## Fix

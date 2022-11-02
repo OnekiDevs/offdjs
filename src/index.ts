@@ -68,9 +68,9 @@ export default new Client(
     merge(true, {}, config, {
         intents: config.intents ?? [IntentsBitField.Flags.Guilds],
         routes: {
-            commands: config.routes.commands ?? join(cwd, config.root, 'commands'),
-            events: config.routes.events ?? join(cwd, config.root, 'events'),
-            interactions: config.routes.interactions ?? join(cwd, config.root, 'interactions')
+            commands: config.routes.commands || join(cwd, config.root, 'commands'),
+            events: config.routes.events || join(cwd, config.root, 'events'),
+            interactions: config.routes.interactions || join(cwd, config.root, 'interactions')
         }
     }) as ClientOptions
 )
