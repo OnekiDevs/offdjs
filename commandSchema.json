@@ -1,0 +1,714 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "definitions": {
+        "CommandBase": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "The name of the command"
+                },
+                "default_member_permissions": {
+                    "type": "number",
+                    "description": "The permissions for the command's target user or message in the current context. Defaults to all if not set."
+                },
+                "name_localizations": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/definitions/LocalizationMap"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ]
+                },
+                "dm_permission": {
+                    "type": "boolean",
+                    "default": true
+                }
+            },
+            "required": ["name"]
+        },
+        "ContextMenuApplication": {
+            "allOf": [
+                {
+                    "$ref": "#/definitions/CommandBase"
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "number",
+                            "enum": [2, 3],
+                            "description": "1 for a chat input command, 2 for a user context menu command, or 3 for a message context menu command"
+                        }
+                    },
+                    "required": ["type"]
+                }
+            ],
+            "additionalProperties": false
+        },
+        "ApplicationCommand": {
+            "allOf": [
+                {
+                    "$ref": "#/definitions/CommandBase"
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "number",
+                            "const": 1,
+                            "description": "1 for a chat input command, 2 for a user context menu command, or 3 for a message context menu command"
+                        },
+                        "description": {
+                            "type": "string",
+                            "description": "The description for the command",
+                            "maxLength": 100,
+                            "minLength": 1
+                        },
+                        "description_localizations": {
+                            "anyOf": [
+                                {
+                                    "$ref": "#/definitions/LocalizationMap"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Translations of the command description"
+                        },
+                        "options": {
+                            "type": "array",
+                            "items": {
+                                "oneOf": [
+                                    {
+                                        "anyOf": [
+                                            {
+                                                "$ref": "#/definitions/AttachmentCommandOption"
+                                            },
+                                            {
+                                                "$ref": "#/definitions/NumberCommandOption"
+                                            },
+                                            {
+                                                "$ref": "#/definitions/MentionableCommandOption"
+                                            },
+                                            {
+                                                "$ref": "#/definitions/RoleCommandOption"
+                                            },
+                                            {
+                                                "$ref": "#/definitions/ChannelCommandOption"
+                                            },
+                                            {
+                                                "$ref": "#/definitions/UserCommandOption"
+                                            },
+                                            {
+                                                "$ref": "#/definitions/BooleanCommandOption"
+                                            },
+                                            {
+                                                "$ref": "#/definitions/IntegerCommandOption"
+                                            },
+                                            {
+                                                "$ref": "#/definitions/StringCommandOption"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "anyOf": [
+                                            {
+                                                "$ref": "#/definitions/SubCommandOption"
+                                            },
+                                            {
+                                                "$ref": "#/definitions/SubCommandGroupOption"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            "description": "The parameters for the command option"
+                        }
+                    },
+                    "required": ["name", "description"]
+                }
+            ],
+            "additionalProperties": false
+        },
+        "LocalizationMap": {
+            "type": "object",
+            "properties": {
+                "en-US": {
+                    "type": ["string", "null"]
+                },
+                "en-GB": {
+                    "type": ["string", "null"]
+                },
+                "bg": {
+                    "type": ["string", "null"]
+                },
+                "zh-CN": {
+                    "type": ["string", "null"]
+                },
+                "zh-TW": {
+                    "type": ["string", "null"]
+                },
+                "hr": {
+                    "type": ["string", "null"]
+                },
+                "cs": {
+                    "type": ["string", "null"]
+                },
+                "da": {
+                    "type": ["string", "null"]
+                },
+                "nl": {
+                    "type": ["string", "null"]
+                },
+                "fi": {
+                    "type": ["string", "null"]
+                },
+                "fr": {
+                    "type": ["string", "null"]
+                },
+                "de": {
+                    "type": ["string", "null"]
+                },
+                "el": {
+                    "type": ["string", "null"]
+                },
+                "hi": {
+                    "type": ["string", "null"]
+                },
+                "hu": {
+                    "type": ["string", "null"]
+                },
+                "it": {
+                    "type": ["string", "null"]
+                },
+                "ja": {
+                    "type": ["string", "null"]
+                },
+                "ko": {
+                    "type": ["string", "null"]
+                },
+                "lt": {
+                    "type": ["string", "null"]
+                },
+                "no": {
+                    "type": ["string", "null"]
+                },
+                "pl": {
+                    "type": ["string", "null"]
+                },
+                "pt-BR": {
+                    "type": ["string", "null"]
+                },
+                "ro": {
+                    "type": ["string", "null"]
+                },
+                "ru": {
+                    "type": ["string", "null"]
+                },
+                "es-ES": {
+                    "type": ["string", "null"]
+                },
+                "sv-SE": {
+                    "type": ["string", "null"]
+                },
+                "th": {
+                    "type": ["string", "null"]
+                },
+                "tr": {
+                    "type": ["string", "null"]
+                },
+                "uk": {
+                    "type": ["string", "null"]
+                },
+                "vi": {
+                    "type": ["string", "null"]
+                }
+            },
+            "additionalProperties": false
+        },
+        "CommandOptionBase": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "Name of command"
+                },
+                "description": {
+                    "type": "string",
+                    "description": "Description of command"
+                },
+                "name_localizations": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/definitions/LocalizationMap"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "description": "Translations of name command"
+                },
+                "description_localizations": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/definitions/LocalizationMap"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "description": "Translations of description command"
+                }
+            },
+            "required": ["name", "description"]
+        },
+        "AttachmentCommandOption": {
+            "allOf": [
+                {
+                    "$ref": "#/definitions/CommandOptionBase"
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "required": {
+                            "type": "boolean",
+                            "description": "If this option is required"
+                        },
+                        "type": {
+                            "type": "number",
+                            "const": 11,
+                            "description": "Type of option"
+                        }
+                    }
+                }
+            ]
+        },
+        "NumberCommandOption": {
+            "allOf": [
+                {
+                    "$ref": "#/definitions/CommandOptionBase"
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "required": {
+                            "type": "boolean",
+                            "default": false,
+                            "description": "If this option is required"
+                        },
+                        "type": {
+                            "type": "number",
+                            "const": 10,
+                            "description": "Type of option"
+                        }
+                    }
+                },
+                {
+                    "oneOf": [
+                        {
+                            "type": "object",
+                            "properties": {
+                                "min_value": {
+                                    "type": "number",
+                                    "description": "Minimum value for this option"
+                                },
+                                "max_value": {
+                                    "type": "number",
+                                    "description": "Maximum value for this option"
+                                },
+                                "choices": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/NumberCommandOptionChoice"
+                                    },
+                                    "description": "Choices for this option",
+                                    "maxItems": 25
+                                }
+                            }
+                        },
+                        {
+                            "type": "object",
+                            "properties": {
+                                "autocomplete": {
+                                    "type": "boolean",
+                                    "description": "If this option should be autocompleted"
+                                }
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        "MentionableCommandOption": {
+            "allOf": [
+                {
+                    "$ref": "#/definitions/CommandOptionBase"
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "required": {
+                            "type": "boolean",
+                            "default": false,
+                            "description": "If this option is required"
+                        },
+                        "type": {
+                            "type": "number",
+                            "const": 9,
+                            "description": "Type of option"
+                        }
+                    }
+                }
+            ]
+        },
+        "RoleCommandOption": {
+            "allOf": [
+                {
+                    "$ref": "#/definitions/CommandOptionBase"
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "required": {
+                            "type": "boolean",
+                            "default": false,
+                            "description": "If this option is required"
+                        },
+                        "type": {
+                            "type": "number",
+                            "const": 8,
+                            "description": "Type of option"
+                        }
+                    }
+                }
+            ]
+        },
+        "ChannelCommandOption": {
+            "allOf": [
+                {
+                    "$ref": "#/definitions/CommandOptionBase"
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "required": {
+                            "type": "boolean",
+                            "default": false,
+                            "description": "If this option is required"
+                        },
+                        "type": {
+                            "type": "number",
+                            "const": 7,
+                            "description": "Type of option"
+                        },
+                        "channel_types": {
+                            "type": "array",
+                            "items": {
+                                "type": "number",
+                                "enum": [0, 1, 2, 3, 4, 5, 6, 10, 11, 12, 13, 14, 15],
+                                "maxItems": 16
+                            },
+                            "description": "Types of channels that can be chosen"
+                        }
+                    }
+                }
+            ]
+        },
+        "UserCommandOption": {
+            "allOf": [
+                {
+                    "$ref": "#/definitions/CommandOptionBase"
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "required": {
+                            "type": "boolean",
+                            "default": false,
+                            "description": "If this option is required"
+                        },
+                        "type": {
+                            "type": "number",
+                            "const": 6,
+                            "description": "Type of option"
+                        }
+                    }
+                }
+            ]
+        },
+        "BooleanCommandOption": {
+            "allOf": [
+                {
+                    "$ref": "#/definitions/CommandOptionBase"
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "required": {
+                            "type": "boolean",
+                            "default": false,
+                            "description": "If this option is required"
+                        },
+                        "type": {
+                            "type": "number",
+                            "const": 5,
+                            "description": "Type of option"
+                        }
+                    }
+                }
+            ]
+        },
+        "IntegerCommandOption": {
+            "allOf": [
+                {
+                    "$ref": "#/definitions/CommandOptionBase"
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "required": {
+                            "type": "boolean",
+                            "default": false,
+                            "description": "If this option is required"
+                        },
+                        "type": {
+                            "type": "number",
+                            "const": 4,
+                            "description": "Type of option"
+                        }
+                    }
+                },
+                {
+                    "oneOf": [
+                        {
+                            "type": "object",
+                            "properties": {
+                                "min_value": {
+                                    "type": "number",
+                                    "description": "Minimum value for this option"
+                                },
+                                "max_value": {
+                                    "type": "number",
+                                    "description": "Maximum value for this option"
+                                },
+                                "choices": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/IntegerCommandOptionChoice"
+                                    },
+                                    "description": "Choices for this option",
+                                    "maxItems": 25
+                                }
+                            }
+                        },
+                        {
+                            "type": "object",
+                            "properties": {
+                                "autocomplete": {
+                                    "type": "boolean",
+                                    "description": "If this option should be autocompleted"
+                                }
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        "StringCommandOption": {
+            "allOf": [
+                {
+                    "$ref": "#/definitions/CommandOptionBase"
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "required": {
+                            "type": "boolean",
+                            "default": false,
+                            "description": "If this option is required"
+                        },
+                        "type": {
+                            "type": "number",
+                            "const": 3,
+                            "description": "Type of option"
+                        }
+                    }
+                },
+                {
+                    "oneOf": [
+                        {
+                            "type": "object",
+                            "properties": {
+                                "min_length": {
+                                    "type": "number",
+                                    "description": "Minimum length for this option",
+                                    "maximum": 6000
+                                },
+                                "max_length": {
+                                    "type": "number",
+                                    "description": "Maximum length for this option",
+                                    "maximum": 6000
+                                },
+                                "choices": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/StringCommandOptionChoice"
+                                    },
+                                    "description": "Choices for this option",
+                                    "maxItems": 25
+                                }
+                            }
+                        },
+                        {
+                            "type": "object",
+                            "properties": {
+                                "autocomplete": {
+                                    "type": "boolean",
+                                    "description": "If this option should be autocompleted"
+                                }
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        "SubCommandGroupOption": {
+            "allOf": [
+                {
+                    "$ref": "#/definitions/CommandOptionBase"
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "number",
+                            "const": 2,
+                            "description": "Type of option"
+                        },
+                        "options": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/SubCommandOption"
+                            },
+                            "description": "Subcommands for this group",
+                            "minItems": 1
+                        }
+                    }
+                }
+            ]
+        },
+        "SubCommandOption": {
+            "allOf": [
+                {
+                    "$ref": "#/definitions/CommandOptionBase"
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "number",
+                            "const": 1,
+                            "description": "Type of option"
+                        },
+                        "options": {
+                            "type": "array",
+                            "items": {
+                                "anyOf": [
+                                    {
+                                        "$ref": "#/definitions/AttachmentCommandOption"
+                                    },
+                                    {
+                                        "$ref": "#/definitions/MentionableCommandOption"
+                                    },
+                                    {
+                                        "$ref": "#/definitions/NumberCommandOption"
+                                    },
+                                    {
+                                        "$ref": "#/definitions/RoleCommandOption"
+                                    },
+                                    {
+                                        "$ref": "#/definitions/ChannelCommandOption"
+                                    },
+                                    {
+                                        "$ref": "#/definitions/UserCommandOption"
+                                    },
+                                    {
+                                        "$ref": "#/definitions/BooleanCommandOption"
+                                    },
+                                    {
+                                        "$ref": "#/definitions/IntegerCommandOption"
+                                    },
+                                    {
+                                        "$ref": "#/definitions/StringCommandOption"
+                                    }
+                                ]
+                            },
+                            "description": "Options for this subcommand"
+                        }
+                    }
+                }
+            ]
+        },
+        "NumberCommandOptionChoice": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "Name of choice"
+                },
+                "value": {
+                    "type": "number",
+                    "description": "Value of choice"
+                },
+                "name_localizations": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/definitions/LocalizationMap"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "description": "Translations of name choice"
+                }
+            },
+            "required": ["name", "value"]
+        },
+        "StringCommandOptionChoice": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "Name of choice"
+                },
+                "value": {
+                    "type": "string",
+                    "description": "Value of choice"
+                },
+                "name_localizations": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/definitions/LocalizationMap"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "description": "Translations of name choice"
+                }
+            },
+            "required": ["name", "value"]
+        }
+    },
+    "oneOf": [
+        {
+            "$ref": "#/definitions/ContextMenuApplication"
+        },
+        {
+            "$ref": "#/definitions/ApplicationCommand"
+        }
+    ]
+}

@@ -96,6 +96,15 @@ example:
 
 The json structure is the `ApplicationCommandData | RESTPostAPIApplicationCommandsJSONBody` type which exports discord.js.
 
+You can use the json schema that the library integrates to help write it with
+
+```json
+{
+    "$schema": "./node_modules/offdjs/commandSchemma.json",
+    ...
+}
+```
+
 **offdjs** synchronize the commands of your files and those already registered automatically when you turn on. If you want you can configure that behavior in `offdjs.config.js`, for more information see !!!!
 
 ## Chat input commands
@@ -525,18 +534,9 @@ export default {
 
 ## i18n
 
-offdjs has [i18n](https://www.npmjs.com/package/i18n) integration, you can enable the defaults in `offdjs.config.js` by setting the `i18n` property to `true` or by setting your own config
+offdjs has [i18n](https://www.npmjs.com/package/i18n) integration, you can enable the defaults in `offdjs.config.js` by setting the `i18n` setting your own config
 
 example:
-
-```js
-// offdjs.config.js
-export default {
-    i18n: true
-}
-```
-
-or
 
 ```js
 // offdjs.config.js
@@ -556,7 +556,7 @@ it also provides a function to create a translator which receives an interaction
 example:
 
 ```js
-// x.command.js
+// x.js
 import client, { Command, Translator } from 'offdjs'
 
 export default class Ping extends Command {

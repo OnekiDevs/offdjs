@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+# 0.11.0
+
+## Feature
+
+-   **JSON:** `commandSchema` schema created
+
 # 0.10.6
 
 ## Feature
