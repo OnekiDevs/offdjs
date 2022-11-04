@@ -311,14 +311,6 @@
                         {
                             "type": "object",
                             "properties": {
-                                "min_value": {
-                                    "type": "number",
-                                    "description": "Minimum value for this option"
-                                },
-                                "max_value": {
-                                    "type": "number",
-                                    "description": "Maximum value for this option"
-                                },
                                 "choices": {
                                     "type": "array",
                                     "items": {
@@ -335,6 +327,14 @@
                                 "autocomplete": {
                                     "type": "boolean",
                                     "description": "If this option should be autocompleted"
+                                },
+                                "min_value": {
+                                    "type": "number",
+                                    "description": "Minimum value for this option"
+                                },
+                                "max_value": {
+                                    "type": "number",
+                                    "description": "Maximum value for this option"
                                 }
                             }
                         }
@@ -486,18 +486,10 @@
                         {
                             "type": "object",
                             "properties": {
-                                "min_value": {
-                                    "type": "number",
-                                    "description": "Minimum value for this option"
-                                },
-                                "max_value": {
-                                    "type": "number",
-                                    "description": "Maximum value for this option"
-                                },
                                 "choices": {
                                     "type": "array",
                                     "items": {
-                                        "$ref": "#/definitions/IntegerCommandOptionChoice"
+                                        "$ref": "#/definitions/NumberCommandOptionChoice"
                                     },
                                     "description": "Choices for this option",
                                     "maxItems": 25
@@ -510,6 +502,14 @@
                                 "autocomplete": {
                                     "type": "boolean",
                                     "description": "If this option should be autocompleted"
+                                },
+                                "min_value": {
+                                    "type": "number",
+                                    "description": "Minimum value for this option"
+                                },
+                                "max_value": {
+                                    "type": "number",
+                                    "description": "Maximum value for this option"
                                 }
                             }
                         }
@@ -542,16 +542,6 @@
                         {
                             "type": "object",
                             "properties": {
-                                "min_length": {
-                                    "type": "number",
-                                    "description": "Minimum length for this option",
-                                    "maximum": 6000
-                                },
-                                "max_length": {
-                                    "type": "number",
-                                    "description": "Maximum length for this option",
-                                    "maximum": 6000
-                                },
                                 "choices": {
                                     "type": "array",
                                     "items": {
@@ -568,6 +558,16 @@
                                 "autocomplete": {
                                     "type": "boolean",
                                     "description": "If this option should be autocompleted"
+                                },
+                                "min_length": {
+                                    "type": "number",
+                                    "description": "Minimum length for this option",
+                                    "maximum": 6000
+                                },
+                                "max_length": {
+                                    "type": "number",
+                                    "description": "Maximum length for this option",
+                                    "maximum": 6000
                                 }
                             }
                         }
