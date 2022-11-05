@@ -62,8 +62,8 @@ export default class Client extends BaseClient<true> {
         if (typeof this.syncCommandsConfig !== 'string' || this.syncCommandsConfig === 'none') return
         const remoteCommands = await this.application.commands.fetch()
         const localCommands = [
-            ...(await this.#getJsonCommands(join(process.cwd(), 'commands'))),
-            ...(await this.#getJSCommands(join(process.cwd(), 'commands')))
+            ...(await this.#getJsonCommands(this.routes.commands)),
+            ...(await this.#getJSCommands(this.routes.commands))
         ]
         const toCreate: RESTPostAPIApplicationCommandsJSONBody[] = []
         const toDelete: ApplicationCommand[] = []

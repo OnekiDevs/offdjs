@@ -1,5 +1,7 @@
 src
 node_modules
 tsconfig.json
-
+.env
 test.js
+.vscode
+CHANGELOG.md

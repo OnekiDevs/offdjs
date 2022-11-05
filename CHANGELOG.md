@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+# 0.11.4
+
+## fix
+
+-   **Client:** `commands` not read root
+
 # 0.11.3
 
 ## fix
