@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+# 0.11.3
+
+## fix
+
+-   **Client:** `commands` not load new
+
 # 0.11.2
 
 ## types

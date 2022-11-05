@@ -75,6 +75,7 @@ export default class Client extends BaseClient<true> {
                 JSON.stringify(parseAPICommand(remoteCommand as CommandData)) !== JSON.stringify(command)
             )
                 toCreate.push(command)
+            else if (!remoteCommand) toCreate.push(command)
         }
 
         if (this.syncCommandsConfig === 'local_to_remote_strict')
