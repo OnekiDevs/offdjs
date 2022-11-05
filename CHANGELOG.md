@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+# 0.11.2
+
+## types
+
+-   **config:** `Config` are now optionals
+
 # 0.11.1
 
 ## Fix

@@ -1,4 +1,4 @@
-import { IntentsBitField } from 'discord.js'
+import { BitFieldResolvable, GatewayIntentsString, IntentsBitField } from 'discord.js'
 import { join } from 'node:path'
 import Client, { ClientOptions } from './classes/Client.js'
 import { config as envLoad } from 'dotenv'
@@ -15,9 +15,9 @@ envLoad()
 const cwd = process.cwd()
 
 export type Config = {
-    root: string
-    i18n: ConfigurationOptions
-} & ClientOptions
+    root?: string
+    intents: BitFieldResolvable<GatewayIntentsString, number>
+} & Partial<ClientOptions>
 
 // create config object
 let config: Config = {
@@ -68,9 +68,9 @@ export default new Client(
     merge(true, {}, config, {
         intents: config.intents ?? [IntentsBitField.Flags.Guilds],
         routes: {
-            commands: config.routes.commands || join(cwd, config.root, 'commands'),
-            events: config.routes.events || join(cwd, config.root, 'events'),
-            interactions: config.routes.interactions || join(cwd, config.root, 'interactions')
+            commands: config.routes?.commands || join(cwd, config.root ?? '', 'commands'),
+            events: config.routes?.events || join(cwd, config.root ?? '', 'events'),
+            interactions: config.routes?.interactions || join(cwd, config.root ?? '', 'interactions')
         }
     }) as ClientOptions
 )
