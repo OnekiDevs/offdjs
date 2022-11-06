@@ -3,6 +3,7 @@ import { parseAPICommand } from '../utils.js'
 import { CommandData } from '../utils'
 import { readdirSync } from 'fs'
 import { join } from 'path'
+import { APIApplicationCommandAttachmentOption } from 'discord.js'
 import {
     ApplicationCommand,
     AutocompleteInteraction,
@@ -66,7 +67,6 @@ export default class Client extends BaseClient<true> {
             ...(await this.#getJSCommands(this.routes.commands))
         ]
         const toCreate: RESTPostAPIApplicationCommandsJSONBody[] = []
-        const toDelete: ApplicationCommand[] = []
 
         for (const command of localCommands) {
             const remoteCommand = remoteCommands.find((c) => c.name === command.name)
@@ -78,13 +78,11 @@ export default class Client extends BaseClient<true> {
             else if (!remoteCommand) toCreate.push(command)
         }
 
+        await this.application.commands.set(toCreate)
+
         if (this.syncCommandsConfig === 'local_to_remote_strict')
             for (const command of remoteCommands.values())
-                if (!localCommands.find((c) => c.name === command.name)) toDelete.push(command)
-
-        for (const command of toCreate) await this.application.commands.create(command)
-
-        if (this.syncCommandsConfig === 'local_to_remote_strict') for (const command of toDelete) await command.delete()
+                if (!localCommands.find((c) => c.name === command.name)) command.delete()
     }
 
     async #onReady() {
@@ -94,7 +92,7 @@ export default class Client extends BaseClient<true> {
         this.on('interactionCreate', (interaction: Interaction) => {
             // isChatInputCommand
             if (interaction.isChatInputCommand()) {
-                const names: string[] = getFullCommandName(interaction).filter(Boolean)
+                const names = getFullCommandName(interaction).filter(Boolean)
                 executeRouteCommand(interaction, this.routes.interactions, ...names)
             } else if (interaction.isButton()) {
                 executeRouteCommand(
