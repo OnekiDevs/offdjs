@@ -4,6 +4,7 @@ import { CommandData } from '../utils'
 import { readdirSync } from 'fs'
 import { join } from 'path'
 import {
+    ApplicationCommand,
     AutocompleteInteraction,
     ChatInputCommandInteraction,
     Client as BaseClient,
@@ -65,6 +66,7 @@ export default class Client extends BaseClient<true> {
             ...(await this.#getJSCommands(this.routes.commands))
         ]
         const toCreate: RESTPostAPIApplicationCommandsJSONBody[] = []
+        const toDelete: ApplicationCommand[] = []
 
         for (const command of localCommands) {
             const remoteCommand = remoteCommands.find((c) => c.name === command.name)
@@ -80,7 +82,9 @@ export default class Client extends BaseClient<true> {
 
         if (this.syncCommandsConfig === 'local_to_remote_strict')
             for (const command of remoteCommands.values())
-                if (!localCommands.find((c) => c.name === command.name)) command.delete()
+                if (!localCommands.find((c) => c.name === command.name)) toDelete.push(command)
+
+        for (const command of toDelete) await command.delete()
     }
 
     async #onReady() {
