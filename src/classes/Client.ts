@@ -3,9 +3,7 @@ import { parseAPICommand } from '../utils.js'
 import { CommandData } from '../utils'
 import { readdirSync } from 'fs'
 import { join } from 'path'
-import { APIApplicationCommandAttachmentOption } from 'discord.js'
 import {
-    ApplicationCommand,
     AutocompleteInteraction,
     ChatInputCommandInteraction,
     Client as BaseClient,
