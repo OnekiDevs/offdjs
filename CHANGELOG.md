@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+# 0.11.8
+
+## fix
+
+-   **Utils:** `parse` detect json api format
+
 # 0.11.4
 
 ## fix

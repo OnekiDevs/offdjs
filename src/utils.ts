@@ -172,12 +172,18 @@ export function parseUserApplicationCommandData(
         name: String(command.name).substring(0, 32)
     }
 
-    if (command.defaultMemberPermissions !== null && command.defaultMemberPermissions !== undefined)
-        api.default_member_permissions = String(resolvePermissions(command.defaultMemberPermissions))
+    if (
+        (command.default_member_permissions ?? command.defaultMemberPermissions) !== null &&
+        (command.default_member_permissions ?? command.defaultMemberPermissions) !== undefined
+    )
+        api.default_member_permissions = String(
+            resolvePermissions(command.default_member_permissions ?? command.defaultMemberPermissions)
+        )
 
     if (command.dmPermission !== null && command.dmPermission !== undefined) api.dm_permission = !!command.dmPermission
 
-    if (command.nameLocalizations) api.name_localizations = parseNameLocalizations(command.nameLocalizations)
+    if (command.name_localizations ?? command.nameLocalizations)
+        api.name_localizations = parseNameLocalizations(command.name_localizations ?? command.nameLocalizations)
 
     return api
 }
@@ -191,12 +197,18 @@ export function parseMessageApplicationCommandData(
         name: String(command.name).substring(0, 32)
     }
 
-    if (command.defaultMemberPermissions !== null && command.defaultMemberPermissions !== undefined)
-        api.default_member_permissions = String(resolvePermissions(command.defaultMemberPermissions))
+    if (
+        (command.default_member_permissions ?? command.defaultMemberPermissions) !== null &&
+        (command.default_member_permissions ?? command.defaultMemberPermissions) !== undefined
+    )
+        api.default_member_permissions = String(
+            resolvePermissions(command.default_member_permissions ?? command.defaultMemberPermissions)
+        )
 
     if (command.dmPermission !== null && command.dmPermission !== undefined) api.dm_permission = !!command.dmPermission
 
-    if (command.nameLocalizations) api.name_localizations = parseNameLocalizations(command.nameLocalizations)
+    if (command.name_localizations ?? command.nameLocalizations)
+        api.name_localizations = parseNameLocalizations(command.name_localizations ?? command.nameLocalizations)
 
     return api
 }
@@ -214,20 +226,28 @@ export function parseChatInputApplicationCommandData(
         description: String(command.description).substring(0, 100) || '...'
     }
 
-    if (command.defaultMemberPermissions !== null && command.defaultMemberPermissions !== undefined)
-        api.default_member_permissions = String(resolvePermissions(command.defaultMemberPermissions))
+    if (
+        (command.default_member_permissions ?? command.defaultMemberPermissions) !== null &&
+        (command.default_member_permissions ?? command.defaultMemberPermissions) !== undefined
+    )
+        api.default_member_permissions = String(
+            resolvePermissions(command.default_member_permissions ?? command.defaultMemberPermissions)
+        )
 
-    if (command.nameLocalizations) api.name_localizations = parseNameLocalizations(command.nameLocalizations)
+    if (command.name_localizations ?? command.nameLocalizations)
+        api.name_localizations = parseNameLocalizations(command.name_localizations ?? command.nameLocalizations)
 
-    if (command.descriptionLocalizations)
-        api.description_localizations = parseDescriptionLocalizations(command.descriptionLocalizations)
+    if (command.description_localizations ?? command.descriptionLocalizations)
+        api.description_localizations = parseDescriptionLocalizations(
+            command.description_localizations ?? command.descriptionLocalizations
+        )
 
     if (command.options?.length) api.options = parseCommandOption(...command.options)
 
     return api
 }
 
-export function resolvePermissions(permissions: PermissionResolvable) {
+export function resolvePermissions(permissions?: PermissionResolvable | string | null) {
     if (Array.isArray(permissions)) {
         const p = [0n]
         for (const permission of permissions) {
@@ -266,9 +286,9 @@ export function parseSnakeToCamellCase(s: string) {
     return s.replace(/([_][a-z])/g, (g) => g[1].toUpperCase())
 }
 
-export function parseNameLocalizations(localizations: LocalizationMap) {
+export function parseNameLocalizations(localizations?: LocalizationMap) {
     const local: LocalizationMap = {}
-    for (const [key, value] of Object.entries(localizations)) {
+    for (const [key, value] of Object.entries(localizations ?? {})) {
         const rg = z.string().regex(/^[\p{Ll}\p{Lm}\p{Lo}\p{N}\p{sc=Devanagari}\p{sc=Thai}_-]+$/u)
         if (Object.keys(Locale).includes(key)) {
             const name = String(value).toLowerCase().replace(/ +/g, '-').substring(0, 32)
@@ -279,9 +299,9 @@ export function parseNameLocalizations(localizations: LocalizationMap) {
     return local
 }
 
-export function parseDescriptionLocalizations(localizations: LocalizationMap) {
+export function parseDescriptionLocalizations(localizations?: LocalizationMap) {
     const local: LocalizationMap = {}
-    for (const [key, value] of Object.entries(localizations)) {
+    for (const [key, value] of Object.entries(localizations ?? {})) {
         if (Object.keys(Locale).includes(key)) {
             const name = String(value).substring(0, 100)
             local[key as LocaleString] = name
@@ -308,7 +328,8 @@ export function parseSubcommandCommandOption(option: commandOption): APIApplicat
         description: String(option.descripton).substring(0, 100) || '...'
     }
 
-    if (option.nameLocalizations) op.name_localizations = parseNameLocalizations(option.nameLocalizations)
+    if (option.name_localizations ?? option.nameLocalizations)
+        op.name_localizations = parseNameLocalizations(option.name_localizations ?? option.nameLocalizations)
 
     if (option.descriptionLocalizations)
         op.description_localizations = parseDescriptionLocalizations(option.descriptionLocalizations)
@@ -339,7 +360,8 @@ export function parseSubcommandGroupCommandOption(option: commandOption): APIApp
         options: []
     }
 
-    if (option.nameLocalizations) op.name_localizations = parseNameLocalizations(option.nameLocalizations)
+    if (option.name_localizations ?? option.nameLocalizations)
+        op.name_localizations = parseNameLocalizations(option.name_localizations ?? option.nameLocalizations)
 
     if (option.descriptionLocalizations)
         op.description_localizations = parseDescriptionLocalizations(option.descriptionLocalizations)
@@ -367,7 +389,8 @@ export function parseStringCommandOption(option: commandOption): APIApplicationC
         autocomplete: !!option.autocomplete
     }
 
-    if (option.nameLocalizations) op.name_localizations = parseNameLocalizations(option.nameLocalizations)
+    if (option.name_localizations ?? option.nameLocalizations)
+        op.name_localizations = parseNameLocalizations(option.name_localizations ?? option.nameLocalizations)
 
     if (option.descriptionLocalizations)
         op.description_localizations = parseDescriptionLocalizations(option.descriptionLocalizations)
@@ -381,7 +404,10 @@ export function parseStringCommandOption(option: commandOption): APIApplicationC
                 name: String(c.name).substring(0, 100),
                 value: String(c.value).substring(0, 100)
             }
-            if (option.nameLocalizations) choice.name_localizations = parseNameLocalizations(option.nameLocalizations)
+            if (option.nameLocalizations)
+                choice.name_localizations = parseNameLocalizations(
+                    option.name_localizations ?? option.nameLocalizations
+                )
             choices.push(choice)
         }
         op.choices = choices
@@ -407,7 +433,8 @@ export function parseIntegerCommandOption(option: commandOption): APIApplication
         autocomplete: !!option.autocomplete
     }
 
-    if (option.nameLocalizations) op.name_localizations = parseNameLocalizations(option.nameLocalizations)
+    if (option.name_localizations ?? option.nameLocalizations)
+        op.name_localizations = parseNameLocalizations(option.name_localizations ?? option.nameLocalizations)
 
     if (option.descriptionLocalizations)
         op.description_localizations = parseDescriptionLocalizations(option.descriptionLocalizations)
@@ -423,7 +450,10 @@ export function parseIntegerCommandOption(option: commandOption): APIApplication
                 name: String(c.name).substring(0, 100),
                 value
             }
-            if (option.nameLocalizations) choice.name_localizations = parseNameLocalizations(option.nameLocalizations)
+            if (option.nameLocalizations)
+                choice.name_localizations = parseNameLocalizations(
+                    option.name_localizations ?? option.nameLocalizations
+                )
             choices.push(choice)
         }
         op.choices = choices
@@ -448,7 +478,8 @@ export function parseBooleanCommandOption(option: commandOption) {
         description: String(option.descripton).substring(0, 100) || '...'
     }
 
-    if (option.nameLocalizations) op.name_localizations = parseNameLocalizations(option.nameLocalizations)
+    if (option.name_localizations ?? option.nameLocalizations)
+        op.name_localizations = parseNameLocalizations(option.name_localizations ?? option.nameLocalizations)
 
     if (option.descriptionLocalizations)
         op.description_localizations = parseDescriptionLocalizations(option.descriptionLocalizations)
@@ -470,7 +501,8 @@ export function parseUserCommandOption(option: commandOption) {
         description: String(option.descripton).substring(0, 100) || '...'
     }
 
-    if (option.nameLocalizations) op.name_localizations = parseNameLocalizations(option.nameLocalizations)
+    if (option.name_localizations ?? option.nameLocalizations)
+        op.name_localizations = parseNameLocalizations(option.name_localizations ?? option.nameLocalizations)
 
     if (option.descriptionLocalizations)
         op.description_localizations = parseDescriptionLocalizations(option.descriptionLocalizations)
@@ -492,7 +524,8 @@ export function parseChannelCommandOption(option: commandOption): APIApplication
         description: String(option.descripton).substring(0, 100) || '...'
     }
 
-    if (option.nameLocalizations) op.name_localizations = parseNameLocalizations(option.nameLocalizations)
+    if (option.name_localizations ?? option.nameLocalizations)
+        op.name_localizations = parseNameLocalizations(option.name_localizations ?? option.nameLocalizations)
 
     if (option.descriptionLocalizations)
         op.description_localizations = parseDescriptionLocalizations(option.descriptionLocalizations)
@@ -516,7 +549,8 @@ export function parseRoleCommandOption(option: commandOption): APIApplicationCom
         description: String(option.descripton).substring(0, 100) || '...'
     }
 
-    if (option.nameLocalizations) op.name_localizations = parseNameLocalizations(option.nameLocalizations)
+    if (option.name_localizations ?? option.nameLocalizations)
+        op.name_localizations = parseNameLocalizations(option.name_localizations ?? option.nameLocalizations)
 
     if (option.descriptionLocalizations)
         op.description_localizations = parseDescriptionLocalizations(option.descriptionLocalizations)
@@ -538,7 +572,8 @@ export function parseMentionableCommandOption(option: commandOption): APIApplica
         description: String(option.descripton).substring(0, 100) || '...'
     }
 
-    if (option.nameLocalizations) op.name_localizations = parseNameLocalizations(option.nameLocalizations)
+    if (option.name_localizations ?? option.nameLocalizations)
+        op.name_localizations = parseNameLocalizations(option.name_localizations ?? option.nameLocalizations)
 
     if (option.descriptionLocalizations)
         op.description_localizations = parseDescriptionLocalizations(option.descriptionLocalizations)
@@ -560,7 +595,8 @@ export function parseNumberCommandOption(option: commandOption): APIApplicationC
         description: String(option.descripton).substring(0, 100) || '...'
     }
 
-    if (option.nameLocalizations) op.name_localizations = parseNameLocalizations(option.nameLocalizations)
+    if (option.name_localizations ?? option.nameLocalizations)
+        op.name_localizations = parseNameLocalizations(option.name_localizations ?? option.nameLocalizations)
 
     if (option.descriptionLocalizations)
         op.description_localizations = parseDescriptionLocalizations(option.descriptionLocalizations)
@@ -580,7 +616,10 @@ export function parseNumberCommandOption(option: commandOption): APIApplicationC
                 name: String(c.name).substring(0, 100),
                 value
             }
-            if (option.nameLocalizations) choice.name_localizations = parseNameLocalizations(option.nameLocalizations)
+            if (option.nameLocalizations)
+                choice.name_localizations = parseNameLocalizations(
+                    option.name_localizations ?? option.nameLocalizations
+                )
             choices.push(choice)
         }
         op.choices = choices
@@ -601,7 +640,8 @@ export function parseAttachmentCommandOption(option: commandOption): APIApplicat
         description: String(option.descripton).substring(0, 100) || '...'
     }
 
-    if (option.nameLocalizations) op.name_localizations = parseNameLocalizations(option.nameLocalizations)
+    if (option.name_localizations ?? option.nameLocalizations)
+        op.name_localizations = parseNameLocalizations(option.name_localizations ?? option.nameLocalizations)
 
     if (option.descriptionLocalizations)
         op.description_localizations = parseDescriptionLocalizations(option.descriptionLocalizations)
@@ -615,6 +655,8 @@ export type commandOption = {
     type: number
     name: string
     descripton?: string
+    name_localizations?: LocalizationMap
+    description_localizations?: LocalizationMap
     nameLocalizations?: LocalizationMap
     descriptionLocalizations?: LocalizationMap
     required?: boolean
@@ -622,10 +664,15 @@ export type commandOption = {
     choices?: { name: string; nameLocalizations?: LocalizationMap; value: string | number }[]
     minLength?: number
     maxLength?: number
+    min_length?: number
+    max_length?: number
     minValue?: number
     maxValue?: number
+    min_value?: number
+    max_value?: number
     autocomplete?: boolean
     channelTypes?: number[]
+    channel_types?: number[]
 }
 
 export type CommandData = Partial<
