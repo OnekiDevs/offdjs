@@ -58,14 +58,15 @@ export default class Client extends BaseClient<true> {
         this.once('ready', () => this.#onReady())
     }
 
-    async syncCommands() {
-        if (typeof this.syncCommandsConfig !== 'string' || this.syncCommandsConfig === 'none') return
+    async syncCommands(): Promise<[number, number, number]> {
+        if (typeof this.syncCommandsConfig !== 'string' || this.syncCommandsConfig === 'none') return [0, 0, 0]
         const remoteCommands = await this.application.commands.fetch()
         const localCommands = [
             ...(await this.#getJsonCommands(this.routes.commands)),
             ...(await this.#getJSCommands(this.routes.commands))
         ]
         const toCreate: RESTPostAPIApplicationCommandsJSONBody[] = []
+        const toUpdate: RESTPostAPIApplicationCommandsJSONBody[] = []
         const toDelete: ApplicationCommand[] = []
 
         for (const command of localCommands) {
@@ -74,22 +75,25 @@ export default class Client extends BaseClient<true> {
                 remoteCommand &&
                 JSON.stringify(parseAPICommand(remoteCommand as CommandData)) !== JSON.stringify(command)
             )
-                toCreate.push(command)
+                toUpdate.push(command)
             else if (!remoteCommand) toCreate.push(command)
         }
 
-        await this.application.commands.set(toCreate)
+        await this.application.commands.set([...toCreate, ...toUpdate])
 
         if (this.syncCommandsConfig === 'local_to_remote_strict')
             for (const command of remoteCommands.values())
                 if (!localCommands.find((c) => c.name === command.name)) toDelete.push(command)
 
         for (const command of toDelete) await command.delete()
+
+        return [toCreate.length, toUpdate.length, toDelete.length]
     }
 
     async #onReady() {
-        await this.syncCommands()
-        if (this.syncCommandsConfig !== 'none') console.log('\x1b[35m%s\x1b[0m', 'Commands Synced!!')
+        const [c, u, d] = await this.syncCommands()
+        if (this.syncCommandsConfig !== 'none')
+            console.log('\x1b[35m%s\x1b[0m', `Commands Synced!! [${c} created, ${u} updated, ${d} deleted]`)
         // TODO: activar
         this.on('interactionCreate', (interaction: Interaction) => {
             // isChatInputCommand
