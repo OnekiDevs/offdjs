@@ -57,9 +57,6 @@ export default class Client extends BaseClient<true> {
     public override async login(token?: string | undefined): Promise<string> {
         const e = await this.initializeEventListener(this.routes.events)
         if (e) console.log('\x1b[35m%s\x1b[0m', 'Eventos Cargados!!')
-        const [c, u, d] = await this.syncCommands()
-        if (this.syncCommandsConfig !== 'none')
-            console.log('\x1b[35m%s\x1b[0m', `Commands Synced!! [${c} created, ${u} updated, ${d} deleted]`)
         return super.login(token)
     }
 
@@ -96,6 +93,9 @@ export default class Client extends BaseClient<true> {
     }
 
     async #onReady() {
+        const [c, u, d] = await this.syncCommands()
+        if (this.syncCommandsConfig !== 'none')
+            console.log('\x1b[35m%s\x1b[0m', `Commands Synced!! [${c} created, ${u} updated, ${d} deleted]`)
         // TODO: activar
         this.on('interactionCreate', (interaction: Interaction) => {
             // isChatInputCommand
@@ -108,7 +108,7 @@ export default class Client extends BaseClient<true> {
                     this.routes.interactions,
                     ...interaction.customId.split(this.interactionSplit)
                 )
-            } else if (interaction.isSelectMenu()) {
+            } else if (interaction.isAnySelectMenu()) {
                 executeRouteCommand(
                     interaction,
                     this.routes.interactions,
