@@ -6,6 +6,7 @@
         <a href="https://discord.gg/8SpUxnF6v4"><img src="https://img.shields.io/discord/885674114310881362?color=5865F2&logo=discord&logoColor=white" alt="Discord server" /></a>
 		<a href="https://www.npmjs.com/package/offdjs"><img src="https://img.shields.io/npm/v/offdjs.svg?maxAge=3600" alt="npm version" /></a>
 		<a href="https://www.npmjs.com/package/offdjs"><img src="https://img.shields.io/npm/dt/offdjs.svg?maxAge=3600" alt="npm downloads" /></a>
+        <a href="https://packagephobia.com/result?p=offdjs" ><img src="https://packagephobia.com/badge?p=offdjs" alt="install size" /></a>
 	</p>
 </div>
 
@@ -19,9 +20,9 @@ offdjs is a small framework that uses [discord.js](https://https://discord.js.or
 
 ## Installation
 
-**Node.js 16.9.0 or newer is required.**
+**Node.js 18 or newer is required.**
 
-```
+```sh-session
 npm install offdjs
 ```
 

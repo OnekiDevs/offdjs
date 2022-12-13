@@ -34,7 +34,8 @@ export default class Client extends BaseClient<true> {
     // commands: CommandManager
     routes = {
         interactions: join(process.cwd(), 'interactions'),
-        commands: join(process.cwd(), 'commands')
+        commands: join(process.cwd(), 'commands'),
+        events: join(process.cwd(), 'events')
     }
     interactionSplit: string | RegExp = ':'
     syncCommandsConfig: syncCommands
@@ -42,20 +43,24 @@ export default class Client extends BaseClient<true> {
     constructor(options: ClientOptions) {
         super(options)
 
-        // this.commands = new CommandManager(options.routes.commands)
-
         this.i18n.configure(options.i18n)
 
         this.routes.interactions = options.routes.interactions
         this.routes.commands = options.routes.commands
+        this.routes.events = options.routes.events
         this.interactionSplit = options.interactionSplit
         this.syncCommandsConfig = options.syncCommands
 
-        this.initializeEventListener(options.routes.events).then((c) => {
-            if (c) console.log('\x1b[35m%s\x1b[0m', 'Eventos Cargados!!')
-        })
-
         this.once('ready', () => this.#onReady())
+    }
+
+    public override async login(token?: string | undefined): Promise<string> {
+        const e = await this.initializeEventListener(this.routes.events)
+        if (e) console.log('\x1b[35m%s\x1b[0m', 'Eventos Cargados!!')
+        const [c, u, d] = await this.syncCommands()
+        if (this.syncCommandsConfig !== 'none')
+            console.log('\x1b[35m%s\x1b[0m', `Commands Synced!! [${c} created, ${u} updated, ${d} deleted]`)
+        return super.login(token)
     }
 
     async syncCommands(): Promise<[number, number, number, number]> {
@@ -91,9 +96,6 @@ export default class Client extends BaseClient<true> {
     }
 
     async #onReady() {
-        const [c, u, d] = await this.syncCommands()
-        if (this.syncCommandsConfig !== 'none')
-            console.log('\x1b[35m%s\x1b[0m', `Commands Synced!! [${c} created, ${u} updated, ${d} deleted]`)
         // TODO: activar
         this.on('interactionCreate', (interaction: Interaction) => {
             // isChatInputCommand

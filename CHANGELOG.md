@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+# 1.0.1
+
+## Fix
+
+-   **Events:** `load` load events in login()
+
 # 1.0.0
 
 ## Refactor
