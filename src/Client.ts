@@ -12,7 +12,6 @@ import {
     InteractionType,
     RESTPostAPIApplicationCommandsJSONBody
 } from 'discord.js'
-const version = await import('../../' + 'package.json', { assert: { type: 'json' } }).then((i) => i.default.version)
 
 type syncCommands = 'none' | 'upload' | 'strict'
 export interface ClientOptions extends BaseClientOptions {
@@ -28,7 +27,6 @@ export interface ClientOptions extends BaseClientOptions {
 }
 
 export default class Client extends BaseClient<true> {
-    version = version ?? '1.0.0'
     i18n = i18n
     // commands: CommandManager
     routes = {
@@ -137,7 +135,7 @@ export default class Client extends BaseClient<true> {
             }
         })
 
-        console.log('\x1b[31m%s\x1b[0m', `${this.user?.username} ${this.version} ready!!!`)
+        console.log('\x1b[31m%s\x1b[0m', `${this.user?.username} ready!!!`)
     }
 
     async #getJsonCommands(path: string) {
