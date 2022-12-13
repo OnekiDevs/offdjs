@@ -1,10 +1,10 @@
 import i18n, { ConfigurationOptions } from 'i18n'
 import { parseAPICommand } from '../utils.js'
-import { CommandData } from '../utils'
 import { readdirSync } from 'fs'
 import { join } from 'path'
 import {
     ApplicationCommand,
+    ApplicationCommandResolvable,
     AutocompleteInteraction,
     ChatInputCommandInteraction,
     Client as BaseClient,
@@ -15,7 +15,7 @@ import {
 } from 'discord.js'
 const version = await import('../../' + 'package.json', { assert: { type: 'json' } }).then((i) => i.default.version)
 
-type syncCommands = 'none' | 'local_to_remote' | 'local_to_remote_strict'
+type syncCommands = 'none' | 'upload' | 'strict'
 export interface ClientOptions extends BaseClientOptions {
     // constants: ClientConstants
     routes: {
@@ -58,8 +58,8 @@ export default class Client extends BaseClient<true> {
         this.once('ready', () => this.#onReady())
     }
 
-    async syncCommands(): Promise<[number, number, number]> {
-        if (typeof this.syncCommandsConfig !== 'string' || this.syncCommandsConfig === 'none') return [0, 0, 0]
+    async syncCommands(): Promise<[number, number, number, number]> {
+        if (typeof this.syncCommandsConfig !== 'string' || this.syncCommandsConfig === 'none') return [0, 0, 0, 0]
         const remoteCommands = await this.application.commands.fetch()
         const localCommands = [
             ...(await this.#getJsonCommands(this.routes.commands)),
@@ -68,26 +68,26 @@ export default class Client extends BaseClient<true> {
         const toCreate: RESTPostAPIApplicationCommandsJSONBody[] = []
         const toUpdate: RESTPostAPIApplicationCommandsJSONBody[] = []
         const toDelete: ApplicationCommand[] = []
+        const toDownload: ApplicationCommand[] = []
 
         for (const command of localCommands) {
             const remoteCommand = remoteCommands.find((c) => c.name === command.name)
-            if (
-                remoteCommand &&
-                JSON.stringify(parseAPICommand(remoteCommand as CommandData)) !== JSON.stringify(command)
-            )
+            if (remoteCommand && JSON.stringify(parseAPICommand(remoteCommand)) !== JSON.stringify(command))
                 toUpdate.push(command)
             else if (!remoteCommand) toCreate.push(command)
         }
 
-        await this.application.commands.set([...toCreate, ...toUpdate])
+        for (const command of toCreate) await this.application.commands.create(command)
+        for (const command of toUpdate)
+            await this.application.commands.edit(command as ApplicationCommandResolvable, command)
 
-        if (this.syncCommandsConfig === 'local_to_remote_strict')
+        if (this.syncCommandsConfig === 'strict')
             for (const command of remoteCommands.values())
                 if (!localCommands.find((c) => c.name === command.name)) toDelete.push(command)
 
         for (const command of toDelete) await command.delete()
 
-        return [toCreate.length, toUpdate.length, toDelete.length]
+        return [toCreate.length, toUpdate.length, toDelete.length, toDownload.length]
     }
 
     async #onReady() {

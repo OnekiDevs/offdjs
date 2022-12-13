@@ -32,7 +32,7 @@ let config: Config = {
         events: '',
         interactions: ''
     },
-    syncCommands: 'local_to_remote'
+    syncCommands: 'upload'
 }
 try {
     // import config from oneki.config.js
@@ -40,29 +40,29 @@ try {
     config = merge(true, config, iconfig.default) as typeof config
 } catch {}
 
-if (config.i18n === true) {
-    config.i18n = {
-        locales: ['en'],
-        directory: join(cwd, 'lang'),
-        defaultLocale: 'en',
-        retryInDefaultLocale: true,
-        objectNotation: true,
-        fallbacks: {
-            'en-*': 'en',
-            'es-*': 'es'
-        },
-        logWarnFn: (msg) => console.warn('WARN i18n', msg),
-        logErrorFn: (msg) => console.error('ERROR i18n', msg),
-        missingKeyFn: (locale: string, value: string) => {
-            console.warn(`Missing translation for "${value}" in "${locale}"`)
-            return value ?? '_'
-        },
-        mustacheConfig: {
-            tags: ['{{', '}}'],
-            disable: false
-        }
-    }
-}
+// if (config.i18n === true) {
+//     config.i18n = {
+//         locales: ['en'],
+//         directory: join(cwd, 'lang'),
+//         defaultLocale: 'en',
+//         retryInDefaultLocale: true,
+//         objectNotation: true,
+//         fallbacks: {
+//             'en-*': 'en',
+//             'es-*': 'es'
+//         },
+//         logWarnFn: (msg) => console.warn('WARN i18n', msg),
+//         logErrorFn: (msg) => console.error('ERROR i18n', msg),
+//         missingKeyFn: (locale: string, value: string) => {
+//             console.warn(`Missing translation for "${value}" in "${locale}"`)
+//             return value ?? '_'
+//         },
+//         mustacheConfig: {
+//             tags: ['{{', '}}'],
+//             disable: false
+//         }
+//     }
+// }
 // create client
 export default new Client(
     merge(true, {}, config, {

@@ -1,6 +1,6 @@
 {
     "name": "offdjs",
-    "version": "0.11.8",
+    "version": "1.0.0",
     "type": "module",
     "description": "oneki framework for discord.js",
     "main": "lib/index.js",
@@ -12,6 +12,7 @@
     },
     "keywords": [
         "oneki",
+        "djs",
         "discord.js",
         "discordjs",
         "discord-bot",
@@ -43,10 +44,9 @@
     },
     "homepage": "https://github.com/OnekiDevs/offdjs#readme",
     "dependencies": {
-        "discord.js": "^14.0.0",
-        "dotenv": "16.0.1",
-        "i18n": "0.15.0",
-        "just-extend": "6.1.1",
-        "zod": "3.19.1"
+        "discord.js": "14.7.1",
+        "dotenv": "16.0.3",
+        "i18n": "0.15.1",
+        "just-extend": "6.1.1"
     }
 }

@@ -2,27 +2,34 @@
 
 All notable changes to this project will be documented in this file.
 
+# 1.0.0
+
+## Refactor
+
+-   **Utils:** `export` delete unused functions
+-   **Dependencies:** `package.json` delete unused dependecies and update
+
 # 0.11.8
 
-## fix
+## Fix
 
 -   **Utils:** `parse` detect json api format
 
 # 0.11.4
 
-## fix
+## Fix
 
 -   **Client:** `commands` not read root
 
 # 0.11.3
 
-## fix
+## Fix
 
 -   **Client:** `commands` not load new
 
 # 0.11.2
 
-## types
+## Types
 
 -   **config:** `Config` are now optionals
 

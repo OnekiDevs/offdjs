@@ -439,7 +439,7 @@ To obtain the client, offdjs exports the client already initialized as default s
 example:
 
 ```js
-import client, { Command } from 'offdjs'
+import client from 'offdjs'
 
 client.on('ready', () => console.log('ready'))
 
@@ -542,7 +542,7 @@ example:
 // offdjs.config.js
 export default {
     i18n: {
-        locales: ['en', es],
+        locales: ['en', 'es'],
         directory: join(cwd, 'lang'),
         defaultLocale: 'en',
         retryInDefaultLocale: true
@@ -557,18 +557,14 @@ example:
 
 ```js
 // x.js
-import client, { Command, Translator } from 'offdjs'
+import client, { Translator } from 'offdjs'
 
-export default class Ping extends Command {
-    constructor() { super({ ... }) }
-
-    async interaction(interaction) {
-        const translate = Translator(interaction)
-        await interaction.reply(translate('ping.response'))
-        interaction.editReply(translate('ping.other', {
-            name: client.user.username
-        }))
-    }
+export chatInputCommandInteraction(interaction) {
+    const translate = Translator(interaction)
+    await interaction.reply(translate('ping.response'))
+    interaction.editReply(translate('ping.other', {
+        name: client.user.username
+    }))
 }
 ```
 
@@ -576,9 +572,9 @@ export default class Ping extends Command {
 
 **offdjs** synchronize the commands of your files and those already registered automatically when you turn on. There are several options to set on `offdjs.config.js` with the `syncCommands` property:
 
--   `'none'`: Skip this process and do not sync or upload any command
--   `local_to_remote_strict`: Synchronize all the commands with the local files, deleting the ones that are not local and uploading the ones that are missing
--   `local_to_remote`: Upload the local commands to discord by overwriting them but without deleting any
+-   `none`: Skip this process and do not sync or upload any command
+-   `strict`: Synchronize all the commands with the local files, deleting the ones that are not local and uploading the ones that are missing
+-   `upload`: Upload the local commands to discord by overwriting them but without deleting any
 
 ## interactions
 
