@@ -80,8 +80,7 @@ export default class Client extends BaseClient<true> {
         }
 
         for (const command of toCreate) await this.application.commands.create(command)
-        for (const command of toUpdate)
-            await this.application.commands.edit(command as ApplicationCommandResolvable, command)
+        for (const command of toUpdate) await this.application.commands.create(command)
 
         if (this.syncCommandsConfig === 'strict')
             for (const command of remoteCommands.values())
