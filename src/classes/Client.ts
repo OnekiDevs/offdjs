@@ -4,7 +4,6 @@ import { readdirSync } from 'fs'
 import { join } from 'path'
 import {
     ApplicationCommand,
-    ApplicationCommandResolvable,
     AutocompleteInteraction,
     ChatInputCommandInteraction,
     Client as BaseClient,
