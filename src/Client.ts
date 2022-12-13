@@ -1,5 +1,5 @@
 import i18n, { ConfigurationOptions } from 'i18n'
-import { parseAPICommand } from '../utils.js'
+import { parseAPICommand } from './index.js'
 import { readdirSync } from 'fs'
 import { join } from 'path'
 import {
@@ -73,7 +73,11 @@ export default class Client extends BaseClient<true> {
 
         for (const command of localCommands) {
             const remoteCommand = remoteCommands.find((c) => c.name === command.name)
-            if (remoteCommand && JSON.stringify(parseAPICommand(remoteCommand)) !== JSON.stringify(command))
+            if (
+                remoteCommand &&
+                JSON.stringify(parseAPICommand(remoteCommand), (_, v) => (typeof v === 'bigint' ? v.toString() : v)) !==
+                    JSON.stringify(command)
+            )
                 toUpdate.push(command)
             else if (!remoteCommand) toCreate.push(command)
         }

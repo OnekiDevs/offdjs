@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+# 1.0.4
+
+## Fix
+
+-   **Client:** `Parse` serialize BigInt
+
 # 1.0.3
 
 ## Fix
