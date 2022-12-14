@@ -198,7 +198,7 @@ example:
 ```js
 //test.js
 
-export function buttonInteraction(interaction, _, choice) {
+export function buttonInteraction(interaction, [, choice]) {
     // this is executed in case the interaction.customId
     // is 'test:yes' or 'test:no'
     interaction.reply('you selected ' + choice)
@@ -218,7 +218,9 @@ export function buttonInteraction(interaction) {
 
 ## Menus
 
-To receive menu interactions you can create a folder called `interactions` and export a function `selectMenuInteraction` in a file with the name of the menu id, it will receive the interaction as a parameter of type `SelectMenuInteraction<'cached'>`
+discord.js has several menu interactions, `stringSelectMenuInteraction`, `userSelectMenuInteraction`, `roleSelectMenuInteraction`, `channelSelectMenuInteraction` and `mentionableSelectMenuInteraction`.
+
+To receive menu interactions you can create a folder called `interactions` and export a function with name of the respective menu in a file with the name of the menu id, it will receive the interaction as a parameter of its respective type. Tomemos el ejemplo de un `stringSelectMenuInteraction`
 
 example:
 
@@ -234,8 +236,8 @@ example:
 
 ```js
 //ping.js
-
-export function selectMenuInteraction(interaction) {
+// the type of `interaction` is `StringSelectMenuInteraction`
+export function stringSelectMenuInteraction(interaction) {
     interaction.reply('you selected: ' + interaction.vaues.join(', '))
 }
 ```
@@ -259,7 +261,7 @@ example:
 ```js
 //test.js
 
-export function selectMenuInteraction(interaction, _, choice) {
+export function stringSelectMenuInteraction(interaction, [, choice]) {
     // this is executed in case the interaction.customId
     // is 'test:add' or 'test:remove'
     interaction.reply(`you selected ${choice} this options: ${interaction.values.join(', ')}`)
@@ -270,7 +272,7 @@ export function selectMenuInteraction(interaction, _, choice) {
 ```js
 //test/add.js
 
-export function selectMenuInteraction(interaction) {
+export function stringSelectMenuInteraction(interaction) {
     // this is executed only in case
     // the interaction.customId is 'test:add'
     interaction.reply('you selected add this options: ' + interaction.values.join(', '))
@@ -320,7 +322,7 @@ example:
 ```js
 //send.js
 
-export function modalSubmitInteraction(interaction, _, choice) {
+export function modalSubmitInteraction(interaction, [, choice]) {
     // this is executed in case the interaction.customId
     // is 'send:suggest' or 'send:issue'
     interaction.reply(choice + ' sent')

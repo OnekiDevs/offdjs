@@ -52,8 +52,8 @@ export default class Client extends BaseClient<true> {
     }
 
     public override async login(token?: string | undefined): Promise<string> {
-        const e = await this.initializeEventListener(this.routes.events)
-        if (e) console.log('\x1b[35m%s\x1b[0m', 'Eventos Cargados!!')
+        this.initializeEventListener(this.routes.events)
+        // if (e) console.log('\x1b[35m%s\x1b[0m', 'Eventos Cargados!!')
         return super.login(token)
     }
 
@@ -74,7 +74,7 @@ export default class Client extends BaseClient<true> {
             if (
                 remoteCommand &&
                 JSON.stringify(parseAPICommand(remoteCommand), (_, v) => (typeof v === 'bigint' ? v.toString() : v)) !==
-                    JSON.stringify(command)
+                    JSON.stringify(parseAPICommand(command))
             )
                 toUpdate.push(command)
             else if (!remoteCommand) toCreate.push(command)
@@ -135,7 +135,7 @@ export default class Client extends BaseClient<true> {
             }
         })
 
-        console.log('\x1b[31m%s\x1b[0m', `${this.user?.username} ready!!!`)
+        // console.log('\x1b[31m%s\x1b[0m', `${this.user?.username} ready!!!`)
     }
 
     async #getJsonCommands(path: string) {
@@ -220,10 +220,15 @@ function executeRouteCommand(interaction: Interaction, path: string, ...args: st
             import(i)
                 .then((f) => {
                     if (interaction.isChatInputCommand()) f.chatInputCommandInteraction?.(interaction)
-                    else if (interaction.isButton()) f.buttonInteraction?.(interaction, ...args)
-                    else if (interaction.isSelectMenu()) f.selectMenuInteraction?.(interaction, ...args)
+                    else if (interaction.isButton()) f.buttonInteraction?.(interaction, args)
+                    else if (interaction.isChannelSelectMenu()) f.channelSelectMenuInteraction?.(interaction, args)
+                    else if (interaction.isMentionableSelectMenu())
+                        f.mentionableSelectMenuInteraction?.(interaction, args)
+                    else if (interaction.isRoleSelectMenu()) f.roleSelectMenuInteraction?.(interaction, args)
+                    else if (interaction.isUserSelectMenu()) f.userSelectMenuInteraction?.(interaction, args)
+                    else if (interaction.isStringSelectMenu()) f.stringSelectMenuInteraction?.(interaction, args)
                     else if (interaction.type === InteractionType.ModalSubmit)
-                        f.modalSubmitInteraction?.(interaction, ...args)
+                        f.modalSubmitInteraction?.(interaction, args)
                     else if (interaction.type === InteractionType.ApplicationCommandAutocomplete)
                         f.autocompleteInteraction?.(interaction)
                     else if (interaction.isMessageContextMenuCommand())

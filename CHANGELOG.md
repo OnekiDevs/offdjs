@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+# 1.1.0
+
+## Breaking changues
+
+-   **Interactions:** `SelectMenu` add support to new select menu
+-   **Interactions:** `customId` arguments now is an array
+-   **Client:** `cli` deleted logs
+
 # 1.0.4
 
 ## Fix
