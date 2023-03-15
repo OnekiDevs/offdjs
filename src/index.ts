@@ -6,11 +6,11 @@ import {
     BaseInteraction,
     RESTPostAPIApplicationCommandsJSONBody,
     ApplicationCommandDataResolvable,
-    ApplicationCommand
+    ApplicationCommand,
 } from 'discord.js'
 import { join, dirname } from 'node:path'
 import Client, { ClientOptions } from './Client.js'
-import { config as envLoad } from 'dotenv'
+import 'dotenv/config'
 import { ConfigurationOptions } from 'i18n'
 import { fileURLToPath } from 'url'
 import merge from 'just-extend'
@@ -42,15 +42,13 @@ import { p } from './p.js'
  * // }
  */
 export function parseAPICommand(
-    command: ApplicationCommandDataResolvable | ApplicationCommand
+    command: ApplicationCommandDataResolvable | ApplicationCommand,
 ): RESTPostAPIApplicationCommandsJSONBody {
     if (!(command as { name: string }).name) throw new Error('Command must have a name')
     if (!(command as { description: string }).description) (command as { description: string }).description = '...'
     return p(command as ApplicationCommandDataResolvable)
 }
 
-// load environment variables
-envLoad()
 // current work directory
 const cwd = process.cwd()
 
@@ -64,15 +62,15 @@ let config: Config = {
     intents: [],
     root: './',
     i18n: {
-        directory: join(dirname(fileURLToPath(import.meta.url)), '..', 'locales')
+        directory: join(dirname(fileURLToPath(import.meta.url)), '..', 'locales'),
     } as ConfigurationOptions,
     interactionSplit: ':',
     routes: {
         commands: '',
         events: '',
-        interactions: ''
+        interactions: '',
     },
-    syncCommands: 'upload'
+    syncCommands: 'upload',
 }
 try {
     // import config from oneki.config.js
@@ -110,9 +108,9 @@ const client = new Client(
         routes: {
             commands: config.routes?.commands || join(cwd, config.root ?? '', 'commands'),
             events: config.routes?.events || join(cwd, config.root ?? '', 'events'),
-            interactions: config.routes?.interactions || join(cwd, config.root ?? '', 'interactions')
-        }
-    }) as ClientOptions
+            interactions: config.routes?.interactions || join(cwd, config.root ?? '', 'interactions'),
+        },
+    }) as ClientOptions,
 )
 export default client
 

@@ -20,23 +20,13 @@ offdjs is a small framework that uses [discord.js](https://https://discord.js.or
 
 ## Installation
 
-**Node.js 18 or newer is required.**
+**Node.js 18.12 or newer is required.**
 
 ```sh-session
 npm install offdjs
 ```
 
 ## Example usage
-
-create a script in your **package.json** that runs `offdjs`:
-
-```json
-{
-    "scripts": {
-        "start": "offdjs"
-    }
-}
-```
 
 Set your token in an .env file at the root of the project (according to [discord.js](https://https://discord.js.org/) specs)
 
@@ -47,7 +37,7 @@ DISCORD_TOKEN="your_discord_token"
 At this point you can run your script and the bot will turn on without requiring any configuration
 
 ```sh-session
-offdjs
+npx offdjs
 ```
 
 ## Events
@@ -501,8 +491,8 @@ export default {
         IntentsBitField.Flags.Guilds,
         IntentsBitField.Flags.GuildMembers,
         IntentsBitField.Flags.MessageContent,
-        IntentsBitField.Flags.DirectMessages
-    ]
+        IntentsBitField.Flags.DirectMessages,
+    ],
 }
 ```
 
@@ -531,7 +521,7 @@ example:
 // offdjs.config.js
 export default {
     intents: [IntentsBitField.Flags.Guilds],
-    root: 'build'
+    root: 'build',
 }
 ```
 
@@ -548,9 +538,9 @@ export default {
         locales: ['en', 'es'],
         directory: join(cwd, 'lang'),
         defaultLocale: 'en',
-        retryInDefaultLocale: true
+        retryInDefaultLocale: true,
         // more config
-    }
+    },
 }
 ```
 
@@ -607,14 +597,14 @@ export default function (interaction, _, selected = 'user') {
 
         interaction.reply({
             embeds: [embed],
-            components: [button]
+            components: [button],
         })
     } else if (interaction.isButton()) {
         const embed = getAvatarEmbed(interaction, selected)
 
         interaction.update({
             embeds: [embed],
-            components: [button]
+            components: [button],
         })
     }
 }

@@ -10,7 +10,7 @@ import {
     ClientOptions as BaseClientOptions,
     Interaction,
     InteractionType,
-    RESTPostAPIApplicationCommandsJSONBody
+    RESTPostAPIApplicationCommandsJSONBody,
 } from 'discord.js'
 
 type syncCommands = 'none' | 'upload' | 'strict'
@@ -32,7 +32,7 @@ export default class Client extends BaseClient<true> {
     routes = {
         interactions: join(process.cwd(), 'interactions'),
         commands: join(process.cwd(), 'commands'),
-        events: join(process.cwd(), 'events')
+        events: join(process.cwd(), 'events'),
     }
     interactionSplit: string | RegExp = ':'
     syncCommandsConfig: syncCommands
@@ -62,7 +62,7 @@ export default class Client extends BaseClient<true> {
         const remoteCommands = await this.application.commands.fetch()
         const localCommands = [
             ...(await this.#getJsonCommands(this.routes.commands)),
-            ...(await this.#getJSCommands(this.routes.commands))
+            ...(await this.#getJSCommands(this.routes.commands)),
         ]
         const toCreate: RESTPostAPIApplicationCommandsJSONBody[] = []
         const toUpdate: RESTPostAPIApplicationCommandsJSONBody[] = []
@@ -106,19 +106,19 @@ export default class Client extends BaseClient<true> {
                 executeRouteCommand(
                     interaction,
                     this.routes.interactions,
-                    ...interaction.customId.split(this.interactionSplit)
+                    ...interaction.customId.split(this.interactionSplit),
                 )
             } else if (interaction.isAnySelectMenu()) {
                 executeRouteCommand(
                     interaction,
                     this.routes.interactions,
-                    ...interaction.customId.split(this.interactionSplit)
+                    ...interaction.customId.split(this.interactionSplit),
                 )
             } else if (interaction.type === InteractionType.ModalSubmit) {
                 executeRouteCommand(
                     interaction,
                     this.routes.interactions,
-                    ...interaction.customId.split(this.interactionSplit)
+                    ...interaction.customId.split(this.interactionSplit),
                 )
             } else if (interaction.type === InteractionType.ApplicationCommandAutocomplete) {
                 const names: string[] = getFullCommandName(interaction).filter(Boolean)
@@ -126,7 +126,7 @@ export default class Client extends BaseClient<true> {
                     interaction,
                     this.routes.interactions,
                     ...names,
-                    interaction.options.getFocused(true).name
+                    interaction.options.getFocused(true).name,
                 )
             } else if (interaction.isMessageContextMenuCommand()) {
                 executeRouteCommand(interaction, this.routes.interactions, interaction.commandName)
@@ -205,7 +205,7 @@ export default class Client extends BaseClient<true> {
                         const [eventName] = file.name.split('.')
                         this.on(eventName as string, (...args) => event.default(...args))
                     }
-                })
+                }),
             )
             return r.length
         } catch (error) {
@@ -238,7 +238,7 @@ function executeRouteCommand(interaction: Interaction, path: string, ...args: st
                 })
                 .catch((e) => {
                     if (!e.message.startsWith('Cannot find module')) throw e
-                })
+                }),
         )
     } catch (error) {
         // deepscan-disable-line USELESS_CATCH
