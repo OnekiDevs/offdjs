@@ -9,9 +9,13 @@ on:
             - master
 
 jobs:
-    deploy:
+    check:
         runs-on: ubuntu-latest
         steps:
+            - name: Cancel Previous Runs
+              uses: styfle/cancel-workflow-action
+              with:
+                  access_token: ${{ secrets.GITHUB_TOKEN }}
             - uses: actions/checkout@v3
               with:
                   fetch-depth: 0
@@ -24,3 +28,8 @@ jobs:
               run: npm run lint
             - name: Build
               run: npm run build
+            - name: npm versioning
+              id: npmVersioning
+              uses: pengyanb/npm-versioning-action@v1
+            - name: dummy versioning usage
+              run: echo "Generated version is \${{ steps.npmVersioning.outputs.version}}"
