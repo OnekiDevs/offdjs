@@ -42,3 +42,25 @@ jobs:
               run: npm ci
             - name: Build
               run: npm run build
+            - uses: actions/upload-artifact@v2
+              with:
+                  name: lib
+                  path: lib
+    test:
+        needs: [build, lint]
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+              with:
+                  fetch-depth: 0
+            - uses: actions/setup-node@v2
+              with:
+                  node-version: 18
+            - name: Intall Dependencies
+              run: npm ci
+            - uses: actions/download-artifact@v2
+              with:
+                  name: lib
+                  path: lib
+            - name: Test
+              run: DISCORD_TOKEN=${{ secrets.DISCORD_TOKEN }} npm run test

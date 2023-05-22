@@ -24,15 +24,19 @@ const client = new Client({
 await registerEvents(join(process.cwd(), 'events'), client)
 
 client.on(Events.ClientReady, async client => {
-    const commandsData: ApplicationCommandDataResolvable[] = []
-    for (const file of readdirSync(join(process.cwd(), 'commands'))) {
-        const cmd = (await import(
-            join(process.cwd(), 'commands', file)
-        )) as InteractionFile<ChatInputCommandInteraction>
-        if (cmd.command) commandsData.push(cmd.command)
-    }
+    try {
+        const commandsData: ApplicationCommandDataResolvable[] = []
+        for (const file of readdirSync(join(process.cwd(), 'commands'))) {
+            const cmd = (await import(
+                join(process.cwd(), 'commands', file)
+            )) as InteractionFile<ChatInputCommandInteraction>
+            if (cmd.command) commandsData.push(cmd.command)
+        }
 
-    client.guilds.cache.forEach(guild => guild.commands.set(commandsData))
+        client.guilds.cache.forEach(guild => guild.commands.set(commandsData))
+    } catch (e) {
+        if (!(e as Error).message.includes('no such file or directory')) throw e
+    }
 })
 
 client.on(Events.InteractionCreate, interaction => {
@@ -54,4 +58,4 @@ client.on(Events.InteractionCreate, interaction => {
             .forEach(h => h(interaction, ...formatName(interaction).split(':')))
 })
 
-await client.login()
+export default client
