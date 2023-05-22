@@ -13,8 +13,8 @@ describe('Client', () => {
     it('client should switch on with the token obtained from process.env.DISCORD_TOKEN', async () => {
         const token = await client.login()
         assert.strictEqual(token, process.env.DISCORD_TOKEN)
+        client.destroy()
     })
-    after(() => client.isReady() && client.destroy())
 })
 
 describe('Cache', () => {
