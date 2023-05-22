@@ -1,5 +1,5 @@
-import { ChatInputCommandInteraction, AutocompleteInteraction, Collection, Interaction } from 'discord.js'
-import type { EventFile, InteractionFile, InteractionHandler } from './types.js'
+import { ChatInputCommandInteraction, AutocompleteInteraction, Collection } from 'discord.js'
+import type { EventFile, InteractionFile } from './types.js'
 import { readdirSync } from 'node:fs'
 import { Client } from 'discord.js'
 import { join } from 'node:path'
