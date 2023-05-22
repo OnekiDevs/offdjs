@@ -28,8 +28,5 @@ jobs:
               run: npm run lint
             - name: Build
               run: npm run build
-            - name: npm versioning
-              id: npmVersioning
-              uses: pengyanb/npm-versioning-action@v1
-            - name: dummy versioning usage
-              run: echo "Generated version is \${{ steps.npmVersioning.outputs.version}}"
+            - name: Bump Versions
+              uses: remorses/bump-version@v8
