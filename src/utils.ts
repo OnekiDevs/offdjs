@@ -1,5 +1,5 @@
 import { ChatInputCommandInteraction, AutocompleteInteraction, Collection, Interaction } from 'discord.js'
-import { EventFile, InteractionFile, InteractionHandler } from './types'
+import type { EventFile, InteractionFile, InteractionHandler } from './types.js'
 import { readdirSync } from 'node:fs'
 import { Client } from 'discord.js'
 import { join } from 'node:path'
@@ -20,7 +20,7 @@ export async function registerEvents(from: string, to: Client) {
 export class CacheHandler<T> extends Collection<string | RegExp, T[]> {
     fetch(key: string | RegExp): Set<T> {
         const matchs = new Set<T>()
-        if (this.has(key)) for (const handler of this.get(key)!) matchs.add(handler)
+        if (this.has(key)) for (const handler of this.get(key) as T[]) matchs.add(handler)
         else if (typeof key === 'string')
             for (const [name, handler] of this.entries()) {
                 if (typeof name === 'string') continue

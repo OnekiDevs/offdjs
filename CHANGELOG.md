@@ -6,7 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ## Breaking changues
 
-Practically everything has changed
+Practically everything has changed. See the [new docs](https://github.com/OnekiDevs/offdjs/blob/05bf908d4c7693b0ea1f494c28948598f82f3e2e/README.md)
 
 # 1.1.0
 

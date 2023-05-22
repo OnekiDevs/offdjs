@@ -7,10 +7,10 @@ import {
 } from 'discord.js'
 import autocompleteCache from './cache/autocompletes.js'
 import { formatName, registerEvents } from './utils.js'
+import type { InteractionFile } from './types.js'
 import commandsCache from './cache/commands.js'
 import contextCache from './cache/contexts.js'
 import buttonsCache from './cache/buttons.js'
-import { InteractionFile } from './types.js'
 import modalsCache from './cache/modals.js'
 import menusCache from './cache/menus.js'
 import { readdirSync } from 'node:fs'
@@ -54,4 +54,4 @@ client.on(Events.InteractionCreate, interaction => {
             .forEach(h => h(interaction, ...formatName(interaction).split(':')))
 })
 
-client.login()
+await client.login()

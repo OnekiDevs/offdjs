@@ -1,0 +1,26 @@
+name: Check
+
+on:
+    push:
+        branches:
+            - master
+    pull_request:
+        branches:
+            - master
+
+jobs:
+    deploy:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+              with:
+                  fetch-depth: 0
+            - uses: actions/setup-node@v2
+              with:
+                  node-version: 18
+            - name: Intall
+              run: npm ci
+            - name: Lint
+              run: npm run lint
+            - name: Build
+              run: npm run build

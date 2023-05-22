@@ -1,5 +1,5 @@
 import { CacheHandler, registerCache } from '../utils.js'
-import { InteractionHandler } from '../types.js'
+import type { InteractionHandler } from '../types.js'
 import { ButtonInteraction } from 'discord.js'
 import { join } from 'node:path'
 

@@ -1,6 +1,6 @@
 {
     "name": "offdjs",
-    "version": "2.0.0-1",
+    "version": "2.0.0",
     "type": "module",
     "description": "oneki framework for discord.js",
     "main": "lib/index.js",
@@ -10,8 +10,8 @@
         "build": "tsc",
         "start": "node lib/index.js",
         "dev": "nodemon lib/index.js",
-        "lint": "eslint . --ext .ts",
-        "lint:fix": "eslint . --ext .ts --fix"
+        "lint": "eslint src",
+        "lint:fix": "eslint src --fix"
     },
     "keywords": [
         "oneki",
@@ -36,8 +36,10 @@
     "devDependencies": {
         "@types/i18n": "0.13.6",
         "@types/node": "18.15.3",
-        "standard": "^17.0.0",
-        "typescript": "5.0.4"
+        "@typescript-eslint/eslint-plugin": "^5.59.6",
+        "@typescript-eslint/parser": "^5.59.6",
+        "eslint": "^8.41.0",
+        "typescript": "^5.0.4"
     },
     "repository": {
         "type": "git",
@@ -64,9 +66,56 @@
         "singleQuote": true,
         "quoteProps": "as-needed",
         "trailingComma": "all",
-        "arrowParens": "avoid"
+        "arrowParens": "avoid",
+        "bracketSpacing": true
     },
     "eslintConfig": {
-        "extends": "./node_modules/standard/eslintrc.json"
+        "extends": [
+            "eslint:recommended",
+            "plugin:@typescript-eslint/recommended",
+            "plugin:@typescript-eslint/recommended-requiring-type-checking"
+        ],
+        "parser": "@typescript-eslint/parser",
+        "plugins": [
+            "@typescript-eslint"
+        ],
+        "root": true,
+        "parserOptions": {
+            "project": "./tsconfig.json"
+        },
+        "rules": {
+            "@typescript-eslint/no-misused-promises": [
+                "error",
+                {
+                    "checksVoidReturn": false
+                }
+            ],
+            "@typescript-eslint/no-explicit-any": [
+                "off"
+            ],
+            "@typescript-eslint/no-unsafe-assignment": [
+                "off"
+            ],
+            "quotes": [
+                "error",
+                "single"
+            ],
+            "semi": [
+                "error",
+                "never"
+            ],
+            "indent": [
+                "error",
+                4
+            ],
+            "comma-dangle": [
+                "error",
+                "always-multiline"
+            ],
+            "arrow-parens": [
+                "error",
+                "as-needed"
+            ]
+        }
     }
 }

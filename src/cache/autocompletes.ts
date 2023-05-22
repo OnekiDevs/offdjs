@@ -1,6 +1,6 @@
 import { CacheHandler, registerCache } from '../utils.js'
+import type { InteractionHandler } from '../types.js'
 import { AutocompleteInteraction } from 'discord.js'
-import { InteractionHandler } from '../types.js'
 import { join } from 'node:path'
 
 export default await registerCache(
