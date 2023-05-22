@@ -39,23 +39,23 @@ export class CacheHandler<T> extends Collection<string | RegExp, T[]> {
         super.set(key, [...handlers])
         return this
     }
-}
 
-export async function registerCache<T extends Interaction>(from: string, to: CacheHandler<InteractionHandler<T>>) {
-    try {
-        for (const file of readdirSync(from, { withFileTypes: true })) {
-            if (file.isDirectory()) {
-                await registerCache(join(from, file.name), to)
-                continue
+    async register(from: string, recursive?: boolean) {
+        try {
+            for (const file of readdirSync(from, { withFileTypes: true })) {
+                if (file.isDirectory()) {
+                    if (recursive) await this.register(join(from, file.name), true)
+                    continue
+                }
+                if (!file.name.endsWith('.js')) continue
+                const interaction: InteractionFile<any> = await import(join(from, file.name))
+                this.add(interaction.name, interaction.handler as T)
             }
-            if (!file.name.endsWith('.js')) continue
-            const interaction: InteractionFile<any> = await import(join(from, file.name))
-            to.add(interaction.name, interaction.handler as InteractionHandler<T>)
+        } catch (e) {
+            if (!(e as Error).message.includes('no such file or directory')) throw e
         }
-    } catch (e) {
-        if (!(e as Error).message.includes('no such file or directory')) throw e
+        return this
     }
-    return to
 }
 
 export function formatName(interaction: ChatInputCommandInteraction | AutocompleteInteraction) {
