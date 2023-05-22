@@ -1,6 +1,6 @@
 {
     "name": "offdjs",
-    "version": "1.1.1",
+    "version": "2.0.0-1",
     "type": "module",
     "description": "oneki framework for discord.js",
     "main": "lib/index.js",
@@ -8,7 +8,10 @@
     "scripts": {
         "prepare": "npm run build",
         "build": "tsc",
-        "start": "oneki"
+        "start": "node lib/index.js",
+        "dev": "nodemon lib/index.js",
+        "lint": "eslint . --ext .ts",
+        "lint:fix": "eslint . --ext .ts --fix"
     },
     "keywords": [
         "oneki",
@@ -33,7 +36,8 @@
     "devDependencies": {
         "@types/i18n": "0.13.6",
         "@types/node": "18.15.3",
-        "typescript": "4.9.5"
+        "standard": "^17.0.0",
+        "typescript": "5.0.4"
     },
     "repository": {
         "type": "git",
@@ -44,9 +48,25 @@
     },
     "homepage": "https://github.com/OnekiDevs/offdjs#readme",
     "dependencies": {
-        "discord.js": "14.8.0",
+        "discord.js": "14.11.0",
         "dotenv": "16.0.3",
         "i18n": "0.15.1",
         "just-extend": "6.2.0"
+    },
+    "engines": {
+        "node": ">=18.12.0"
+    },
+    "prettier": {
+        "printWidth": 120,
+        "tabWidth": 4,
+        "useTabs": false,
+        "semi": false,
+        "singleQuote": true,
+        "quoteProps": "as-needed",
+        "trailingComma": "all",
+        "arrowParens": "avoid"
+    },
+    "eslintConfig": {
+        "extends": "./node_modules/standard/eslintrc.json"
     }
 }

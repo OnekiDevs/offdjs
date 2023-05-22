@@ -1,135 +1,57 @@
 import {
-    BitFieldResolvable,
-    GatewayIntentsString,
-    IntentsBitField,
-    Message,
-    BaseInteraction,
-    RESTPostAPIApplicationCommandsJSONBody,
     ApplicationCommandDataResolvable,
-    ApplicationCommand,
+    ChatInputCommandInteraction,
+    Client,
+    Events,
+    IntentsBitField,
 } from 'discord.js'
-import { join, dirname } from 'node:path'
-import Client, { ClientOptions } from './Client.js'
+import autocompleteCache from './cache/autocompletes.js'
+import { formatName, registerEvents } from './utils.js'
+import commandsCache from './cache/commands.js'
+import contextCache from './cache/contexts.js'
+import buttonsCache from './cache/buttons.js'
+import { InteractionFile } from './types.js'
+import modalsCache from './cache/modals.js'
+import menusCache from './cache/menus.js'
+import { readdirSync } from 'node:fs'
+import { join } from 'node:path'
 import 'dotenv/config'
-import { ConfigurationOptions } from 'i18n'
-import { fileURLToPath } from 'url'
-import merge from 'just-extend'
-export { Client, ClientOptions }
-import { p } from './p.js'
 
-/**
- * It takes a object and returns another object formatted for the discord api
- * @param {ApplicationCommandDataResolvable | ApplicationCommand} command - The object to parse
- * @returns {ApplicationCommandDataResolvable} - The command in the correct format to send to the API
- * @example parseCommand({
- *     name: 'say',
- *     options: [{
- *         name: 'text',
- *         description: 'text to say',
- *         required: true
- *     }]
- * })
- * // {
- * //     type: 1,
- * //     name: 'say',
- * //     description: '...',
- * //     options: [{
- * //         name: 'text',
- * //         description: 'text to say',
- * //         required: true,
- * //         type: 3
- * //    }]
- * // }
- */
-export function parseAPICommand(
-    command: ApplicationCommandDataResolvable | ApplicationCommand,
-): RESTPostAPIApplicationCommandsJSONBody {
-    if (!(command as { name: string }).name) throw new Error('Command must have a name')
-    if (!(command as { description: string }).description) (command as { description: string }).description = '...'
-    return p(command as ApplicationCommandDataResolvable)
-}
+const client = new Client({
+    intents: IntentsBitField.Flags.Guilds | IntentsBitField.Flags.GuildMembers,
+})
 
-// current work directory
-const cwd = process.cwd()
+await registerEvents(join(process.cwd(), 'events'), client)
 
-export type Config = {
-    root?: string
-    intents: BitFieldResolvable<GatewayIntentsString, number>
-} & Partial<ClientOptions>
-
-// create config object
-let config: Config = {
-    intents: [],
-    root: './',
-    i18n: {
-        directory: join(dirname(fileURLToPath(import.meta.url)), '..', 'locales'),
-    } as ConfigurationOptions,
-    interactionSplit: ':',
-    routes: {
-        commands: '',
-        events: '',
-        interactions: '',
-    },
-    syncCommands: 'upload',
-}
-try {
-    // import config from oneki.config.js
-    const iconfig = await import('file://' + join(cwd, 'offdjs.config.js'))
-    config = merge(true, config, iconfig.default) as typeof config
-} catch {}
-
-// if (config.i18n === true) {
-//     config.i18n = {
-//         locales: ['en'],
-//         directory: join(cwd, 'lang'),
-//         defaultLocale: 'en',
-//         retryInDefaultLocale: true,
-//         objectNotation: true,
-//         fallbacks: {
-//             'en-*': 'en',
-//             'es-*': 'es'
-//         },
-//         logWarnFn: (msg) => console.warn('WARN i18n', msg),
-//         logErrorFn: (msg) => console.error('ERROR i18n', msg),
-//         missingKeyFn: (locale: string, value: string) => {
-//             console.warn(`Missing translation for "${value}" in "${locale}"`)
-//             return value ?? '_'
-//         },
-//         mustacheConfig: {
-//             tags: ['{{', '}}'],
-//             disable: false
-//         }
-//     }
-// }
-// create client
-const client = new Client(
-    merge(true, {}, config, {
-        intents: config.intents ?? [IntentsBitField.Flags.Guilds],
-        routes: {
-            commands: config.routes?.commands || join(cwd, config.root ?? '', 'commands'),
-            events: config.routes?.events || join(cwd, config.root ?? '', 'events'),
-            interactions: config.routes?.interactions || join(cwd, config.root ?? '', 'interactions'),
-        },
-    }) as ClientOptions,
-)
-export default client
-
-/**
- * It takes an interaction and returns a function that takes a phrase and returns a translation
- * @param {Interaction} interaction - Interaction - The interaction object that contains the locale and client.
- * @returns {(phrase: string, params?: object): string }
- */
-export function Translator(interaction: BaseInteraction | Message<true>): (phrase: string, params?: object) => string {
-    let lang: string = interaction instanceof BaseInteraction ? interaction.locale : interaction.guild.preferredLocale
-    const i18n = client.i18n
-
-    /**
-     * It takes a phrase and an optional object of parameters, and returns a translated string
-     * @param {string} phrase - The phrase to translate
-     * @param {object} [params] - An object whit the parameters to replace
-     * @returns {string} - The function translate is being returned.
-     */
-    return (phrase: string, params?: object): string => {
-        return i18n.__mf({ phrase, locale: lang }, params)
+client.on(Events.ClientReady, async client => {
+    const commandsData: ApplicationCommandDataResolvable[] = []
+    for (const file of readdirSync(join(process.cwd(), 'commands'))) {
+        const cmd = (await import(
+            join(process.cwd(), 'commands', file)
+        )) as InteractionFile<ChatInputCommandInteraction>
+        if (cmd.command) commandsData.push(cmd.command)
     }
-}
+
+    client.guilds.cache.forEach(guild => guild.commands.set(commandsData))
+})
+
+client.on(Events.InteractionCreate, interaction => {
+    if (interaction.isChatInputCommand())
+        return commandsCache
+            .fetch(formatName(interaction))
+            .forEach(h => h(interaction, ...formatName(interaction).split(':')))
+    if (interaction.isButton())
+        return buttonsCache.fetch(interaction.customId).forEach(h => h(interaction, ...interaction.customId.split(':')))
+    if (interaction.isModalSubmit())
+        return modalsCache.fetch(interaction.customId).forEach(h => h(interaction, ...interaction.customId.split(':')))
+    if (interaction.isAnySelectMenu())
+        return menusCache.fetch(interaction.customId).forEach(h => h(interaction, ...interaction.customId.split(':')))
+    if (interaction.isContextMenuCommand())
+        return contextCache.fetch(interaction.commandName).forEach(h => h(interaction))
+    if (interaction.isAutocomplete())
+        return autocompleteCache
+            .fetch(formatName(interaction))
+            .forEach(h => h(interaction, ...formatName(interaction).split(':')))
+})
+
+client.login()
