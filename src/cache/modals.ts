@@ -1,5 +1,4 @@
-import { CacheHandler } from '../utils.js'
-import type { InteractionHandler } from '../types.js'
+import { CacheHandler, InteractionHandler } from '../utils.js'
 import { ModalSubmitInteraction } from 'discord.js'
 import { join } from 'node:path'
 

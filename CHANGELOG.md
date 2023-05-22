@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+# 2.0.1
+
+## types
+
+-   export types in utils
+
 # 2.0.0
 
 ## Breaking changues

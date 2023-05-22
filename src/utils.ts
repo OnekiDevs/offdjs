@@ -1,5 +1,14 @@
-import { ChatInputCommandInteraction, AutocompleteInteraction, Collection } from 'discord.js'
-import type { EventFile, InteractionFile } from './types.js'
+import {
+    MessageContextMenuCommandInteraction,
+    UserContextMenuCommandInteraction,
+    ApplicationCommandDataResolvable,
+    ChatInputCommandInteraction,
+    AutocompleteInteraction,
+    ApplicationCommandType,
+    ClientEvents,
+    Interaction,
+    Collection,
+} from 'discord.js'
 import { readdirSync } from 'node:fs'
 import { Client } from 'discord.js'
 import { join } from 'node:path'
@@ -67,3 +76,40 @@ export function formatName(interaction: ChatInputCommandInteraction | Autocomple
         .filter(Boolean)
         .join(':')
 }
+
+// types
+
+export type EventFile<K extends keyof ClientEvents> = {
+    name: K
+    once: boolean
+    handler: EventHandler<K>
+}
+
+export type EventHandler<K extends keyof ClientEvents> = (...args: ClientEvents[K]) => Promise<any>
+
+export type InteractionHandler<T extends Interaction> = (Interaction: T, ...args: any[]) => Promise<any>
+
+export type InteractionFile<T extends Interaction> = T extends ChatInputCommandInteraction
+    ? {
+          name: string | RegExp
+          command?: ApplicationCommandDataResolvable & {
+              type?: ApplicationCommandType.ChatInput
+          }
+          handler: InteractionHandler<T>
+      }
+    : T extends UserContextMenuCommandInteraction
+    ? {
+          name: string | RegExp
+          handler: InteractionHandler<T>
+          type: ApplicationCommandType.User
+      }
+    : T extends MessageContextMenuCommandInteraction
+    ? {
+          name: string | RegExp
+          handler: InteractionHandler<T>
+          type: ApplicationCommandType.Message
+      }
+    : {
+          name: string | RegExp
+          handler: InteractionHandler<T>
+      }
