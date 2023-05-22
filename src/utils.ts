@@ -1,18 +1,22 @@
-import { ChatInputCommandInteraction, AutocompleteInteraction, Collection, Interaction } from 'discord.js'
-import type { EventFile, InteractionFile, InteractionHandler } from './types.js'
+import { ChatInputCommandInteraction, AutocompleteInteraction, Collection } from 'discord.js'
+import type { EventFile, InteractionFile } from './types.js'
 import { readdirSync } from 'node:fs'
 import { Client } from 'discord.js'
 import { join } from 'node:path'
 
 export async function registerEvents(from: string, to: Client) {
-    for (const file of readdirSync(from, { withFileTypes: true })) {
-        if (file.isDirectory()) {
-            await registerEvents(join(from, file.name), to)
-            continue
+    try {
+        for (const file of readdirSync(from, { withFileTypes: true })) {
+            if (file.isDirectory()) {
+                await registerEvents(join(from, file.name), to)
+                continue
+            }
+            if (!file.name.endsWith('.js')) continue
+            const event: EventFile<any> = await import(join(from, file.name))
+            to[event.once ? 'once' : 'on'](event.name, event.handler)
         }
-        if (!file.name.endsWith('.js')) continue
-        const event: EventFile<any> = await import(join(from, file.name))
-        to[event.once ? 'once' : 'on'](event.name, event.handler)
+    } catch (e) {
+        if (!(e as Error).message.includes('no such file or directory')) throw e
     }
     return to
 }
@@ -35,19 +39,23 @@ export class CacheHandler<T> extends Collection<string | RegExp, T[]> {
         super.set(key, [...handlers])
         return this
     }
-}
 
-export async function registerCache<T extends Interaction>(from: string, to: CacheHandler<InteractionHandler<T>>) {
-    for (const file of readdirSync(from, { withFileTypes: true })) {
-        if (file.isDirectory()) {
-            await registerCache(join(from, file.name), to)
-            continue
+    async register(from: string, recursive?: boolean) {
+        try {
+            for (const file of readdirSync(from, { withFileTypes: true })) {
+                if (file.isDirectory()) {
+                    if (recursive) await this.register(join(from, file.name), true)
+                    continue
+                }
+                if (!file.name.endsWith('.js')) continue
+                const interaction: InteractionFile<any> = await import(join(from, file.name))
+                this.add(interaction.name, interaction.handler as T)
+            }
+        } catch (e) {
+            if (!(e as Error).message.includes('no such file or directory')) throw e
         }
-        if (!file.name.endsWith('.js')) continue
-        const interaction: InteractionFile<any> = await import(join(from, file.name))
-        to.add(interaction.name, interaction.handler as InteractionHandler<T>)
+        return this
     }
-    return to
 }
 
 export function formatName(interaction: ChatInputCommandInteraction | AutocompleteInteraction) {

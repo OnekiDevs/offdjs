@@ -1,2 +1,4 @@
 #!/usr/bin/env node
-import './index.js'
+import client from './index.js'
+
+await client.login()
