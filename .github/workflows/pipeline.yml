@@ -9,13 +9,29 @@ on:
             - master
 
 jobs:
-    check:
+    avoid_redundancy:
         runs-on: ubuntu-latest
         steps:
             - name: Cancel Previous Runs
               uses: styfle/cancel-workflow-action@0.9.1
               with:
                   access_token: ${{ github.token }}
+    lint:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+              with:
+                  fetch-depth: 0
+            - uses: actions/setup-node@v2
+              with:
+                  node-version: 18
+            - name: Intall Dependencies
+              run: npm ci
+            - name: Lint
+              run: npm run lint
+    build:
+        runs-on: ubuntu-latest
+        steps:
             - uses: actions/checkout@v3
               with:
                   fetch-depth: 0
@@ -24,7 +40,5 @@ jobs:
                   node-version: 18
             - name: Intall
               run: npm ci
-            - name: Lint
-              run: npm run lint
             - name: Build
               run: npm run build
