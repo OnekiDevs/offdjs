@@ -41,7 +41,7 @@ At this point you can run your script from the root of your project and the bot 
 npx offdjs
 ```
 
-> You can also install offdjs locally and add it to your scripts in the `package.json`.
+> You can also install offdjs locally and add it to your scripts in the `package.json`. (recomended)
 
 ```json
 {
