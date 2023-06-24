@@ -53,7 +53,7 @@ npx offdjs
 
 ## Events
 
-To load events you just need to create a folder in the root called `events` and **offdjs** will read all the `.js` files; (custom events also work). **offdjs** can read subfolders inside the `events` folder for easy event organisation.
+To load events you just need to create a folder in the root called `events` and **offdjs** will read all the `.js` files; (custom events also work). **offdjs** can read subfolders inside the `events` folder for easy event organisation. **offdjs** will register the file name as event name.
 
 example:
 
@@ -76,6 +76,21 @@ The script must export a `handler` function to be executed with the parameters o
 // events/ready.js
 export function handler(client) {
     console.log('ready')
+}
+```
+
+Optionally, you can export an `once` constant with `true` or `false` if you require it to be recorded as a once event. If you need to register several handlers for the same event you also have the option of exporting a name constant where you will explicitly declare the name of the event you need to subscribe to and **offdjs** will omit the file name and replace it with that constant.
+
+```js
+// events/other_ready.js
+import { Events } from 'discord.js'
+
+export const name = Events.ClientReady
+
+export const once = true
+
+export function handler(client) {
+    console.log('ready again')
 }
 ```
 

@@ -22,7 +22,7 @@ export async function registerEvents(from: string, to: Client) {
             }
             if (!file.name.endsWith('.js')) continue
             const event: EventFile<any> = await import(join(from, file.name))
-            to[event.once ? 'once' : 'on'](event.name, event.handler)
+            to[event.once ? 'once' : 'on'](event.name ?? file.name.substring(0, file.name.length-3), event.handler)
         }
     } catch (e) {
         if (!(e as Error).message.includes('no such file or directory')) throw e
@@ -80,8 +80,8 @@ export function formatName(interaction: ChatInputCommandInteraction | Autocomple
 // types
 
 export type EventFile<K extends keyof ClientEvents> = {
-    name: K
-    once: boolean
+    name?: K
+    once?: boolean
     handler: EventHandler<K>
 }
 

@@ -1,6 +1,6 @@
 {
     "name": "offdjs",
-    "version": "2.0.1",
+    "version": "2.1.0",
     "type": "module",
     "description": "oneki framework for discord.js",
     "main": "lib/index.js",
@@ -36,11 +36,11 @@
     "license": "MIT",
     "devDependencies": {
         "@types/i18n": "0.13.6",
-        "@types/node": "18.15.3",
-        "@typescript-eslint/eslint-plugin": "^5.59.6",
-        "@typescript-eslint/parser": "^5.59.6",
-        "eslint": "^8.41.0",
-        "typescript": "^5.0.4"
+        "@types/node": "20.3.1",
+        "@typescript-eslint/eslint-plugin": "5.60.0",
+        "@typescript-eslint/parser": "5.60.0",
+        "eslint": "8.43.0",
+        "typescript": "5.1.3"
     },
     "repository": {
         "type": "git",
@@ -52,7 +52,7 @@
     "homepage": "https://github.com/OnekiDevs/offdjs#readme",
     "dependencies": {
         "discord.js": "14.11.0",
-        "dotenv": "16.0.3",
+        "dotenv": "16.3.1",
         "i18n": "0.15.1",
         "just-extend": "6.2.0"
     },
