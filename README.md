@@ -51,6 +51,19 @@ npx offdjs
 }
 ```
 
+## Intents
+intents can be declared in an environment variable `DISCORD_INTENTS` or as an argument `-i` in the command, its value will be the number of intents that can be calculated in the [intents calculator](https://discord-intents-calculator.vercel.app/), or the name of the item in its [upper snake case](https://discord.com/developers/docs/topics/gateway#list-of-intents) or [pascal case version](https://discord-api-types.dev/api/discord-api-types-v10/enum/GatewayIntentBits). 
+
+An example with .env
+```.env
+DISCORD_INTENTS="1 GUILD_MEMBERS GuildBans"
+```
+
+An example with cli
+```sh-session
+npx offdjs -i 1 GUILD_MEMBERS GuildBans
+```
+
 ## Events
 
 To load events you just need to create a folder in the root called `events` and **offdjs** will read all the `.js` files; (custom events also work). **offdjs** can read subfolders inside the `events` folder for easy event organisation. **offdjs** will register the file name as event name.

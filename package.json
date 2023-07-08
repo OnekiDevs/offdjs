@@ -1,6 +1,6 @@
 {
     "name": "offdjs",
-    "version": "2.1.0",
+    "version": "2.2.0",
     "type": "module",
     "description": "oneki framework for discord.js",
     "main": "lib/index.js",
@@ -51,6 +51,7 @@
     },
     "homepage": "https://github.com/OnekiDevs/offdjs#readme",
     "dependencies": {
+        "commander": "11.0.0",
         "discord.js": "14.11.0",
         "dotenv": "16.3.1",
         "i18n": "0.15.1",

@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+# 2.2.0
+
+## features
+
+-   custom intents 
+
+# 2.1.0
+
+## features
+
+-   event names are optionals
+
 # 2.0.1
 
 ## types
