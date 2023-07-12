@@ -1,9 +1,10 @@
 import {
     ApplicationCommandDataResolvable,
     ChatInputCommandInteraction,
-    Client,
+    Client as BaseClient,
     Events,
     IntentsBitField,
+    ClientOptions,
 } from 'discord.js'
 import { formatName, registerEvents, InteractionFile } from './utils.js'
 import autocompleteCache from './cache/autocompletes.js'
@@ -16,18 +17,40 @@ import { readdirSync } from 'node:fs'
 import { join } from 'node:path'
 import 'dotenv/config'
 
+export class Client<T extends boolean> extends BaseClient<T> {
+
+    declare options: Omit<ClientOptions, 'intents'> & { intents: IntentsBitField; root: string }
+
+    constructor(options: ClientOptions & { root?: string }) {
+        super(options)
+        this.options.root = options.root ?? '.'
+    }
+
+    override async login(token?: string): Promise<string> {
+        await autocompleteCache.register(join(process.cwd(), this.options.root, 'autocompletes'), true)
+        await commandsCache.register(join(process.cwd(), this.options.root, 'commands'), true)
+        await contextCache.register(join(process.cwd(), this.options.root, 'contexts'), true)
+        await buttonsCache.register(join(process.cwd(), this.options.root, 'buttons'), true)
+        await modalsCache.register(join(process.cwd(), this.options.root, 'modals'), true)
+        await menusCache.register(join(process.cwd(), this.options.root, 'menus'), true)
+
+        await registerEvents(join(process.cwd(), this.options.root, 'events'), this)
+        return super.login(token)
+    }
+}
+
 const client = new Client({
     intents: IntentsBitField.Flags.Guilds | IntentsBitField.Flags.GuildMembers,
 })
 
-await registerEvents(join(process.cwd(), 'events'), client)
+const root = process.env.OFFDJS_ROOT ?? client.options.root ?? '.'
 
 client.on(Events.ClientReady, async client => {
     try {
         const commandsData: ApplicationCommandDataResolvable[] = []
-        for (const file of readdirSync(join(process.cwd(), 'commands'))) {
+        for (const file of readdirSync(join(process.cwd(), root, 'commands'))) {
             const cmd = (await import(
-                join(process.cwd(), 'commands', file)
+                join(process.cwd(), root, 'commands', file)
             )) as InteractionFile<ChatInputCommandInteraction>
             if (cmd.command) commandsData.push(cmd.command)
         }

@@ -1,6 +1,6 @@
 {
     "name": "offdjs",
-    "version": "2.2.2",
+    "version": "2.3.0",
     "type": "module",
     "description": "oneki framework for discord.js",
     "main": "lib/index.js",
@@ -12,7 +12,8 @@
         "dev": "nodemon lib/index.js",
         "lint": "eslint src",
         "lint:fix": "eslint src --fix",
-        "test": "node tests/test.js"
+        "test": "node tests/test.js",
+        "cli": "node lib/cli.js"
     },
     "keywords": [
         "oneki",

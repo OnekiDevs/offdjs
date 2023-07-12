@@ -55,7 +55,7 @@ npx offdjs
 intents can be declared in an environment variable `DISCORD_INTENTS` or as an argument `-i` in the command, its value will be the number of intents that can be calculated in the [intents calculator](https://discord-intents-calculator.vercel.app/), or the name of the item in its [upper snake case](https://discord.com/developers/docs/topics/gateway#list-of-intents) or [pascal case version](https://discord-api-types.dev/api/discord-api-types-v10/enum/GatewayIntentBits). 
 
 An example with .env
-```.env
+```env
 DISCORD_INTENTS="1 GUILD_MEMBERS GuildBans"
 ```
 
@@ -341,4 +341,17 @@ export function handler(interaction) {
         .map(p => ({ value: p.id, name: p.name }))
     interaction.respond(polls)
 }
+```
+
+## Root Directory
+You can specify the root of your project by passing it as a parameter in the command (`-root build`) or by setting the environment variable `OFFDJS_ROOT`.
+
+Example .env
+```env
+OFFDJS_ROOT="build"
+```
+
+Example cli
+```sh-session
+npx offdjs -r build
 ```
