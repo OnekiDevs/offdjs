@@ -10,8 +10,10 @@ import {
     Collection,
 } from 'discord.js'
 import { readdirSync } from 'node:fs'
+import { pathToFileURL } from 'url'
 import { Client } from 'discord.js'
 import { join } from 'node:path'
+
 
 export async function registerEvents(from: string, to: Client) {
     try {
@@ -21,7 +23,7 @@ export async function registerEvents(from: string, to: Client) {
                 continue
             }
             if (!file.name.endsWith('.js')) continue
-            const event: EventFile<any> = await import(join(from, file.name))
+            const event: EventFile<any> = await import(pathToFileURL(join(from, file.name)).toString())
             to[event.once ? 'once' : 'on'](event.name ?? file.name.substring(0, file.name.length-3), event.handler)
         }
     } catch (e) {
@@ -57,7 +59,7 @@ export class CacheHandler<T> extends Collection<string | RegExp, T[]> {
                     continue
                 }
                 if (!file.name.endsWith('.js')) continue
-                const interaction: InteractionFile<any> = await import(join(from, file.name))
+                const interaction: InteractionFile<any> = await import(pathToFileURL(join(from, file.name)).toString())
                 this.add(interaction.name, interaction.handler as T)
             }
         } catch (e) {

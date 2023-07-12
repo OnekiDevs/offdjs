@@ -2,11 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+# 2.2.2
+
+## fixes
+
+-   fix cli bug on windows 
+
 # 2.2.0
 
 ## features
 
 -   custom intents 
+
 
 # 2.1.0
 
