@@ -1,4 +1,4 @@
-// #!/usr/bin/env node
+#!/usr/bin/env node
 import client from './index.js'
 import { IntentsBitField, GatewayIntentsString } from 'discord.js'
 import { program } from 'commander'
