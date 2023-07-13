@@ -5,6 +5,10 @@
     "description": "oneki framework for discord.js",
     "main": "lib/index.js",
     "bin": "lib/cli.js",
+    "exports": {
+        ".": "./lib/index.js",
+        "./djs": "./lib/djs.js"
+    },
     "scripts": {
         "prepare": "npm run build",
         "build": "tsc",

@@ -1,10 +1,10 @@
 import {
     ApplicationCommandDataResolvable,
     ChatInputCommandInteraction,
-    Client as BaseClient,
-    Events,
     IntentsBitField,
     ClientOptions,
+    Client,
+    Events,
 } from 'discord.js'
 import { formatName, registerEvents, InteractionFile } from './utils.js'
 import autocompleteCache from './cache/autocompletes.js'
@@ -17,8 +17,7 @@ import { readdirSync } from 'node:fs'
 import { join } from 'node:path'
 import 'dotenv/config'
 
-export class Client<T extends boolean> extends BaseClient<T> {
-
+export class OFFDJSClient<T extends boolean> extends Client<T> {
     declare options: Omit<ClientOptions, 'intents'> & { intents: IntentsBitField; root: string }
 
     constructor(options: ClientOptions & { root?: string }) {
@@ -39,7 +38,7 @@ export class Client<T extends boolean> extends BaseClient<T> {
     }
 }
 
-const client = new Client({
+const client = new OFFDJSClient({
     intents: IntentsBitField.Flags.Guilds | IntentsBitField.Flags.GuildMembers,
 })
 
@@ -80,4 +79,5 @@ client.on(Events.InteractionCreate, interaction => {
             .forEach(h => h(interaction, ...formatName(interaction).split(':')))
 })
 
-export default client
+export default client as OFFDJSClient<true>
+export { client }

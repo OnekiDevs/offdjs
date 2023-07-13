@@ -10,7 +10,7 @@
 	</p>
 </div>
 
-## About
+# About
 
 offdjs is a small framework that uses [discord.js](https://https://discord.js.org/) created to solve the needs and simplify the development of the Oneki bot made public so that anyone can create their own bot in a few lines of code
 
@@ -19,7 +19,7 @@ offdjs is a small framework that uses [discord.js](https://https://discord.js.or
 -   easy to use
 -   0 config
 
-## Installation
+# Installation
 
 **Node.js 18.12 or newer is required.**
 
@@ -27,7 +27,7 @@ offdjs is a small framework that uses [discord.js](https://https://discord.js.or
 npm install offdjs
 ```
 
-## Example usage
+# Example usage
 
 Set your token in an .env file at the root of the project (according to [discord.js](https://https://discord.js.org/) specs)
 
@@ -51,20 +51,27 @@ npx offdjs
 }
 ```
 
-## Intents
-intents can be declared in an environment variable `DISCORD_INTENTS` or as an argument `-i` in the command, its value will be the number of intents that can be calculated in the [intents calculator](https://discord-intents-calculator.vercel.app/), or the name of the item in its [upper snake case](https://discord.com/developers/docs/topics/gateway#list-of-intents) or [pascal case version](https://discord-api-types.dev/api/discord-api-types-v10/enum/GatewayIntentBits). 
+# Intents
+
+intents can be declared in an environment variable `DISCORD_INTENTS` or as an argument `-i` in the command, its value will be the number of intents that can be calculated in the [intents calculator](https://discord-intents-calculator.vercel.app/), or the name of the item in its [upper snake case](https://discord.com/developers/docs/topics/gateway#list-of-intents) or [pascal case version](https://discord-api-types.dev/api/discord-api-types-v10/enum/GatewayIntentBits).
 
 An example with .env
+
 ```env
 DISCORD_INTENTS="1 GUILD_MEMBERS GuildBans"
 ```
 
 An example with cli
+
 ```sh-session
 npx offdjs -i 1 GUILD_MEMBERS GuildBans
 ```
 
-## Events
+# DJS components
+
+offdjs exports all the discord.js library in 'offdjs/djs'. example: `import { Events } from 'offdjs/djs'`
+
+# Events
 
 To load events you just need to create a folder in the root called `events` and **offdjs** will read all the `.js` files; (custom events also work). **offdjs** can read subfolders inside the `events` folder for easy event organisation. **offdjs** will register the file name as event name.
 
@@ -107,14 +114,14 @@ export function handler(client) {
 }
 ```
 
-## Interactions
+# Interactions
 
 Receiving interactions is similar to events. You need to export a `handler` function that will receive the interaction as a parameter.
 You also need to export a constant `name` which can be of type `string` or `RegExp`; this constant, similar to events, will be compared with the id of the interaction or name of the command.
 If the interaction has a custom id, the handler receives as parameters the id separated by `:`.
 The name of the folder depends on the type of interaction y al igual que los eventos, los scripts pueden estar dentro de subcarpetas. Here are examples of the different types:
 
-### Buttons
+## Buttons
 
 For buttons, the folder name is `buttons`.
 
@@ -146,7 +153,7 @@ export function handler(interaction, _, id) {
 }
 ```
 
-### Select Menus
+## Select Menus
 
 For selection menus, the folder name is `menus`, they receive any selectable menu, whether string, channel, role, user and mentionable menus.
 
@@ -179,7 +186,7 @@ export function handler(interaction) {
 }
 ```
 
-### Modals
+## Modals
 
 For modals it is very similar to [buttons](#buttons) and the name of the folder is surprisingly `modals`.
 
@@ -211,7 +218,7 @@ export function handler(interaction) {
 }
 ```
 
-### Context Menus
+## Context Menus
 
 For context menu commands the folder shall be named `context` and shall receive both user context interactions and message context interactions.
 
@@ -251,7 +258,7 @@ export function handler(interaction) {
 }
 ```
 
-### Commands
+## Commands
 
 For commands the folder is called `commands`, these can export a third property called `command` of type `ApplicationCommandDataResolvable` which will be the command that the client will automatically register in each of the guilds. The `command` property is optional. The command name, subcommand and group shall also be received in the function parameters as a custom id. If the command contains subcommands and/or groups, the `name` property separates them with `:` as if they were buttons.
 
@@ -313,7 +320,7 @@ export function handler(interaction, _, subcommand) {
 }
 ```
 
-### Autocompletes
+## Autocompletes
 
 For autocompletes the folder is called `autocompletes` and they behave similar to commands except that they **do not** export the `command` property. If the command contains subcommands and/or groups, the `name` property separates them with `:` as if they were buttons. The name of the command, subcommand and group will also be received in the function parameters as a custom id.
 
@@ -343,15 +350,80 @@ export function handler(interaction) {
 }
 ```
 
-## Root Directory
+# Root Directory
+
 You can specify the root of your project by passing it as a parameter in the command (`-root build`) or by setting the environment variable `OFFDJS_ROOT`.
 
 Example .env
+
 ```env
 OFFDJS_ROOT="build"
 ```
 
 Example cli
+
 ```sh-session
 npx offdjs -r build
+```
+
+# Main process
+
+## With cli
+
+If you have extra processes, such as a database connection, you can indicate it to the cli as the first argument and it will execute it.
+
+Example:
+
+```sh-session
+npx offdjs ./index.js
+```
+
+```js
+// index.js
+import server from './server.js'
+import client from 'offdjs'
+import mydb from './db.js'
+
+// your custom process
+await mydb.connect()
+await server.listen(process.env.PORT ?? 3000)
+server.send(client.user.username + ' ready')
+```
+
+> remember not to initialize the client in that file, offdjs already initializes it for you and you can import it with `import client from 'offdjs'`. the clien exported is an initialized client `Client<true>`.
+
+## Without cli
+
+It is also possible to run the framework without the cli by importing the client into your index.js file and executing `client.login()`.
+To configure the `offdjs` options, such as intents, or root you can set them in `client.options`
+
+> Note: `import { client } from 'offdjs'` export an uninitialized client `Client<false>`
+
+Example
+
+```js
+// index.js
+import { Events, GatewayIntentBits } from 'offdjs/djs'
+import server from './server.js'
+import mydb from './db.js'
+import { client } 'offdjs'
+
+// your custom process
+await mydb.connect()
+await server.listen(process.env.PORT ?? 3000)
+client.on(Events.ClientReady, () => {
+    server.send(client.user.username + ' ready')
+})
+
+// config framework
+
+// intents
+client.options.intents = new IntentsBitField([
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.Members
+])
+// root (from the cwd)
+client.options.root = 'build'
+
+await client.login()
 ```
