@@ -103,7 +103,7 @@ Optionally, you can export an `once` constant with `true` or `false` if you requ
 
 ```js
 // events/other_ready.js
-import { Events } from 'discord.js'
+import { Events } from 'offdjs/djs'
 
 export const name = Events.ClientReady
 
