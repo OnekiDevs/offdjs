@@ -32,51 +32,44 @@ export class OFFDJSClient<T extends boolean> extends Client<T> {
         await buttonsCache.register(join(process.cwd(), this.options.root, 'buttons'), true)
         await modalsCache.register(join(process.cwd(), this.options.root, 'modals'), true)
         await menusCache.register(join(process.cwd(), this.options.root, 'menus'), true)
-
         await registerEvents(join(process.cwd(), this.options.root, 'events'), this)
-        return super.login(token)
+        const t = await super.login(token)
+        try {
+            const commandsData: ApplicationCommandDataResolvable[] = []
+            for (const file of readdirSync(join(process.cwd(), this.options.root, 'commands'))) {
+                const cmd = (await import(join(process.cwd(), this.options.root, 'commands', file))) as { command: ApplicationCommandDataResolvable }
+                if (cmd.command) commandsData.push(cmd.command)
+            }
+            for (const guild of this.guilds.cache.values()) await guild.commands.set(commandsData)
+        }
+        catch (e) {
+            if (!(e as Error).message.includes('no such file or directory'))
+                throw e
+        }
+        this.on(Events.InteractionCreate, interaction => {
+            if (interaction.isChatInputCommand())
+                return commandsCache
+                    .fetch(formatName(interaction))
+                    .forEach(h => h(interaction, ...formatName(interaction).split(':')))
+            if (interaction.isButton())
+                return buttonsCache.fetch(interaction.customId).forEach(h => h(interaction, ...interaction.customId.split(':')))
+            if (interaction.isModalSubmit())
+                return modalsCache.fetch(interaction.customId).forEach(h => h(interaction, ...interaction.customId.split(':')))
+            if (interaction.isAnySelectMenu())
+                return menusCache.fetch(interaction.customId).forEach(h => h(interaction, ...interaction.customId.split(':')))
+            if (interaction.isContextMenuCommand())
+                return contextCache.fetch(interaction.commandName).forEach(h => h(interaction))
+            if (interaction.isAutocomplete())
+                return autocompleteCache
+                    .fetch(formatName(interaction))
+                    .forEach(h => h(interaction, ...formatName(interaction).split(':')))
+        })
+        return t
     }
 }
 
 const client = new OFFDJSClient({
     intents: IntentsBitField.Flags.Guilds | IntentsBitField.Flags.GuildMembers,
-})
-
-const root = process.env.OFFDJS_ROOT ?? client.options.root ?? '.'
-
-client.on(Events.ClientReady, async client => {
-    try {
-        const commandsData: ApplicationCommandDataResolvable[] = []
-        for (const file of readdirSync(join(process.cwd(), root, 'commands'))) {
-            const cmd = (await import(
-                join(process.cwd(), root, 'commands', file)
-            )) as InteractionFile<ChatInputCommandInteraction>
-            if (cmd.command) commandsData.push(cmd.command)
-        }
-
-        client.guilds.cache.forEach(guild => guild.commands.set(commandsData))
-    } catch (e) {
-        if (!(e as Error).message.includes('no such file or directory')) throw e
-    }
-})
-
-client.on(Events.InteractionCreate, interaction => {
-    if (interaction.isChatInputCommand())
-        return commandsCache
-            .fetch(formatName(interaction))
-            .forEach(h => h(interaction, ...formatName(interaction).split(':')))
-    if (interaction.isButton())
-        return buttonsCache.fetch(interaction.customId).forEach(h => h(interaction, ...interaction.customId.split(':')))
-    if (interaction.isModalSubmit())
-        return modalsCache.fetch(interaction.customId).forEach(h => h(interaction, ...interaction.customId.split(':')))
-    if (interaction.isAnySelectMenu())
-        return menusCache.fetch(interaction.customId).forEach(h => h(interaction, ...interaction.customId.split(':')))
-    if (interaction.isContextMenuCommand())
-        return contextCache.fetch(interaction.commandName).forEach(h => h(interaction))
-    if (interaction.isAutocomplete())
-        return autocompleteCache
-            .fetch(formatName(interaction))
-            .forEach(h => h(interaction, ...formatName(interaction).split(':')))
 })
 
 export default client as OFFDJSClient<true>

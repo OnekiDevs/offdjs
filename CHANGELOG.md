@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+# 4.5.0
+
+## fixes
+
+-   deploy commands
+-   priority naming of commands
+
 # 2.4.0
 
 ## features

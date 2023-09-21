@@ -262,6 +262,13 @@ export function handler(interaction) {
 
 For commands the folder is called `commands`, these can export a third property called `command` of type `ApplicationCommandDataResolvable` which will be the command that the client will automatically register in each of the guilds. The `command` property is optional. The command name, subcommand and group shall also be received in the function parameters as a custom id. If the command contains subcommands and/or groups, the `name` property separates them with `:` as if they were buttons.
 
+Offdjs will register the command for execution in the following order of priority:
+- The name constant exported
+- The name of the constant `command` exported.
+- The name of the file
+
+This means that the `export const name` is optional, plus, if you need to, you can name the file `poll:create.js` to listen only to the `/poll create` subcommand.
+
 ```
 .
 ├── commands
