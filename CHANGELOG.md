@@ -2,7 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
-# 4.5.0
+# 2.5.1
+
+## fixes
+
+-   command naming fixed
+
+# 2.5.0
 
 ## fixes
 
