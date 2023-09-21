@@ -1,12 +1,11 @@
 import {
     ApplicationCommandDataResolvable,
-    ChatInputCommandInteraction,
     IntentsBitField,
     ClientOptions,
     Client,
     Events,
 } from 'discord.js'
-import { formatName, registerEvents, InteractionFile } from './utils.js'
+import { formatName, registerEvents } from './utils.js'
 import autocompleteCache from './cache/autocompletes.js'
 import commandsCache from './cache/commands.js'
 import contextCache from './cache/contexts.js'
