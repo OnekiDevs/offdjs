@@ -60,7 +60,7 @@ export class CacheHandler<T> extends Collection<string | RegExp, T[]> {
                 }
                 if (!file.name.endsWith('.js')) continue
                 const interaction: InteractionFile<any> = await import(pathToFileURL(join(from, file.name)).toString())
-                this.add(interaction.name, interaction.handler as T)
+                this.add(interaction.name ?? file.name.replace(/\.js/g,''), interaction.handler as T)
             }
         } catch (e) {
             if (!(e as Error).message.includes('no such file or directory')) throw e
