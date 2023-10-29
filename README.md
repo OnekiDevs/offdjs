@@ -12,12 +12,15 @@
 
 # About
 
-offdjs is a small framework that uses [discord.js](https://https://discord.js.org/) created to solve the needs and simplify the development of the Oneki bot made public so that anyone can create their own bot in a few lines of code
+offdjs is a small framework that uses
+[discord.js](https://https://discord.js.org/) created to solve the needs and
+simplify the development of the Oneki bot made public so that anyone can create
+their own bot in a few lines of code
 
--   little
--   fast
--   easy to use
--   0 config
+- little
+- fast
+- easy to use
+- 0 config
 
 # Installation
 
@@ -29,31 +32,41 @@ npm install offdjs
 
 # Example usage
 
-Set your token in an .env file at the root of the project (according to [discord.js](https://https://discord.js.org/) specs)
+Set your token in an .env file at the root of the project (according to
+[discord.js](https://https://discord.js.org/) specs)
 
 ```env
 DISCORD_TOKEN="your_discord_token"
 ```
 
-At this point you can run your script from the root of your project and the bot will turn on without requiring any configuration or installing anything at all.
+At this point you can run your script from the root of your project and the bot
+will turn on without requiring any configuration or installing anything at all.
 
 ```sh-session
 npx offdjs
 ```
 
-> You can also install offdjs locally and add it to your scripts in the `package.json`. (recomended)
+> You can also install offdjs locally and add it to your scripts in the
+> `package.json`. (recomended)
 
 ```json
 {
-    "scripts": {
-        "start": "offdjs"
-    }
+  "scripts": {
+    "start": "offdjs"
+  }
 }
 ```
 
 # Intents
 
-intents can be declared in an environment variable `DISCORD_INTENTS` or as an argument `-i` in the command, its value will be the number of intents that can be calculated in the [intents calculator](https://discord-intents-calculator.vercel.app/), or the name of the item in its [upper snake case](https://discord.com/developers/docs/topics/gateway#list-of-intents) or [pascal case version](https://discord-api-types.dev/api/discord-api-types-v10/enum/GatewayIntentBits).
+intents can be declared in an environment variable `DISCORD_INTENTS` or as an
+argument `-i` in the command, its value will be the number of intents that can
+be calculated in the
+[intents calculator](https://discord-intents-calculator.vercel.app/), or the
+name of the item in its
+[upper snake case](https://discord.com/developers/docs/topics/gateway#list-of-intents)
+or
+[pascal case version](https://discord-api-types.dev/api/discord-api-types-v10/enum/GatewayIntentBits).
 
 An example with .env
 
@@ -69,11 +82,15 @@ npx offdjs -i 1 GUILD_MEMBERS GuildBans
 
 # DJS components
 
-offdjs exports all the discord.js library in 'offdjs/djs'. example: `import { Events } from 'offdjs/djs'`
+offdjs exports all the discord.js library in 'offdjs/djs'. example:
+`import { Events } from 'offdjs/djs'`
 
 # Events
 
-To load events you just need to create a folder in the root called `events` and **offdjs** will read all the `.js` files; (custom events also work). **offdjs** can read subfolders inside the `events` folder for easy event organisation. **offdjs** will register the file name as event name.
+To load events you just need to create a folder in the root called `events` and
+**offdjs** will read all the `.js` files; (custom events also work). **offdjs**
+can read subfolders inside the `events` folder for easy event organisation.
+**offdjs** will register the file name as event name.
 
 example:
 
@@ -90,36 +107,46 @@ example:
 └── package.json
 ```
 
-The script must export a `handler` function to be executed with the parameters of such an event
+The script must export a `handler` function to be executed with the parameters
+of such an event
 
 ```js
 // events/ready.js
 export function handler(client) {
-    console.log('ready')
+  console.log("ready");
 }
 ```
 
-Optionally, you can export an `once` constant with `true` or `false` if you require it to be recorded as a once event. If you need to register several handlers for the same event you also have the option of exporting a name constant where you will explicitly declare the name of the event you need to subscribe to and **offdjs** will omit the file name and replace it with that constant.
+Optionally, you can export an `once` constant with `true` or `false` if you
+require it to be recorded as a once event. If you need to register several
+handlers for the same event you also have the option of exporting a name
+constant where you will explicitly declare the name of the event you need to
+subscribe to and **offdjs** will omit the file name and replace it with that
+constant.
 
 ```js
 // events/other_ready.js
-import { Events } from 'offdjs/djs'
+import { Events } from "offdjs/djs";
 
-export const name = Events.ClientReady
+export const name = Events.ClientReady;
 
-export const once = true
+export const once = true;
 
 export function handler(client) {
-    console.log('ready again')
+  console.log("ready again");
 }
 ```
 
 # Interactions
 
-Receiving interactions is similar to events. You need to export a `handler` function that will receive the interaction as a parameter.
-You also need to export a constant `name` which can be of type `string` or `RegExp`; this constant, similar to events, will be compared with the id of the interaction or name of the command.
-If the interaction has a custom id, the handler receives as parameters the id separated by `:`.
-The name of the folder depends on the type of interaction y al igual que los eventos, los scripts pueden estar dentro de subcarpetas. Here are examples of the different types:
+Receiving interactions is similar to events. You need to export a `handler`
+function that will receive the interaction as a parameter. You also need to
+export a constant `name` which can be of type `string` or `RegExp`; this
+constant, similar to events, will be compared with the id of the interaction or
+name of the command. If the interaction has a custom id, the handler receives as
+parameters the id separated by `:`. The name of the folder depends on the type
+of interaction y al igual que los eventos, los scripts pueden estar dentro de
+subcarpetas. Here are examples of the different types:
 
 ## Buttons
 
@@ -137,7 +164,7 @@ For buttons, the folder name is `buttons`.
 
 ```js
 // confirm_ban.js
-export const name = /ban:\d{18,19}/
+export const name = /ban:\d{18,19}/;
 
 /**
  * @param {ButtonInteraction} interaction - djs interaction object
@@ -145,17 +172,18 @@ export const name = /ban:\d{18,19}/
  * @param {string} id - the id of the member to ban
  */
 export function handler(interaction, _, id) {
-    // example code
-    const user = interaction.guild?.members.ban(id)
-    interaction.reply({
-        content: `User ${user} banned successfully`,
-    })
+  // example code
+  const user = interaction.guild?.members.ban(id);
+  interaction.reply({
+    content: `User ${user} banned successfully`,
+  });
 }
 ```
 
 ## Select Menus
 
-For selection menus, the folder name is `menus`, they receive any selectable menu, whether string, channel, role, user and mentionable menus.
+For selection menus, the folder name is `menus`, they receive any selectable
+menu, whether string, channel, role, user and mentionable menus.
 
 ```
 .
@@ -170,25 +198,26 @@ For selection menus, the folder name is `menus`, they receive any selectable men
 
 ```js
 // welcome_channel.js
-export const name = 'config:welcome_channel'
+export const name = "config:welcome_channel";
 
 /**
  * @param {AnySelectMenuInteraction} interaction - djs interaction object
  */
 export function handler(interaction) {
-    // example code
-    if (!interaction.isChannelSelectMenu()) return
-    const channel = interaction.channels.first()
-    interaction.client.configWelcomeChannel(channel)
-    interaction.reply({
-        content: `welcomes are now displayed in ${channel}`,
-    })
+  // example code
+  if (!interaction.isChannelSelectMenu()) return;
+  const channel = interaction.channels.first();
+  interaction.client.configWelcomeChannel(channel);
+  interaction.reply({
+    content: `welcomes are now displayed in ${channel}`,
+  });
 }
 ```
 
 ## Modals
 
-For modals it is very similar to [buttons](#buttons) and the name of the folder is surprisingly `modals`.
+For modals it is very similar to [buttons](#buttons) and the name of the folder
+is surprisingly `modals`.
 
 ```
 .
@@ -202,25 +231,26 @@ For modals it is very similar to [buttons](#buttons) and the name of the folder 
 
 ```js
 // secret.js
-export const name = 'secret'
+export const name = "secret";
 
 /**
  * @param {ModalSubmitInteraction} interaction - djs interaction object
  */
 export function handler(interaction) {
-    // example code
-    const secret = interaction.fields.getTextInputValue('secret')
-    interaction.client.publishSecret(secret)
-    interaction.reply({
-        content: 'Your secret was published anonymously',
-        ephemeral: true,
-    })
+  // example code
+  const secret = interaction.fields.getTextInputValue("secret");
+  interaction.client.publishSecret(secret);
+  interaction.reply({
+    content: "Your secret was published anonymously",
+    ephemeral: true,
+  });
 }
 ```
 
 ## Context Menus
 
-For context menu commands the folder shall be named `context` and shall receive both user context interactions and message context interactions.
+For context menu commands the folder shall be named `context` and shall receive
+both user context interactions and message context interactions.
 
 ```
 .
@@ -260,14 +290,29 @@ export function handler(interaction) {
 
 ## Commands
 
-For commands the folder is called `commands`, these can export a third property called `command` of type `ApplicationCommandDataResolvable` which will be the command that the client will automatically register in each of the guilds. The `command` property is optional. The command name, subcommand and group shall also be received in the function parameters as a custom id. If the command contains subcommands and/or groups, the `name` property separates them with `:` as if they were buttons.
+For commands the folder is called `commands`, these can export a third property
+called `command` of type `ApplicationCommandDataResolvable` which will be the
+command that the client will automatically register in each of the guilds. The
+`command` property is optional. The command name, subcommand and group shall
+also be received in the function parameters as a custom id. If the command
+contains subcommands and/or groups, the `name` property separates them with `:`
+as if they were buttons.
 
-Offdjs will register the command for execution in the following order of priority:
+Offdjs will register the command for execution in the following order of
+priority:
+
 - The name constant exported
 - The name of the constant `command` exported.
 - The name of the file
 
-This means that the `export const name` is optional, plus, if you need to, you can name the file `poll:create.js` to listen only to the `/poll create` subcommand.
+This means that the `export const name` is optional, plus, if you need to, you
+can name the file `poll:create.js` to listen only to the `/poll create`
+subcommand.
+
+By default the commands are displayed globally, however, you can export a
+`guilds` array with the ID's of the guilds where you want the command to be
+displayed. If the array is empty, the display will be uniform in all available
+guilds.
 
 ```
 .
@@ -282,6 +327,8 @@ This means that the `export const name` is optional, plus, if you need to, you c
 ```js
 // secret.js
 export const name = /poll:(create|finish)/
+
+export const guilds = []
 
 export const command =
     new SlashCommandBuilder()
@@ -329,7 +376,11 @@ export function handler(interaction, _, subcommand) {
 
 ## Autocompletes
 
-For autocompletes the folder is called `autocompletes` and they behave similar to commands except that they **do not** export the `command` property. If the command contains subcommands and/or groups, the `name` property separates them with `:` as if they were buttons. The name of the command, subcommand and group will also be received in the function parameters as a custom id.
+For autocompletes the folder is called `autocompletes` and they behave similar
+to commands except that they **do not** export the `command` property. If the
+command contains subcommands and/or groups, the `name` property separates them
+with `:` as if they were buttons. The name of the command, subcommand and group
+will also be received in the function parameters as a custom id.
 
 ```
 .
@@ -343,23 +394,24 @@ For autocompletes the folder is called `autocompletes` and they behave similar t
 
 ```js
 // secret.js
-export const name = 'poll:finish'
+export const name = "poll:finish";
 
 /**
  * @param {AutocompleteInteraction} interaction - djs interaction object
  */
 export function handler(interaction) {
-    // example code
-    const polls = interaction.client.polls
-        .search(interaction.options.getFocused())
-        .map(p => ({ value: p.id, name: p.name }))
-    interaction.respond(polls)
+  // example code
+  const polls = interaction.client.polls
+    .search(interaction.options.getFocused())
+    .map((p) => ({ value: p.id, name: p.name }));
+  interaction.respond(polls);
 }
 ```
 
 # Root Directory
 
-You can specify the root of your project by passing it as a parameter in the command (`-root build`) or by setting the environment variable `OFFDJS_ROOT`.
+You can specify the root of your project by passing it as a parameter in the
+command (`-root build`) or by setting the environment variable `OFFDJS_ROOT`.
 
 Example .env
 
@@ -377,7 +429,8 @@ npx offdjs -r build
 
 ## With cli
 
-If you have extra processes, such as a database connection, you can indicate it to the cli as the first argument and it will execute it.
+If you have extra processes, such as a database connection, you can indicate it
+to the cli as the first argument and it will execute it.
 
 Example:
 
@@ -387,24 +440,28 @@ npx offdjs ./index.js
 
 ```js
 // index.js
-import server from './server.js'
-import client from 'offdjs'
-import mydb from './db.js'
+import server from "./server.js";
+import client from "offdjs";
+import mydb from "./db.js";
 
 // your custom process
-await mydb.connect()
-await server.listen(process.env.PORT ?? 3000)
-server.send(client.user.username + ' ready')
+await mydb.connect();
+await server.listen(process.env.PORT ?? 3000);
+server.send(client.user.username + " ready");
 ```
 
-> remember not to initialize the client in that file, offdjs already initializes it for you and you can import it with `import client from 'offdjs'`. the clien exported is an initialized client `Client<true>`.
+> remember not to initialize the client in that file, offdjs already initializes
+> it for you and you can import it with `import client from 'offdjs'`. the clien
+> exported is an initialized client `Client<true>`.
 
 ## Without cli
 
-It is also possible to run the framework without the cli by importing the client into your index.js file and executing `client.login()`.
-To configure the `offdjs` options, such as intents, or root you can set them in `client.options`
+It is also possible to run the framework without the cli by importing the client
+into your index.js file and executing `client.login()`. To configure the
+`offdjs` options, such as intents, or root you can set them in `client.options`
 
-> Note: `import { client } from 'offdjs'` export an uninitialized client `Client<false>`
+> Note: `import { client } from 'offdjs'` export an uninitialized client
+> `Client<false>`
 
 Example
 

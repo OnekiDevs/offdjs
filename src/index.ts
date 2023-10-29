@@ -34,12 +34,21 @@ export class OFFDJSClient<T extends boolean> extends Client<T> {
         await registerEvents(join(process.cwd(), this.options.root, 'events'), this)
         const t = await super.login(token)
         try {
-            const commandsData: ApplicationCommandDataResolvable[] = []
+            const globalCommandsData: ApplicationCommandDataResolvable[] = []
+            const guildCommandsData: [string[], ApplicationCommandDataResolvable][] = []
             for (const file of readdirSync(join(process.cwd(), this.options.root, 'commands'))) {
-                const cmd = (await import(join(process.cwd(), this.options.root, 'commands', file))) as { command: ApplicationCommandDataResolvable }
-                if (cmd.command) commandsData.push(cmd.command)
+                const cmd = (await import(join(process.cwd(), this.options.root, 'commands', file))) as { command: ApplicationCommandDataResolvable; guilds?: string[] }
+                if (cmd.command && cmd.guilds) guildCommandsData.push([cmd.guilds, cmd.command])
+                else if (cmd.command) globalCommandsData.push(cmd.command)
             }
-            for (const guild of this.guilds.cache.values()) await guild.commands.set(commandsData)
+            for (const guild of this.guilds.cache.values()) {
+                const toSend: ApplicationCommandDataResolvable[] = []
+                for (const [guilds, command] of guildCommandsData)
+                    if (!guilds.length || guilds.includes(guild.id))
+                        toSend.push(command)
+                await guild.commands.set(toSend) 
+            }                        
+            await client.application?.commands.set(globalCommandsData)
         }
         catch (e) {
             if (!(e as Error).message.includes('no such file or directory'))

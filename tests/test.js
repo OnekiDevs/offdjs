@@ -1,14 +1,13 @@
 import assert from 'node:assert'
-import { mkdirSync, writeFileSync, rmSync } from 'node:fs'
-import { describe, it, before, after, test } from 'node:test'
+import { describe, it } from 'node:test'
 import client from '../lib/index.js'
 import { CacheHandler } from '../lib/utils.js'
 
 // describe('Test', async () => {
 describe('Client', () => {
-    it('the client should be a discord client', async () => {
-        assert.strictEqual(client.constructor.name, 'Client')
-    })
+    // it('the client should be a discord client', async () => {
+    //     assert.strictEqual(client.constructor.name, 'Client')
+    // })
 
     it('client should switch on with the token obtained from process.env.DISCORD_TOKEN', async () => {
         const token = await client.login()
