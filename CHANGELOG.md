@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+# 2.7.1
+
+## features
+
+-   `intents` add defaault to cli -i option
+
 # 2.7.0
 
 ## Breaking changues

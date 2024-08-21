@@ -1,6 +1,6 @@
 {
     "name": "offdjs",
-    "version": "2.7.0",
+    "version": "2.7.1",
     "type": "module",
     "description": "oneki framework for discord.js",
     "main": "lib/index.js",
@@ -17,6 +17,7 @@
         "test": "node tests/test.js",
         "cli": "node lib/cli.js",
         "prettier:check": "prettier src --check",
+        "prettier": "prettier src --write",
         "lint": "eslint"
     },
     "keywords": [

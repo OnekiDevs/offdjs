@@ -3,7 +3,7 @@ name: Check Package Version on PR
 on:
     pull_request:
         branches:
-            - main
+            - master
 
 jobs:
     check-version:
@@ -14,7 +14,7 @@ jobs:
             - name: Checkout main branch
               uses: actions/checkout@v4
               with:
-                  ref: main
+                  ref: master
 
             # 2. Obtener la versión del package.json de la rama main
             - name: Get version from main branch
@@ -48,20 +48,30 @@ jobs:
                   fi
               shell: bash
 
-            # 6. Obtener el changelog desde el script
+            # 6. Hacer ejecutable el script get_changelog.sh
+            - name: Make get_changelog.sh executable
+              run: chmod +x ./get_changelog.sh
+
+            - name: show changelog
+              run: |
+                  changelog=$(./get_changelog.sh ${{ env.pr_version }})
+                  echo "changelog: $changelog"
+              shell: bash
+
+            # 7. Obtener el changelog desde el script
             - name: Get changelog
               id: get-changelog
               run: |
                   changelog=$(./get_changelog.sh ${{ env.pr_version }})
                   if [ -z "$changelog" ]; then
-                    echo "Error: No changelog found for version ${{ env.pr_version }}"
-                    exit 1
+                      echo "Error: No changelog found for version ${{ env.pr_version }}"
+                      exit 1
                   else
-                    echo "Changelog: $changelog"
-                    echo "changelog=$changelog" >> $GITHUB_ENV
+                      echo "$changelog" > changelog.txt
+                      echo "Changelog saved to changelog.txt"
                   fi
 
-            # 7. Instalar dependencias y compilar el proyecto
+            # 8. Instalar dependencias y compilar el proyecto
             - name: Install dependencies and run build
               run: |
                   npm install

@@ -21,6 +21,7 @@ const cmd = new Command()
     .option(
         '-i, --intents <intents...>',
         'intents like a `INTENT_NAME`, `IntentName` or `123`. You can also set it in the OFFDJS_INTENTS env',
+        'GUILDS, GUILD_MESSAGES',
     )
     .option(
         '-r, --root <root>',
