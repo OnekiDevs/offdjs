@@ -48,7 +48,11 @@ jobs:
                   fi
               shell: bash
 
-            # 6. Obtener el changelog desde el script
+            # 6. Hacer ejecutable el script get_changelog.sh
+            - name: Make get_changelog.sh executable
+              run: chmod +x ./get_changelog.sh
+
+            # 7. Obtener el changelog desde el script
             - name: Get changelog
               id: get-changelog
               run: |
@@ -61,7 +65,7 @@ jobs:
                     echo "changelog=$changelog" >> $GITHUB_ENV
                   fi
 
-            # 7. Instalar dependencias y compilar el proyecto
+            # 8. Instalar dependencias y compilar el proyecto
             - name: Install dependencies and run build
               run: |
                   npm install

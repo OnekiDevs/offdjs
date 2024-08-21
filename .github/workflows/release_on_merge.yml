@@ -28,7 +28,11 @@ jobs:
                   echo "version=$version" >> $GITHUB_ENV
                   echo "Release version: $version"
 
-            # 4. Obtener el changelog desde el script
+            # 4. Hacer ejecutable el script get_changelog.sh
+            - name: Make get_changelog.sh executable
+              run: chmod +x ./get_changelog.sh
+
+            # 5. Obtener el changelog desde el script
             - name: Get release changelog
               id: get-changelog
               run: |
@@ -37,7 +41,7 @@ jobs:
                   echo "$changelog" >> $GITHUB_ENV
                   echo "EOF" >> $GITHUB_ENV
 
-            # 5. Crear una nueva release en GitHub
+            # 6. Crear una nueva release en GitHub
             - name: Create GitHub Release
               id: create_release
               uses: actions/create-release@v1
@@ -50,7 +54,7 @@ jobs:
                   draft: false
                   prerelease: false
 
-            # 6. Publicar en npm
+            # 7. Publicar en npm
             - name: Publish to npm
               run: |
                   npm publish
