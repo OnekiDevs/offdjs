@@ -141,3 +141,4 @@ const client = new OFFDJSClient({
 
 export default client as OFFDJSClient<true>
 export { client }
+export { EventHandler, InteractionHandler } from './utils.js'
