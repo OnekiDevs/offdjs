@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+# 2.7.2
+
+## features
+
+-   **types** `EventHandler`, `InteractionHandler` exported
+
 # 2.7.1
 
 ## features
