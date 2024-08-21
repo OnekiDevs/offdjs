@@ -1,31 +1,50 @@
 #!/usr/bin/env node
-const { default: pkg } = await import('../package' + '.json', { assert: { type: 'json' } })
-import { IntentsBitField, GatewayIntentsString } from 'discord.js'
+const { default: pkg } = await import(import.meta.resolve('../package.json'), { with: { type: 'json' } })
+import { IntentsBitField, GatewayIntentsString, BitFieldResolvable } from 'discord.js'
 import { pathToFileURL } from 'node:url'
-import { program } from 'commander'
+import { Command } from 'commander'
 import client from './index.js'
-import { join } from 'path'
+import { join } from 'node:path'
 
-program
+const cmd = new Command()
     .argument('[main]', 'main file')
-    .option('-i, --intents [intents...]', 'intents', [process.env.DISCORD_INTENTS ?? `${3}`])
-    .option('-r, --root [root]', 'root', process.env.OFFDJS_ROOT ?? '.')
-    .option('-t, --token [token]', 'token', process.env.DISCORD_TOKEN)
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    .version(pkg.version as string)
+    .option('-t, --token <token>', 'discord token. You can also set it in the DISCORD_TOKEN env')
+    .option(
+        '-i, --intents <intents...>',
+        'intents like a `INTENT_NAME`, `IntentName` or `123`. You can also set it in the OFFDJS_INTENTS env',
+    )
+    .option('-r, --root <root>', 'root of program. You can also set it in the OFFDJS_ROOT env', '.')
+    .option('-V, --verbose', 'verbose mode. You can also set it in the OFFDJS_VERBOSE env', false)
+    .version(pkg.version, '-v, --version')
     .parse()
 
-client.options.intents = new IntentsBitField(
-    IntentsBitField.resolve(
-        (program.opts().intents as string[]).map(i =>
-            i
-                .split('_')
-                .map(s => s[0].toUpperCase() + s.slice(1).toLowerCase())
-                .join(''),
-        ) as GatewayIntentsString[],
-    ),
-)
-client.options.root = program.opts().root as string
-await client.login(program.opts().token as string)
+const verbose = process.env.OFFDJS_VERBOSE === 'true' || (cmd.opts().verbose as boolean)
 
-if (program.args[0]) await import(pathToFileURL(join(process.cwd(), program.args[0])).toString())
+function resolveIntents(i: string) {
+    return i.split(',').map(
+        i =>
+            i
+                .trim()
+                .split('_')
+                .map(s => s && s[0].toUpperCase() + s.slice(1).toLowerCase())
+                .join('') as BitFieldResolvable<GatewayIntentsString, number>,
+    )
+}
+client.options.intents = new IntentsBitField(
+    IntentsBitField.resolve(resolveIntents(process.env.OFFDJS_INTENTS || cmd.opts().intents || '') || 0),
+)
+if (verbose) console.log('Intents used:', client.options.intents.toArray().join(', ') || 'none')
+client.options.root = process.env.OFFDJS_ROOT || cmd.opts().root
+if (verbose) console.log('Root:', client.options.root)
+const token = process.env.OFFDJS_ROOT || cmd.opts().token
+if (!token) {
+    console.error('Token is required')
+    process.exit(1)
+}
+const tokenFrom = process.env.OFFDJS_ROOT ? 'env' : 'command line'
+if (verbose) console.log(`Token used from ${tokenFrom}`)
+await client.login(token)
+if (cmd.args[0]) {
+    if (verbose) console.log('Loading main file:', cmd.args[0])
+    await import(pathToFileURL(join(process.cwd(), cmd.args[0])).toString())
+}

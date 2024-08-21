@@ -14,22 +14,23 @@ import { pathToFileURL } from 'url'
 import { Client } from 'discord.js'
 import { join } from 'node:path'
 
-
 export async function registerEvents(from: string, to: Client) {
+    let eventsCount = 0
     try {
         for (const file of readdirSync(from, { withFileTypes: true })) {
             if (file.isDirectory()) {
-                await registerEvents(join(from, file.name), to)
+                eventsCount += await registerEvents(join(from, file.name), to)
                 continue
             }
             if (!file.name.endsWith('.js')) continue
             const event: EventFile<any> = await import(pathToFileURL(join(from, file.name)).toString())
-            to[event.once ? 'once' : 'on'](event.name ?? file.name.substring(0, file.name.length-3), event.handler)
+            to[event.once ? 'once' : 'on'](event.name ?? file.name.substring(0, file.name.length - 3), event.handler)
+            eventsCount++
         }
     } catch (e) {
         if (!(e as Error).message.includes('no such file or directory')) throw e
     }
-    return to
+    return eventsCount
 }
 
 export class CacheHandler<T> extends Collection<string | RegExp, T[]> {
@@ -60,7 +61,7 @@ export class CacheHandler<T> extends Collection<string | RegExp, T[]> {
                 }
                 if (!file.name.endsWith('.js')) continue
                 const interaction: InteractionFile<any> = await import(pathToFileURL(join(from, file.name)).toString())
-                this.add(interaction.name ?? file.name.replace(/\.js/g,''), interaction.handler as T)
+                this.add(interaction.name ?? file.name.replace(/\.js/g, ''), interaction.handler as T)
             }
         } catch (e) {
             if (!(e as Error).message.includes('no such file or directory')) throw e
