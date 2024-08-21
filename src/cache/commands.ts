@@ -2,6 +2,7 @@ import {
     ApplicationCommandData,
     ApplicationCommandDataResolvable,
     ChatInputCommandInteraction,
+    Interaction,
     JSONEncodable,
     RESTPostAPIApplicationCommandsJSONBody,
 } from 'discord.js'
@@ -25,7 +26,7 @@ class CommandCacheHandler extends CacheHandler<
                     continue
                 }
                 if (!file.name.endsWith('.js')) continue
-                const interaction: InteractionFile<any> & {
+                const interaction: InteractionFile<Interaction> & {
                     command?: ApplicationCommandDataResolvable
                 } = await import(
                     pathToFileURL(join(from, file.name)).toString()
