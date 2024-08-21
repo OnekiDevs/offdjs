@@ -52,6 +52,11 @@ jobs:
             - name: Make get_changelog.sh executable
               run: chmod +x ./get_changelog.sh
 
+            - name: show changelog
+              run: |
+                  echo "$(./get_changelog.sh ${{ env.pr_version }})"
+              shell: bash
+
             # 7. Obtener el changelog desde el script
             - name: Get changelog
               id: get-changelog
