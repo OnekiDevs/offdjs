@@ -16,7 +16,7 @@
         "dev": "nodemon lib/index.js",
         "test": "node tests/test.js",
         "cli": "node lib/cli.js",
-        "prettier:check": "prettier --check",
+        "prettier:check": "prettier src --check",
         "lint": "eslint"
     },
     "keywords": [
