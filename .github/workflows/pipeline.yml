@@ -55,6 +55,7 @@ jobs:
             - name: Lint
               run: npm run lint
     build:
+        needs: [install, lint]
         runs-on: ubuntu-latest
         steps:
             - name: Checkout
