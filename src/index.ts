@@ -20,19 +20,19 @@ export class OFFDJSClient<T extends boolean> extends Client<T> {
 
     override async login(token?: string, verbose = false): Promise<string> {
         const a = await autocompleteCache.register(join(process.cwd(), this.options.root, 'autocompletes'), true)
-        if (a.size) console.log('Autocompletes registered:', a.size)
+        if (a.size && verbose) console.log('Autocompletes registered:', a.size)
         const b = await commandsCache.register(join(process.cwd(), this.options.root, 'commands'), true)
-        if (b.size) console.log('Commands registered:', b.size)
+        if (b.size && verbose) console.log('Commands registered:', b.size)
         const c = await contextCache.register(join(process.cwd(), this.options.root, 'contexts'), true)
-        if (c.size) console.log('Contexts registered:', c.size)
+        if (c.size && verbose) console.log('Contexts registered:', c.size)
         const d = await buttonsCache.register(join(process.cwd(), this.options.root, 'buttons'), true)
-        if (d.size) console.log('Buttons registered:', d.size)
+        if (d.size && verbose) console.log('Buttons registered:', d.size)
         const e = await modalsCache.register(join(process.cwd(), this.options.root, 'modals'), true)
-        if (e.size) console.log('Modals registered:', e.size)
+        if (e.size && verbose) console.log('Modals registered:', e.size)
         const f = await menusCache.register(join(process.cwd(), this.options.root, 'menus'), true)
-        if (f.size) console.log('Menus registered:', f.size)
+        if (f.size && verbose) console.log('Menus registered:', f.size)
         const g = await registerEvents(join(process.cwd(), this.options.root, 'events'), this)
-        if (g) console.log('Events registered:', g)
+        if (g && verbose) console.log('Events registered:', g)
         const t = await super.login(token)
         try {
             const globalCommandsData: ApplicationCommandDataResolvable[] = []
