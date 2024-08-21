@@ -1,6 +1,11 @@
-import { MessageContextMenuCommandInteraction, UserContextMenuCommandInteraction } from 'discord.js'
+import {
+    MessageContextMenuCommandInteraction,
+    UserContextMenuCommandInteraction,
+} from 'discord.js'
 import { CacheHandler, InteractionHandler } from '../utils.js'
 
 export default new CacheHandler<
-    InteractionHandler<MessageContextMenuCommandInteraction | UserContextMenuCommandInteraction>
+    InteractionHandler<
+        MessageContextMenuCommandInteraction | UserContextMenuCommandInteraction
+    >
 >()
