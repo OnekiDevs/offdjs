@@ -17,6 +17,7 @@
         "test": "node tests/test.js",
         "cli": "node lib/cli.js",
         "prettier:check": "prettier src --check",
+        "prettier": "prettier src --write",
         "lint": "eslint"
     },
     "keywords": [
