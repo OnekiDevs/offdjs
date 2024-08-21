@@ -54,7 +54,8 @@ jobs:
 
             - name: show changelog
               run: |
-                  echo "$(./get_changelog.sh ${{ env.pr_version }})"
+                  changelog=$(./get_changelog.sh ${{ env.pr_version }})
+                  echo "changelog: $changelog"
               shell: bash
 
             # 7. Obtener el changelog desde el script
