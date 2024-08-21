@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 # 2.7.1
 
-# features
+## features
 
 -   `intents` add defaault to cli -i option
 

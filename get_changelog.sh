@@ -11,8 +11,8 @@ if [[ -z "$VERSION" ]]; then
   exit 1
 fi
 
-# Extrae el changelog de la versión especificada
-awk -v ver="# $VERSION" '
+# Extraer el changelog de la versión especificada
+awk -v ver="^# $VERSION" '
   $0 ~ ver {flag=1; next}
-  /^#/ && flag {flag=0}
-  flag {print}' "$CHANGELOG_FILE"
+  /^#\s/ && flag {flag=0}
+  flag' "$CHANGELOG_FILE"
