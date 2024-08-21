@@ -14,8 +14,6 @@
         "build": "tsc",
         "start": "node lib/index.js",
         "dev": "nodemon lib/index.js",
-        "lint": "eslint src",
-        "lint:fix": "eslint src --fix",
         "test": "node tests/test.js",
         "cli": "node lib/cli.js"
     },
@@ -42,9 +40,6 @@
     "devDependencies": {
         "@types/i18n": "0.13.12",
         "@types/node": "22.5.0",
-        "@typescript-eslint/eslint-plugin": "8.2.0",
-        "@typescript-eslint/parser": "8.2.0",
-        "eslint": "8.57.0",
         "typescript": "5.5.4"
     },
     "repository": {
@@ -65,68 +60,5 @@
     "engineStrict": true,
     "engines": {
         "node": ">=20.10.0"
-    },
-    "prettier": {
-        "printWidth": 120,
-        "tabWidth": 4,
-        "useTabs": false,
-        "semi": false,
-        "singleQuote": true,
-        "quoteProps": "as-needed",
-        "trailingComma": "all",
-        "arrowParens": "avoid",
-        "bracketSpacing": true
-    },
-    "eslintConfig": {
-        "extends": [
-            "eslint:recommended",
-            "plugin:@typescript-eslint/recommended",
-            "plugin:@typescript-eslint/recommended-requiring-type-checking"
-        ],
-        "parser": "@typescript-eslint/parser",
-        "plugins": [
-            "@typescript-eslint"
-        ],
-        "root": true,
-        "parserOptions": {
-            "project": "./tsconfig.json"
-        },
-        "rules": {
-            "@typescript-eslint/no-misused-promises": [
-                "error",
-                {
-                    "checksVoidReturn": false
-                }
-            ],
-            "@typescript-eslint/no-explicit-any": 0,
-            "@typescript-eslint/no-unsafe-assignment": [
-                "off"
-            ],
-            "quotes": [
-                "error",
-                "single"
-            ],
-            "semi": [
-                "error",
-                "never"
-            ],
-            "indent": [
-                "error",
-                4
-            ],
-            "comma-dangle": [
-                "error",
-                "always-multiline"
-            ],
-            "arrow-parens": [
-                "error",
-                "as-needed"
-            ]
-        }
-    },
-    "eslintIgnore": [
-        "lib",
-        "node_modules",
-        "tests"
-    ]
+    }
 }
