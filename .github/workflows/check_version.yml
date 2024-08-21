@@ -1,0 +1,68 @@
+name: Check Package Version on PR
+
+on:
+    pull_request:
+        branches:
+            - main
+
+jobs:
+    check-version:
+        runs-on: ubuntu-latest
+
+        steps:
+            # 1. Checkout la rama main
+            - name: Checkout main branch
+              uses: actions/checkout@v4
+              with:
+                  ref: main
+
+            # 2. Obtener la versión del package.json de la rama main
+            - name: Get version from main branch
+              id: get-main-version
+              run: |
+                  main_version=$(jq -r .version package.json)
+                  echo "main_version=${main_version}" >> $GITHUB_ENV
+
+            # 3. Checkout la rama del PR (cabezal de la PR)
+            - name: Checkout PR branch
+              uses: actions/checkout@v4
+              with:
+                  ref: ${{ github.event.pull_request.head.ref }}
+
+            # 4. Obtener la versión del package.json de la rama del PR
+            - name: Get version from PR branch
+              id: get-pr-version
+              run: |
+                  pr_version=$(jq -r .version package.json)
+                  echo "pr_version=${pr_version}" >> $GITHUB_ENV
+
+            # 5. Comparar las versiones
+            - name: Compare versions
+              run: |
+                  echo "Main version: ${{ env.main_version }}"
+                  echo "PR version: ${{ env.pr_version }}"
+
+                  if [ "$(printf '%s\n' "${{ env.main_version }}" "${{ env.pr_version }}" | sort -V | head -n1)" = "${{ env.pr_version }}" ]; then
+                    echo "Error: The version in the PR branch is not greater than the version in the main branch."
+                    exit 1
+                  fi
+              shell: bash
+
+            # 6. Obtener el changelog desde el script
+            - name: Get changelog
+              id: get-changelog
+              run: |
+                  changelog=$(./get_changelog.sh ${{ env.pr_version }})
+                  if [ -z "$changelog" ]; then
+                    echo "Error: No changelog found for version ${{ env.pr_version }}"
+                    exit 1
+                  else
+                    echo "Changelog: $changelog"
+                    echo "changelog=$changelog" >> $GITHUB_ENV
+                  fi
+
+            # 7. Instalar dependencias y compilar el proyecto
+            - name: Install dependencies and run build
+              run: |
+                  npm install
+                  npm run build

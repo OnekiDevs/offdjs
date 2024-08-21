@@ -1,0 +1,58 @@
+name: Release on Merge to Main
+
+on:
+    push:
+        branches:
+            - main
+
+jobs:
+    release:
+        runs-on: ubuntu-latest
+
+        steps:
+            # 1. Checkout la rama main
+            - name: Checkout main branch
+              uses: actions/checkout@v4
+
+            # 2. Instalar dependencias y compilar el proyecto
+            - name: Install dependencies and run build
+              run: |
+                  npm install
+                  npm run build
+
+            # 3. Obtener la versión del package.json
+            - name: Get version from package.json
+              id: get-version
+              run: |
+                  version=$(jq -r .version package.json)
+                  echo "version=$version" >> $GITHUB_ENV
+                  echo "Release version: $version"
+
+            # 4. Obtener el changelog desde el script
+            - name: Get release changelog
+              id: get-changelog
+              run: |
+                  changelog=$(./get_changelog.sh ${{ env.version }})
+                  echo "changelog<<EOF" >> $GITHUB_ENV
+                  echo "$changelog" >> $GITHUB_ENV
+                  echo "EOF" >> $GITHUB_ENV
+
+            # 5. Crear una nueva release en GitHub
+            - name: Create GitHub Release
+              id: create_release
+              uses: actions/create-release@v1
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+              with:
+                  tag_name: v${{ env.version }}
+                  release_name: 'Release v${{ env.version }}'
+                  body: ${{ env.changelog }}
+                  draft: false
+                  prerelease: false
+
+            # 6. Publicar en npm
+            - name: Publish to npm
+              run: |
+                  npm publish
+              env:
+                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

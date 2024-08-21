@@ -1,0 +1,31 @@
+name: Lint Codebase
+
+on: [push, pull_request]
+
+jobs:
+    lint:
+        runs-on: ubuntu-latest
+
+        steps:
+            # Configuración del repositorio
+            - name: Checkout code
+              uses: actions/checkout@v3
+
+            # Instalación de Node.js y dependencias
+            - name: Setup Node.js
+              uses: actions/setup-node@v3
+              with:
+                  node-version: '20'
+
+            - name: Install dependencies
+              run: npm install
+
+            # Ejecución de Prettier
+            - name: Run Prettier
+              run: npm run prettier:check
+              continue-on-error: false
+
+            # Ejecución de ESLint
+            - name: Run ESLint
+              run: npm run lint
+              continue-on-error: false

@@ -15,7 +15,9 @@
         "start": "node lib/index.js",
         "dev": "nodemon lib/index.js",
         "test": "node tests/test.js",
-        "cli": "node lib/cli.js"
+        "cli": "node lib/cli.js",
+        "prettier:check": "prettier --check",
+        "lint": "eslint"
     },
     "keywords": [
         "oneki",
@@ -38,9 +40,13 @@
     },
     "license": "MIT",
     "devDependencies": {
+        "@eslint/js": "^9.9.0",
         "@types/i18n": "0.13.12",
         "@types/node": "22.5.0",
-        "typescript": "5.5.4"
+        "eslint": "^9.9.0",
+        "globals": "^15.9.0",
+        "typescript": "5.5.4",
+        "typescript-eslint": "^8.2.0"
     },
     "repository": {
         "type": "git",
