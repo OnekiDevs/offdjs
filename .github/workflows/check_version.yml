@@ -64,11 +64,11 @@ jobs:
               run: |
                   changelog=$(./get_changelog.sh ${{ env.pr_version }})
                   if [ -z "$changelog" ]; then
-                    echo "Error: No changelog found for version ${{ env.pr_version }}"
-                    exit 1
+                      echo "Error: No changelog found for version ${{ env.pr_version }}"
+                      exit 1
                   else
-                    echo "Changelog: $changelog"
-                    echo "changelog=$changelog" >> $GITHUB_ENV
+                      echo "$changelog" > changelog.txt
+                      echo "Changelog saved to changelog.txt"
                   fi
 
             # 8. Instalar dependencias y compilar el proyecto

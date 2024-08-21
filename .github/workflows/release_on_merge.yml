@@ -37,9 +37,13 @@ jobs:
               id: get-changelog
               run: |
                   changelog=$(./get_changelog.sh ${{ env.version }})
-                  echo "changelog<<EOF" >> $GITHUB_ENV
-                  echo "$changelog" >> $GITHUB_ENV
-                  echo "EOF" >> $GITHUB_ENV
+                  if [ -z "$changelog" ]; then
+                      echo "Error: No changelog found for version ${{ env.version }}"
+                      exit 1
+                  else
+                      echo "$changelog" > changelog.txt
+                      echo "Changelog saved to changelog.txt"
+                  fi
 
             # 6. Crear una nueva release en GitHub
             - name: Create GitHub Release
@@ -50,7 +54,7 @@ jobs:
               with:
                   tag_name: v${{ env.version }}
                   release_name: 'Release v${{ env.version }}'
-                  body: ${{ env.changelog }}
+                  body_path: ./changelog.txt
                   draft: false
                   prerelease: false
 
