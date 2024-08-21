@@ -113,27 +113,27 @@ export type InteractionHandler<T extends Interaction> = (
 ) => Promise<unknown>
 
 export type InteractionFile<T extends Interaction> =
-    T extends ChatInputCommandInteraction
-        ? {
-              name: string | RegExp
-              command?: ApplicationCommandDataResolvable & {
-                  type?: ApplicationCommandType.ChatInput
-              }
-              handler: InteractionHandler<T>
-          }
-        : T extends UserContextMenuCommandInteraction
-        ? {
-              name: string | RegExp
-              handler: InteractionHandler<T>
-              type: ApplicationCommandType.User
-          }
-        : T extends MessageContextMenuCommandInteraction
-        ? {
-              name: string | RegExp
-              handler: InteractionHandler<T>
-              type: ApplicationCommandType.Message
-          }
-        : {
-              name: string | RegExp
-              handler: InteractionHandler<T>
-          }
+    T extends ChatInputCommandInteraction ?
+        {
+            name: string | RegExp
+            command?: ApplicationCommandDataResolvable & {
+                type?: ApplicationCommandType.ChatInput
+            }
+            handler: InteractionHandler<T>
+        }
+    : T extends UserContextMenuCommandInteraction ?
+        {
+            name: string | RegExp
+            handler: InteractionHandler<T>
+            type: ApplicationCommandType.User
+        }
+    : T extends MessageContextMenuCommandInteraction ?
+        {
+            name: string | RegExp
+            handler: InteractionHandler<T>
+            type: ApplicationCommandType.Message
+        }
+    :   {
+            name: string | RegExp
+            handler: InteractionHandler<T>
+        }
