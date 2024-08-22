@@ -63,7 +63,7 @@ if (verbose)
     )
 client.options.root = process.env.OFFDJS_ROOT || cmd.opts().root
 if (verbose) console.log('Root:', client.options.root)
-const token = process.env.OFFDJS_ROOT || cmd.opts().token
+const token = process.env.DISCORD_TOKEN || cmd.opts().token
 if (!token) {
     console.error('Token is required')
     process.exit(1)
