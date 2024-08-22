@@ -27,7 +27,14 @@ export class OFFDJSClient<T extends boolean> extends Client<T> {
         this.options.root = options.root ?? '.'
     }
 
-    override async login(token?: string, verbose = false): Promise<string> {
+    override async login(
+        token?: string,
+        {
+            verbose = false,
+            intents,
+        }: { verbose?: boolean; intents?: IntentsBitField } = {},
+    ): Promise<string> {
+        if (intents) this.options.intents = intents
         const a = await autocompleteCache.register(
             join(process.cwd(), this.options.root, 'autocompletes'),
             true,

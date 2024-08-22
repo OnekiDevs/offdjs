@@ -17,10 +17,10 @@ offdjs is a small framework that uses
 simplify the development of the Oneki bot made public so that anyone can create
 their own bot in a few lines of code
 
-- little
-- fast
-- easy to use
-- 0 config
+-   little
+-   fast
+-   easy to use
+-   0 config
 
 # Installation
 
@@ -36,7 +36,7 @@ Set your token in an .env file at the root of the project (according to
 [discord.js](https://https://discord.js.org/) specs)
 
 ```env
-DISCORD_TOKEN="your_discord_token"
+OFFDJS_TOKEN="your_discord_token"
 ```
 
 At this point you can run your script from the root of your project and the bot
@@ -51,9 +51,9 @@ npx offdjs
 
 ```json
 {
-  "scripts": {
-    "start": "offdjs"
-  }
+    "scripts": {
+        "start": "offdjs"
+    }
 }
 ```
 
@@ -71,7 +71,7 @@ or
 An example with .env
 
 ```env
-DISCORD_INTENTS="1 GUILD_MEMBERS GuildBans"
+OFFDJS_INTENTS="1 GUILD_MEMBERS GuildBans"
 ```
 
 An example with cli
@@ -113,7 +113,7 @@ of such an event
 ```js
 // events/ready.js
 export function handler(client) {
-  console.log("ready");
+    console.log('ready')
 }
 ```
 
@@ -126,14 +126,14 @@ constant.
 
 ```js
 // events/other_ready.js
-import { Events } from "offdjs/djs";
+import { Events } from 'offdjs/djs'
 
-export const name = Events.ClientReady;
+export const name = Events.ClientReady
 
-export const once = true;
+export const once = true
 
 export function handler(client) {
-  console.log("ready again");
+    console.log('ready again')
 }
 ```
 
@@ -164,7 +164,7 @@ For buttons, the folder name is `buttons`.
 
 ```js
 // confirm_ban.js
-export const name = /ban:\d{18,19}/;
+export const name = /ban:\d{18,19}/
 
 /**
  * @param {ButtonInteraction} interaction - djs interaction object
@@ -172,11 +172,11 @@ export const name = /ban:\d{18,19}/;
  * @param {string} id - the id of the member to ban
  */
 export function handler(interaction, _, id) {
-  // example code
-  const user = interaction.guild?.members.ban(id);
-  interaction.reply({
-    content: `User ${user} banned successfully`,
-  });
+    // example code
+    const user = interaction.guild?.members.ban(id)
+    interaction.reply({
+        content: `User ${user} banned successfully`,
+    })
 }
 ```
 
@@ -198,19 +198,19 @@ menu, whether string, channel, role, user and mentionable menus.
 
 ```js
 // welcome_channel.js
-export const name = "config:welcome_channel";
+export const name = 'config:welcome_channel'
 
 /**
  * @param {AnySelectMenuInteraction} interaction - djs interaction object
  */
 export function handler(interaction) {
-  // example code
-  if (!interaction.isChannelSelectMenu()) return;
-  const channel = interaction.channels.first();
-  interaction.client.configWelcomeChannel(channel);
-  interaction.reply({
-    content: `welcomes are now displayed in ${channel}`,
-  });
+    // example code
+    if (!interaction.isChannelSelectMenu()) return
+    const channel = interaction.channels.first()
+    interaction.client.configWelcomeChannel(channel)
+    interaction.reply({
+        content: `welcomes are now displayed in ${channel}`,
+    })
 }
 ```
 
@@ -231,19 +231,19 @@ is surprisingly `modals`.
 
 ```js
 // secret.js
-export const name = "secret";
+export const name = 'secret'
 
 /**
  * @param {ModalSubmitInteraction} interaction - djs interaction object
  */
 export function handler(interaction) {
-  // example code
-  const secret = interaction.fields.getTextInputValue("secret");
-  interaction.client.publishSecret(secret);
-  interaction.reply({
-    content: "Your secret was published anonymously",
-    ephemeral: true,
-  });
+    // example code
+    const secret = interaction.fields.getTextInputValue('secret')
+    interaction.client.publishSecret(secret)
+    interaction.reply({
+        content: 'Your secret was published anonymously',
+        ephemeral: true,
+    })
 }
 ```
 
@@ -301,9 +301,9 @@ as if they were buttons.
 Offdjs will register the command for execution in the following order of
 priority:
 
-- The name constant exported
-- The name of the constant `command` exported.
-- The name of the file
+-   The name constant exported
+-   The name of the constant `command` exported.
+-   The name of the file
 
 This means that the `export const name` is optional, plus, if you need to, you
 can name the file `poll:create.js` to listen only to the `/poll create`
@@ -394,17 +394,17 @@ will also be received in the function parameters as a custom id.
 
 ```js
 // secret.js
-export const name = "poll:finish";
+export const name = 'poll:finish'
 
 /**
  * @param {AutocompleteInteraction} interaction - djs interaction object
  */
 export function handler(interaction) {
-  // example code
-  const polls = interaction.client.polls
-    .search(interaction.options.getFocused())
-    .map((p) => ({ value: p.id, name: p.name }));
-  interaction.respond(polls);
+    // example code
+    const polls = interaction.client.polls
+        .search(interaction.options.getFocused())
+        .map(p => ({ value: p.id, name: p.name }))
+    interaction.respond(polls)
 }
 ```
 
@@ -440,14 +440,14 @@ npx offdjs ./index.js
 
 ```js
 // index.js
-import server from "./server.js";
-import client from "offdjs";
-import mydb from "./db.js";
+import server from './server.js'
+import client from 'offdjs'
+import mydb from './db.js'
 
 // your custom process
-await mydb.connect();
-await server.listen(process.env.PORT ?? 3000);
-server.send(client.user.username + " ready");
+await mydb.connect()
+await server.listen(process.env.PORT ?? 3000)
+server.send(client.user.username + ' ready')
 ```
 
 > remember not to initialize the client in that file, offdjs already initializes
@@ -490,4 +490,17 @@ client.options.intents = new IntentsBitField([
 client.options.root = 'build'
 
 await client.login()
+```
+
+# TypeScript Support
+
+You can type your event handlers
+
+```ts
+import { EventHandler } from 'offdjs'
+import { Events } from 'offdjs/djs'
+
+export const handler: EventHandler<Events.ClientReady> = async client => {
+    console.log('ready again')
+}
 ```

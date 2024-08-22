@@ -49,7 +49,7 @@ function resolveIntents(i: string) {
                 .join('') as BitFieldResolvable<GatewayIntentsString, number>,
     )
 }
-client.options.intents = new IntentsBitField(
+const intents = new IntentsBitField(
     IntentsBitField.resolve(
         resolveIntents(
             process.env.OFFDJS_INTENTS || cmd.opts().intents || '',
@@ -57,10 +57,7 @@ client.options.intents = new IntentsBitField(
     ),
 )
 if (verbose)
-    console.log(
-        'Intents used:',
-        client.options.intents.toArray().join(', ') || 'none',
-    )
+    console.log('Intents used:', intents.toArray().join(', ') || 'none')
 client.options.root = process.env.OFFDJS_ROOT || cmd.opts().root
 if (verbose) console.log('Root:', client.options.root)
 const token = process.env.DISCORD_TOKEN || cmd.opts().token
@@ -70,7 +67,7 @@ if (!token) {
 }
 const tokenFrom = process.env.OFFDJS_ROOT ? 'env' : 'command line'
 if (verbose) console.log(`Token used from ${tokenFrom}`)
-await client.login(token)
+await client.login(token, { verbose, intents })
 if (cmd.args[0]) {
     if (verbose) console.log('Loading main file:', cmd.args[0])
     await import(pathToFileURL(join(process.cwd(), cmd.args[0])).toString())

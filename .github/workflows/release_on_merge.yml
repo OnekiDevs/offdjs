@@ -14,11 +14,21 @@ jobs:
             - name: Checkout main branch
               uses: actions/checkout@v4
 
+            - name: Setup Node
+              uses: actions/setup-node@v3
+              with:
+                  node-version: 20
+                  registry-url: https://registry.npmjs.org
+              env:
+                  NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
+
             # 2. Instalar dependencias y compilar el proyecto
             - name: Install dependencies and run build
               run: |
                   npm install
                   npm run build
+              env:
+                  NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
 
             # 3. Obtener la versión del package.json
             - name: Get version from package.json
