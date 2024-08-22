@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+# 2.7.3
+
+## Fix
+
+-   **env** loaded correctly
+
 # 2.7.2
 
 ## features
