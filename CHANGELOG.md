@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+# 2.7.5
+
+## Fix
+
+-   **intents** type parsed correctly in the cli arguments
+
 # 2.7.4
 
 ## Fix

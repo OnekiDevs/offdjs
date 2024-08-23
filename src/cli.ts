@@ -40,7 +40,7 @@ const verbose =
     process.env.OFFDJS_VERBOSE === 'true' || (cmd.opts().verbose as boolean)
 
 function resolveIntents(i: string) {
-    return i.split(',').map(
+    return `${i}`.split(',').map(
         i =>
             i
                 .trim()
