@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+# 3.0.0-beta.1
+
+## Feature
+
+-   **env** load env file automatically 
+
 # 2.7.5
 
 ## Fix

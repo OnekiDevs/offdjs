@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+process.loadEnvFile()
 const { default: pkg } = await import(import.meta.resolve('../package.json'), {
     with: { type: 'json' },
 })
