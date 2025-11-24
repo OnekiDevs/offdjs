@@ -14,7 +14,8 @@ import modalsCache from './cache/modals.js'
 import menusCache from './cache/menus.js'
 import { readdirSync } from 'node:fs'
 import { join } from 'node:path'
-import 'dotenv/config'
+import { pathToFileURL } from 'node:url'
+process.loadEnvFile()
 
 export class OFFDJSClient<T extends boolean> extends Client<T> {
     declare options: Omit<ClientOptions, 'intents'> & {
@@ -32,9 +33,11 @@ export class OFFDJSClient<T extends boolean> extends Client<T> {
         {
             verbose = false,
             intents,
-        }: { verbose?: boolean; intents?: IntentsBitField } = {},
+            root,
+        }: { verbose?: boolean; intents?: IntentsBitField; root?: string } = {},
     ): Promise<string> {
         if (intents) this.options.intents = intents
+        if (root) this.options.root = root
         const a = await autocompleteCache.register(
             join(process.cwd(), this.options.root, 'autocompletes'),
             true,
@@ -81,7 +84,14 @@ export class OFFDJSClient<T extends boolean> extends Client<T> {
                 join(process.cwd(), this.options.root, 'commands'),
             )) {
                 const cmd = (await import(
-                    join(process.cwd(), this.options.root, 'commands', file)
+                    pathToFileURL(
+                        join(
+                            process.cwd(),
+                            this.options.root,
+                            'commands',
+                            file,
+                        ),
+                    ).href
                 )) as {
                     command: ApplicationCommandDataResolvable
                     guilds?: string[]
@@ -106,9 +116,10 @@ export class OFFDJSClient<T extends boolean> extends Client<T> {
             if (interaction.isChatInputCommand())
                 return commandsCache
                     .fetch(formatName(interaction))
-                    .forEach(h =>
-                        h(interaction, ...formatName(interaction).split(':')),
-                    )
+                    .forEach(h => {
+                        console.log('command', formatName(interaction), `${h}`)
+                        h(interaction, ...formatName(interaction).split(':'))
+                    })
             if (interaction.isButton())
                 return buttonsCache
                     .fetch(interaction.customId)

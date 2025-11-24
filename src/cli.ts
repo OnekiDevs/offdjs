@@ -1,75 +1,88 @@
 #!/usr/bin/env node
-process.loadEnvFile()
-const { default: pkg } = await import(import.meta.resolve('../package.json'), {
-    with: { type: 'json' },
-})
-import {
-    IntentsBitField,
-    GatewayIntentsString,
-    BitFieldResolvable,
-} from 'discord.js'
+import { Effect, pipe } from 'effect'
 import { pathToFileURL } from 'node:url'
-import { Command } from 'commander'
-import client from './index.js'
 import { join } from 'node:path'
+import { GatewayIntentsString, IntentsBitField } from 'discord.js'
+import { Cli, CliLive } from './services/cli'
+import { Env, EnvLive } from './services/env'
+import { Client, ClientLive } from './services/client'
 
-const cmd = new Command()
-    .argument('[main]', 'main file')
-    .option(
-        '-t, --token <token>',
-        'discord token. You can also set it in the DISCORD_TOKEN env',
-    )
-    .option(
-        '-i, --intents <intents...>',
-        'intents like a `INTENT_NAME`, `IntentName` or `123`. You can also set it in the OFFDJS_INTENTS env',
-        'GUILDS, GUILD_MESSAGES',
-    )
-    .option(
-        '-r, --root <root>',
-        'root of program. You can also set it in the OFFDJS_ROOT env',
-        '.',
-    )
-    .option(
-        '-V, --verbose',
-        'verbose mode. You can also set it in the OFFDJS_VERBOSE env',
-        false,
-    )
-    .version(pkg.version, '-v, --version')
-    .parse()
-
-const verbose =
-    process.env.OFFDJS_VERBOSE === 'true' || (cmd.opts().verbose as boolean)
-
-function resolveIntents(i: string) {
-    return `${i}`.split(',').map(
-        i =>
+export const resolveIntents = (raw: string) =>
+    Effect.sync(() => {
+        const normalized = `${raw}`.split(',').map(i =>
             i
                 .trim()
                 .split('_')
                 .map(s => s && s[0].toUpperCase() + s.slice(1).toLowerCase())
-                .join('') as BitFieldResolvable<GatewayIntentsString, number>,
-    )
-}
-const intents = new IntentsBitField(
-    IntentsBitField.resolve(
-        resolveIntents(
-            process.env.OFFDJS_INTENTS || cmd.opts().intents || '',
-        ) || 0,
+                .join(''),
+        )
+
+        return new IntentsBitField(
+            IntentsBitField.resolve(normalized as GatewayIntentsString[]),
+        )
+    })
+
+export const Main = pipe(
+    Effect.gen(function* (_) {
+        const cli = yield* _(Cli)
+        const env = yield* _(Env)
+
+        const verbose = env.get('OFFDJS_VERBOSE') === 'true' || cli.opts.verbose
+
+        const intents = yield* _(
+            resolveIntents(env.get('OFFDJS_INTENTS') || cli.opts.intents || ''),
+        )
+
+        if (verbose) {
+            yield* _(
+                Effect.sync(() =>
+                    console.log('Intents used:', intents.toArray().join(', ')),
+                ),
+            )
+        }
+
+        const root = env.get('OFFDJS_ROOT') || cli.opts.root
+
+        if (verbose) {
+            yield* _(Effect.sync(() => console.log('Root:', root)))
+        }
+
+        const token = env.get('DISCORD_TOKEN') || cli.opts.token
+
+        if (!token) {
+            return yield* _(Effect.fail(new Error('Token is required')))
+        }
+
+        const tokenFrom = env.get('DISCORD_TOKEN') ? 'env' : 'command line'
+        if (verbose) {
+            yield* _(
+                Effect.sync(() => console.log(`Token used from ${tokenFrom}`)),
+            )
+        }
+
+        const discord = yield* _(Client)
+        yield* _(discord.login(token, { verbose, intents, root }))
+
+        if (cli.args[0]) {
+            if (verbose) {
+                yield* _(
+                    Effect.sync(() =>
+                        console.log('Loading main file:', cli.args[0]),
+                    ),
+                )
+            }
+
+            const path = pathToFileURL(
+                join(process.cwd(), cli.args[0]),
+            ).toString()
+            yield* _(Effect.tryPromise(() => import(path)))
+        }
+    }),
+)
+Effect.runPromise(
+    Main.pipe(
+        Effect.provide(CliLive),
+        Effect.provide(EnvLive),
+        Effect.provide(ClientLive),
     ),
 )
-if (verbose)
-    console.log('Intents used:', intents.toArray().join(', ') || 'none')
-client.options.root = process.env.OFFDJS_ROOT || cmd.opts().root
-if (verbose) console.log('Root:', client.options.root)
-const token = process.env.DISCORD_TOKEN || cmd.opts().token
-if (!token) {
-    console.error('Token is required')
-    process.exit(1)
-}
-const tokenFrom = process.env.OFFDJS_ROOT ? 'env' : 'command line'
-if (verbose) console.log(`Token used from ${tokenFrom}`)
-await client.login(token, { verbose, intents })
-if (cmd.args[0]) {
-    if (verbose) console.log('Loading main file:', cmd.args[0])
-    await import(pathToFileURL(join(process.cwd(), cmd.args[0])).toString())
-}
